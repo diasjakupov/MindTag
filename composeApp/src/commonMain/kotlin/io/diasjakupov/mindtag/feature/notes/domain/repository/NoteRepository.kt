@@ -11,6 +11,7 @@ interface NoteRepository {
     fun getRelatedNotes(noteId: String, limit: Int = 5): Flow<List<RelatedNote>>
     fun getSubjects(): Flow<List<Subject>>
     suspend fun createNote(title: String, content: String, subjectId: String): Note
+    suspend fun getAllNotesSnapshot(): List<Note>
     suspend fun updateNote(id: String, title: String, content: String)
     suspend fun deleteNote(id: String)
 }

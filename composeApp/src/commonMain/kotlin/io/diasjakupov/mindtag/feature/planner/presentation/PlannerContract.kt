@@ -2,10 +2,11 @@ package io.diasjakupov.mindtag.feature.planner.presentation
 
 object PlannerContract {
     data class State(
+        val isLoading: Boolean = true,
         val viewMode: ViewMode = ViewMode.LIST,
         val weeks: List<WeekData> = emptyList(),
         val expandedWeekId: String? = null,
-        val overallProgress: Float = 0.58f,
+        val overallProgress: Float = 0f,
     )
 
     enum class ViewMode { CALENDAR, LIST }

@@ -71,6 +71,8 @@ class FakeNoteRepository : NoteRepository {
         }
     }
 
+    override suspend fun getAllNotesSnapshot(): List<Note> = notesFlow.value
+
     override suspend fun deleteNote(id: String) {
         notesFlow.update { notes -> notes.filter { it.id != id } }
     }

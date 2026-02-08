@@ -189,7 +189,8 @@ class NoteCreationFlowTest {
         val noteA = createNoteUseCase(title = "Note A", content = "Content A", subjectId = "subj-test")
         val noteB = createNoteUseCase(title = "Note B", content = "Content B", subjectId = "subj-test")
 
-        // Manually insert a semantic link between the two notes
+        // SemanticAnalyzer auto-generates links during createNote, but also
+        // manually insert a semantic link to ensure manual links work too
         val now = System.currentTimeMillis()
         database.semanticLinkEntityQueries.insert(
             id = "link-1",
@@ -204,9 +205,9 @@ class NoteCreationFlowTest {
         getNoteWithConnectionsUseCase(noteA.id).test {
             val result = awaitItem()
             assertNotNull(result)
-            assertEquals(1, result.relatedNotes.size)
-            assertEquals(noteB.id, result.relatedNotes[0].noteId)
-            assertEquals("Note B", result.relatedNotes[0].title)
+            assertTrue(result.relatedNotes.isNotEmpty(), "Expected related notes")
+            assertTrue(result.relatedNotes.any { it.noteId == noteB.id }, "Expected Note B in related notes")
+            assertEquals("Note B", result.relatedNotes.first { it.noteId == noteB.id }.title)
             cancelAndIgnoreRemainingEvents()
         }
     }

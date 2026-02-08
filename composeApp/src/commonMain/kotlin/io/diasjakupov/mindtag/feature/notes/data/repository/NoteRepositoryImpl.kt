@@ -4,6 +4,8 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import io.diasjakupov.mindtag.core.domain.model.Subject
+import io.diasjakupov.mindtag.core.domain.usecase.FlashcardGenerator
+import io.diasjakupov.mindtag.core.domain.usecase.SemanticAnalyzer
 import io.diasjakupov.mindtag.core.util.Logger
 import io.diasjakupov.mindtag.data.local.MindTagDatabase
 import io.diasjakupov.mindtag.data.local.NoteEntity
@@ -87,6 +89,61 @@ class NoteRepositoryImpl(
             updated_at = now,
         )
 
+        // Auto-generate semantic links
+        val allNotes = db.noteEntityQueries.selectAll().executeAsList().map { it.toDomain() }
+        val otherNotes = allNotes.filter { it.id != id }
+        val noteInfo = otherNotes.map { n ->
+            SemanticAnalyzer.NoteInfo(n.id, "${n.title} ${n.content}", n.subjectId, n.weekNumber)
+        }
+        val links = SemanticAnalyzer.computeLinks(
+            newNoteId = id,
+            newNoteText = "$title $content",
+            newNoteSubjectId = subjectId,
+            newNoteWeek = null,
+            allOtherNotes = noteInfo,
+        )
+        links.forEach { link ->
+            val linkId = kotlin.uuid.Uuid.random().toString()
+            db.semanticLinkEntityQueries.insert(
+                id = linkId,
+                source_note_id = id,
+                target_note_id = link.targetNoteId,
+                similarity_score = link.similarityScore.toDouble(),
+                link_type = link.linkType,
+                strength = link.strength.toDouble(),
+                created_at = now,
+            )
+        }
+        Logger.d(tag, "createNote: generated ${links.size} semantic links")
+
+        // Auto-generate flashcards
+        val generatedCards = FlashcardGenerator.generate(
+            noteTitle = title,
+            noteContent = content,
+            subjectId = subjectId,
+            noteId = id,
+        )
+        generatedCards.forEach { card ->
+            val cardId = kotlin.uuid.Uuid.random().toString()
+            db.flashCardEntityQueries.insert(
+                id = cardId,
+                question = card.question,
+                type = card.type,
+                difficulty = card.difficulty,
+                subject_id = card.subjectId,
+                correct_answer = card.correctAnswer,
+                options_json = null,
+                source_note_ids_json = card.sourceNoteIdsJson,
+                ai_explanation = card.explanation,
+                ease_factor = 2.5,
+                interval_days = 0,
+                repetitions = 0,
+                next_review_at = null,
+                created_at = now,
+            )
+        }
+        Logger.d(tag, "createNote: generated ${generatedCards.size} flashcards")
+
         Logger.d(tag, "createNote: success — id=$id")
         return Note(
             id = id,
@@ -119,6 +176,9 @@ class NoteRepositoryImpl(
             id = id,
         )
     }
+
+    override suspend fun getAllNotesSnapshot(): List<Note> =
+        db.noteEntityQueries.selectAll().executeAsList().map { it.toDomain() }
 
     override suspend fun deleteNote(id: String) {
         Logger.d(tag, "deleteNote: id=$id")
