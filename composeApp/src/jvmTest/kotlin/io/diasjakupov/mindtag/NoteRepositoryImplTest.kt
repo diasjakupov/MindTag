@@ -189,4 +189,57 @@ class NoteRepositoryImplTest {
             cancelAndIgnoreRemainingEvents()
         }
     }
+
+    @Test
+    fun createNoteAutoGeneratesSemanticLinks() = runTest {
+        // Create two related biology notes
+        repository.createNote(
+            title = "Cell Division",
+            content = "Mitosis is the process of cell division where chromosomes replicate and separate into two identical daughter cells.",
+            subjectId = "subj-bio",
+        )
+        val note2 = repository.createNote(
+            title = "Meiosis Process",
+            content = "Meiosis is a type of cell division that produces four daughter cells each with half the chromosomes of the parent cell.",
+            subjectId = "subj-bio",
+        )
+
+        // Check semantic links were created
+        val links = database.semanticLinkEntityQueries.selectBySourceNoteId(note2.id).executeAsList()
+        assertTrue(links.isNotEmpty(), "Expected auto-generated semantic links")
+        assertEquals("subj-bio", note2.subjectId)
+    }
+
+    @Test
+    fun createNoteDoesNotLinkUnrelatedNotes() = runTest {
+        repository.createNote(
+            title = "Photosynthesis",
+            content = "Plants convert sunlight into glucose through the process of photosynthesis using chlorophyll.",
+            subjectId = "subj-bio",
+        )
+        val note2 = repository.createNote(
+            title = "Binary Search",
+            content = "Binary search algorithm divides the sorted array in half to find target element in logarithmic time.",
+            subjectId = "subj-cs",
+        )
+
+        val links = database.semanticLinkEntityQueries.selectBySourceNoteId(note2.id).executeAsList()
+        assertTrue(links.isEmpty(), "Expected no links between unrelated notes, got ${links.size}")
+    }
+
+    @Test
+    fun createNoteAutoGeneratesFlashcards() = runTest {
+        val note = repository.createNote(
+            title = "Photosynthesis",
+            content = "Photosynthesis is the process by which green plants convert sunlight into chemical energy. " +
+                "Chlorophyll absorbs light energy primarily from the red and blue wavelengths of visible light. " +
+                "The light reactions occur in the thylakoid membranes and produce ATP and NADPH molecules.",
+            subjectId = "subj-bio",
+        )
+
+        val cards = database.flashCardEntityQueries.selectAll().executeAsList()
+        assertTrue(cards.isNotEmpty(), "Expected auto-generated flashcards")
+        assertTrue(cards.all { it.subject_id == "subj-bio" })
+        assertTrue(cards.all { it.source_note_ids_json?.contains(note.id) == true })
+    }
 }

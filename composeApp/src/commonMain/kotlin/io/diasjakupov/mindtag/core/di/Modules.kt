@@ -68,9 +68,9 @@ val viewModelModule = module {
     viewModel { StudyHubViewModel(get()) }
     viewModel { (sessionId: String) -> QuizViewModel(sessionId, get(), get()) }
     viewModel { (sessionId: String) -> ResultsViewModel(sessionId, get()) }
-    viewModel { PlannerViewModel() }
+    viewModel { PlannerViewModel(get()) }
     viewModel { OnboardingViewModel() }
-    viewModel { ProfileViewModel() }
+    viewModel { ProfileViewModel(get()) }
 }
 
 val coreModule = module {

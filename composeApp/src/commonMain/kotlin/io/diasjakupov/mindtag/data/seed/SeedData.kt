@@ -46,6 +46,7 @@ object SeedData {
         insertUserProgress(db)
         insertStudySessions(db)
         insertQuizAnswers(db)
+        insertPlannerTasks(db)
     }
 
     private fun insertSubjects(db: MindTagDatabase) {
@@ -294,5 +295,46 @@ object SeedData {
         q.insert("answer-${i++}", SESSION_BIO_EXAM, "card-5", "36-38 ATP", 1, null, 18, now - 650_000L)
         q.insert("answer-${i++}", SESSION_BIO_EXAM, "card-6", "Mutation and natural selection only", 0, "HARD", 35, now - 600_000L)
         q.insert("answer-${i}", SESSION_BIO_EXAM, "card-7", "Each daughter cell needs a complete copy of the genome; without replication, chromosomes would be halved at each division, losing genetic information", 1, null, 30, now - 550_000L)
+    }
+
+    private fun insertPlannerTasks(db: MindTagDatabase) {
+        val q = db.plannerTaskEntityQueries
+
+        // Week 1 — all completed
+        q.insert("t1_1", "week_1", 1, "Introduction & Study Methods", "Jan 6 - Jan 12", 0, "Intro to Cognitive Science", "Psychology 101", "#3B82F6", "LECTURE", 1)
+        q.insert("t1_2", "week_1", 1, "Introduction & Study Methods", "Jan 6 - Jan 12", 0, "Chapter 1: Learning Fundamentals", "Psychology 101", "#3B82F6", "READING", 1)
+        q.insert("t1_3", "week_1", 1, "Introduction & Study Methods", "Jan 6 - Jan 12", 0, "Supply & Demand Basics", "Economics 101", "#F97316", "LECTURE", 1)
+        q.insert("t1_4", "week_1", 1, "Introduction & Study Methods", "Jan 6 - Jan 12", 0, "Week 1 Review Quiz", "Psychology 101", "#3B82F6", "QUIZ", 1)
+
+        // Week 2 — mostly completed
+        q.insert("t2_1", "week_2", 2, "Core Concepts Deep Dive", "Jan 13 - Jan 19", 0, "Memory & Retention Models", "Psychology 101", "#3B82F6", "LECTURE", 1)
+        q.insert("t2_2", "week_2", 2, "Core Concepts Deep Dive", "Jan 13 - Jan 19", 0, "Organic Compound Structures", "Chemistry 201", "#22C55E", "LECTURE", 1)
+        q.insert("t2_3", "week_2", 2, "Core Concepts Deep Dive", "Jan 13 - Jan 19", 0, "Market Equilibrium Analysis", "Economics 101", "#F97316", "READING", 1)
+        q.insert("t2_4", "week_2", 2, "Core Concepts Deep Dive", "Jan 13 - Jan 19", 0, "Lab Report: Molecules", "Chemistry 201", "#22C55E", "ASSIGNMENT", 0)
+        q.insert("t2_5", "week_2", 2, "Core Concepts Deep Dive", "Jan 13 - Jan 19", 0, "Concepts Quiz", "Psychology 101", "#3B82F6", "QUIZ", 1)
+
+        // Week 3
+        q.insert("t3_1", "week_3", 3, "Applied Frameworks", "Jan 20 - Jan 26", 0, "Behavioral Economics Intro", "Economics 101", "#F97316", "LECTURE", 1)
+        q.insert("t3_2", "week_3", 3, "Applied Frameworks", "Jan 20 - Jan 26", 0, "Chapter 4: Decision Making", "Psychology 101", "#3B82F6", "READING", 1)
+        q.insert("t3_3", "week_3", 3, "Applied Frameworks", "Jan 20 - Jan 26", 0, "Reaction Kinetics Lab", "Chemistry 201", "#22C55E", "ASSIGNMENT", 1)
+        q.insert("t3_4", "week_3", 3, "Applied Frameworks", "Jan 20 - Jan 26", 0, "Applied Frameworks Quiz", "Economics 101", "#F97316", "QUIZ", 0)
+
+        // Week 4 — current week, partially done
+        q.insert("t4_1", "week_4", 4, "Midterm Preparation", "Jan 27 - Feb 2", 1, "Review: Psych Chapters 1-4", "Psychology 101", "#3B82F6", "READING", 1)
+        q.insert("t4_2", "week_4", 4, "Midterm Preparation", "Jan 27 - Feb 2", 1, "Thermodynamics Lecture", "Chemistry 201", "#22C55E", "LECTURE", 1)
+        q.insert("t4_3", "week_4", 4, "Midterm Preparation", "Jan 27 - Feb 2", 1, "Macro vs Micro Economics", "Economics 101", "#F97316", "LECTURE", 0)
+        q.insert("t4_4", "week_4", 4, "Midterm Preparation", "Jan 27 - Feb 2", 1, "Practice Midterm Exam", "Psychology 101", "#3B82F6", "QUIZ", 0)
+
+        // Week 5 — not started
+        q.insert("t5_1", "week_5", 5, "Advanced Topics", "Feb 3 - Feb 9", 0, "Neuroplasticity & Learning", "Psychology 101", "#3B82F6", "LECTURE", 0)
+        q.insert("t5_2", "week_5", 5, "Advanced Topics", "Feb 3 - Feb 9", 0, "Electrochemistry Basics", "Chemistry 201", "#22C55E", "LECTURE", 0)
+        q.insert("t5_3", "week_5", 5, "Advanced Topics", "Feb 3 - Feb 9", 0, "International Trade Theory", "Economics 101", "#F97316", "READING", 0)
+        q.insert("t5_4", "week_5", 5, "Advanced Topics", "Feb 3 - Feb 9", 0, "Chem Lab: Electrochemistry", "Chemistry 201", "#22C55E", "ASSIGNMENT", 0)
+        q.insert("t5_5", "week_5", 5, "Advanced Topics", "Feb 3 - Feb 9", 0, "Advanced Topics Quiz", "Psychology 101", "#3B82F6", "QUIZ", 0)
+
+        // Week 6 — not started
+        q.insert("t6_1", "week_6", 6, "Final Review & Synthesis", "Feb 10 - Feb 16", 0, "Comprehensive Review Session", "Psychology 101", "#3B82F6", "LECTURE", 0)
+        q.insert("t6_2", "week_6", 6, "Final Review & Synthesis", "Feb 10 - Feb 16", 0, "Final Lab Submission", "Chemistry 201", "#22C55E", "ASSIGNMENT", 0)
+        q.insert("t6_3", "week_6", 6, "Final Review & Synthesis", "Feb 10 - Feb 16", 0, "Economics Policy Analysis", "Economics 101", "#F97316", "READING", 0)
     }
 }

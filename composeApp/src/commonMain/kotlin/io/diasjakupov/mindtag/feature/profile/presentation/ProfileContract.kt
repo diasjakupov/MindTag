@@ -4,11 +4,12 @@ object ProfileContract {
     data class State(
         val userName: String = "Alex Johnson",
         val email: String = "alex.johnson@university.edu",
-        val totalNotes: Int = 15,
-        val totalStudySessions: Int = 8,
-        val currentStreak: Int = 7,
-        val totalXp: Int = 4030,
+        val totalNotes: Int = 0,
+        val totalStudySessions: Int = 0,
+        val currentStreak: Int = 0,
+        val totalXp: Int = 0,
         val memberSince: String = "January 2026",
+        val isLoading: Boolean = true,
     )
 
     sealed interface Intent {
