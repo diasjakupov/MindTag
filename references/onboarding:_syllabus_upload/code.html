@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Onboarding: Syllabus Upload</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Lexend -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;700;800&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hide for clean mobile look */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#111418] dark:text-white transition-colors duration-200">
+<div class="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden max-w-md mx-auto shadow-2xl bg-background-light dark:bg-background-dark">
+<!-- Page Indicators (Step 2 of 4) -->
+<div class="flex w-full flex-row items-center justify-center gap-2 pt-8 pb-4 px-4">
+<div class="h-1.5 w-1.5 rounded-full bg-gray-300 dark:bg-[#324467]"></div>
+<div class="h-1.5 w-8 rounded-full bg-primary"></div> <!-- Active Step -->
+<div class="h-1.5 w-1.5 rounded-full bg-gray-300 dark:bg-[#324467]"></div>
+<div class="h-1.5 w-1.5 rounded-full bg-gray-300 dark:bg-[#324467]"></div>
+</div>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col items-center justify-center px-6">
+<!-- Hero Illustration -->
+<div class="w-full relative mb-8 group">
+<!-- Decorative blurred backdrop -->
+<div class="absolute inset-0 bg-primary/20 blur-2xl rounded-full scale-75 translate-y-4"></div>
+<div class="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1A2333]">
+<div class="w-full h-full bg-center bg-contain bg-no-repeat" data-alt="Illustration of organized digital student workspace with tablet and books" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBdwEwD9D-9O0utA_a3QN-kGwg2YrtlTv9o3t_sgwmhvmM5F83RgQrCqevonWfXBfIbgDvle1vf11ebS4r9X_bF8IFbzfyp71LBtprcBzXZ0eaz9LXbYO3LEMbz2_UfsfXZAPqcYbyi-p-oh022GjUKmrJXWixBeEioVMSItCUCHn3CnMiwgU6ms97GnGC4Kis_qdAEe84479QG4JUC9glP-4bc_J6st0Akw-Vou_u5CpjO-tdImBQ35qKgv6l2ejIwFNcNrqNA9TE");'>
+<!-- Overlay gradient for depth -->
+<div class="absolute inset-0 bg-gradient-to-t from-background-light/80 dark:from-background-dark/80 to-transparent opacity-40"></div>
+</div>
+<!-- Floating Upload Badge Animation Hint -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-background-light dark:bg-background-dark p-4 rounded-full shadow-xl border border-gray-100 dark:border-gray-700 flex items-center justify-center animate-pulse">
+<span class="material-symbols-outlined text-primary text-3xl">upload_file</span>
+</div>
+</div>
+</div>
+<!-- Headlines -->
+<div class="text-center space-y-3 mb-4">
+<h1 class="text-[#111418] dark:text-white tracking-tight text-3xl font-bold leading-tight">
+                    Let's plan your semester
+                </h1>
+<p class="text-gray-600 dark:text-gray-400 text-base font-normal leading-relaxed max-w-[320px] mx-auto">
+                    Stop worrying about deadlines. Upload your syllabus and let our AI organize your entire course load into a manageable knowledge graph.
+                </p>
+</div>
+<!-- Upload Zone / Drop area Visual Cue -->
+<div class="w-full mt-4 mb-2">
+<div class="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl p-4 flex flex-col items-center justify-center bg-gray-50 dark:bg-[#151c2b] opacity-80">
+<p class="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Supported Formats</p>
+<div class="flex items-center gap-3 text-sm font-semibold text-gray-500 dark:text-gray-300">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[18px]">description</span> PDF</span>
+<span class="w-1 h-1 rounded-full bg-gray-400"></span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[18px]">draft</span> DOCX</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer / Action Area -->
+<div class="w-full px-6 pb-8 pt-2">
+<!-- Primary Action -->
+<button class="relative w-full flex items-center justify-center overflow-hidden rounded-xl h-14 px-5 bg-primary hover:bg-primary/90 transition-colors shadow-lg shadow-primary/25 group">
+<span class="material-symbols-outlined text-white mr-2 group-hover:-translate-y-0.5 transition-transform duration-300">cloud_upload</span>
+<span class="text-white text-lg font-bold leading-normal tracking-wide">Upload Syllabus</span>
+</button>
+<!-- Secondary Actions & Privacy -->
+<div class="mt-4 flex flex-col items-center gap-3">
+<button class="text-gray-500 dark:text-gray-400 text-sm font-medium hover:text-primary dark:hover:text-white transition-colors">
+                    Skip for now
+                </button>
+<div class="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500 mt-2">
+<span class="material-symbols-outlined text-[14px]">lock</span>
+<span>Your data is private and secure</span>
+</div>
+</div>
+</div>
+<!-- Bottom Spacing -->
+<div class="h-2 bg-transparent"></div>
+</div>
+</body></html>

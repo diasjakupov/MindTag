@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Active Exam Mode Quiz</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#1e293b",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display h-screen flex flex-col overflow-hidden relative selection:bg-primary/30">
+<!-- Top Bar: Timer & Exit -->
+<header class="flex items-center justify-between px-5 pt-8 pb-4 shrink-0 z-20 bg-background-light dark:bg-background-dark">
+<!-- Exit Action -->
+<button aria-label="Exit Exam" class="flex items-center justify-center w-10 h-10 rounded-full text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-[28px]">close</span>
+</button>
+<!-- Central Timer Display -->
+<div class="flex flex-col items-center">
+<div class="flex items-center gap-2 bg-white dark:bg-[#1c2533] px-5 py-2 rounded-full shadow-sm border border-slate-200 dark:border-slate-800">
+<span class="material-symbols-outlined text-primary text-xl" style="font-variation-settings: 'FILL' 1;">timer</span>
+<span class="text-xl font-bold tracking-tight text-slate-900 dark:text-white tabular-nums">45:00</span>
+</div>
+</div>
+<!-- Spacer for visual balance -->
+<div class="w-10"></div>
+</header>
+<!-- Progress Section -->
+<div class="px-5 pb-4 shrink-0 bg-background-light dark:bg-background-dark z-10">
+<div class="flex justify-between items-end mb-2">
+<span class="text-sm font-medium text-slate-500 dark:text-slate-400">Question 12 of 50</span>
+<span class="text-xs font-semibold text-primary">24% completed</span>
+</div>
+<div class="h-2 w-full bg-slate-200 dark:bg-[#324467] rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full transition-all duration-500 ease-out" style="width: 24%"></div>
+</div>
+</div>
+<!-- Main Content Area: Question & Answers -->
+<main class="flex-1 overflow-y-auto no-scrollbar px-5 pb-36 pt-2">
+<!-- Question -->
+<div class="mb-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+<h2 class="text-[26px] md:text-[32px] font-bold leading-tight tracking-tight text-slate-900 dark:text-white">
+                In the context of the Knowledge Graph architecture, which algorithm is best suited for identifying the most influential nodes within a study cluster?
+            </h2>
+</div>
+<!-- Answers List -->
+<div class="flex flex-col gap-3" role="radiogroup">
+<!-- Option 1 -->
+<label class="group relative flex cursor-pointer rounded-xl border-2 border-slate-200 dark:border-[#324467] bg-white dark:bg-transparent p-[18px] transition-all hover:border-primary/40 dark:hover:border-primary/40 active:scale-[0.99]">
+<input class="peer sr-only" name="exam_answer" type="radio"/>
+<!-- Active State Styles -->
+<div class="absolute inset-0 rounded-[10px] ring-2 ring-primary opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+<div class="absolute inset-0 rounded-[10px] bg-primary/5 dark:bg-primary/10 opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+<div class="flex items-start gap-4 z-10 w-full">
+<!-- Custom Radio Circle -->
+<div class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-slate-400 dark:border-slate-500 peer-checked:border-primary peer-checked:bg-primary transition-colors">
+<div class="h-2 w-2 rounded-full bg-white opacity-0 peer-checked:opacity-100"></div>
+</div>
+<!-- Text -->
+<div class="flex flex-col">
+<span class="text-[15px] font-medium leading-normal text-slate-700 dark:text-slate-300 peer-checked:text-primary dark:peer-checked:text-white transition-colors">
+                            Dijkstra's Algorithm
+                        </span>
+</div>
+</div>
+</label>
+<!-- Option 2 (Selected Example) -->
+<label class="group relative flex cursor-pointer rounded-xl border-2 border-slate-200 dark:border-[#324467] bg-white dark:bg-transparent p-[18px] transition-all hover:border-primary/40 dark:hover:border-primary/40 active:scale-[0.99]">
+<input checked="" class="peer sr-only" name="exam_answer" type="radio"/>
+<div class="absolute inset-0 rounded-[10px] ring-2 ring-primary opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+<div class="absolute inset-0 rounded-[10px] bg-primary/5 dark:bg-primary/10 opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+<div class="flex items-start gap-4 z-10 w-full">
+<div class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-slate-400 dark:border-slate-500 peer-checked:border-primary peer-checked:bg-primary transition-colors">
+<div class="h-2 w-2 rounded-full bg-white opacity-0 peer-checked:opacity-100"></div>
+</div>
+<div class="flex flex-col">
+<span class="text-[15px] font-medium leading-normal text-slate-700 dark:text-slate-300 peer-checked:text-primary dark:peer-checked:text-white transition-colors">
+                            PageRank
+                        </span>
+</div>
+</div>
+</label>
+<!-- Option 3 -->
+<label class="group relative flex cursor-pointer rounded-xl border-2 border-slate-200 dark:border-[#324467] bg-white dark:bg-transparent p-[18px] transition-all hover:border-primary/40 dark:hover:border-primary/40 active:scale-[0.99]">
+<input class="peer sr-only" name="exam_answer" type="radio"/>
+<div class="absolute inset-0 rounded-[10px] ring-2 ring-primary opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+<div class="absolute inset-0 rounded-[10px] bg-primary/5 dark:bg-primary/10 opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+<div class="flex items-start gap-4 z-10 w-full">
+<div class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-slate-400 dark:border-slate-500 peer-checked:border-primary peer-checked:bg-primary transition-colors">
+<div class="h-2 w-2 rounded-full bg-white opacity-0 peer-checked:opacity-100"></div>
+</div>
+<div class="flex flex-col">
+<span class="text-[15px] font-medium leading-normal text-slate-700 dark:text-slate-300 peer-checked:text-primary dark:peer-checked:text-white transition-colors">
+                            Breadth-First Search
+                        </span>
+</div>
+</div>
+</label>
+<!-- Option 4 -->
+<label class="group relative flex cursor-pointer rounded-xl border-2 border-slate-200 dark:border-[#324467] bg-white dark:bg-transparent p-[18px] transition-all hover:border-primary/40 dark:hover:border-primary/40 active:scale-[0.99]">
+<input class="peer sr-only" name="exam_answer" type="radio"/>
+<div class="absolute inset-0 rounded-[10px] ring-2 ring-primary opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+<div class="absolute inset-0 rounded-[10px] bg-primary/5 dark:bg-primary/10 opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+<div class="flex items-start gap-4 z-10 w-full">
+<div class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-slate-400 dark:border-slate-500 peer-checked:border-primary peer-checked:bg-primary transition-colors">
+<div class="h-2 w-2 rounded-full bg-white opacity-0 peer-checked:opacity-100"></div>
+</div>
+<div class="flex flex-col">
+<span class="text-[15px] font-medium leading-normal text-slate-700 dark:text-slate-300 peer-checked:text-primary dark:peer-checked:text-white transition-colors">
+                            K-Means Clustering
+                        </span>
+</div>
+</div>
+</label>
+</div>
+</main>
+<!-- Sticky Action Footer -->
+<footer class="absolute bottom-0 left-0 right-0 p-5 pt-12 bg-gradient-to-t from-background-light via-background-light to-transparent dark:from-background-dark dark:via-background-dark dark:to-transparent z-20">
+<button class="w-full h-14 bg-primary hover:bg-primary/90 active:scale-[0.98] transition-all text-white font-bold text-lg rounded-xl shadow-lg shadow-primary/25 flex items-center justify-center gap-2 group">
+<span>Next Question</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</footer>
+</body></html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Note Details &amp; Connections</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;family=Lexend+Deca:wght@300;400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1f2937", // Slightly lighter than background-dark for cards/sheets
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"],
+                        "body": ["Lexend Deca", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hiding for horizontal scroll */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white antialiased overflow-hidden h-screen w-full flex flex-col">
+<!-- Main Scrollable Content Area -->
+<div class="flex-1 overflow-y-auto no-scrollbar pb-48"> <!-- pb-48 to ensure content isn't hidden by bottom sheet -->
+<!-- Top Navigation Bar -->
+<div class="sticky top-0 z-10 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm px-4 pt-4 pb-2 border-b border-transparent transition-all duration-200">
+<div class="flex items-center justify-between">
+<button class="flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-900 dark:text-white" style="font-size: 24px;">arrow_back_ios_new</span>
+</button>
+<h1 class="text-base font-bold leading-tight tracking-tight flex-1 text-center truncate px-4">
+                    Intro to Macroeconomics
+                </h1>
+<div class="flex size-10 shrink-0"></div> <!-- Spacer for balance -->
+</div>
+</div>
+<!-- Toolbar Actions -->
+<div class="flex justify-between items-center gap-4 px-4 py-2">
+<!-- Audio Action -->
+<button class="flex items-center gap-2 p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined" style="font-size: 24px;">headphones</span>
+<span class="text-sm font-medium hidden sm:block">Listen</span>
+</button>
+<!-- Primary Action: Quiz Me -->
+<button class="flex-1 max-w-[200px] flex cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 bg-primary hover:bg-primary/90 text-white gap-2 text-sm font-bold shadow-lg shadow-primary/20 transition-all active:scale-95">
+<span class="material-symbols-outlined" style="font-size: 20px;">lightbulb</span>
+<span>Quiz Me</span>
+</button>
+</div>
+<!-- Metadata & Chips -->
+<div class="px-4 py-2">
+<div class="flex flex-wrap items-center gap-3">
+<span class="inline-flex items-center justify-center rounded-lg bg-slate-200 dark:bg-[#232f48] px-3 py-1 text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-200">
+                    ECON 101
+                </span>
+<div class="h-1 w-1 rounded-full bg-slate-400"></div>
+<p class="text-slate-500 dark:text-[#92a4c9] text-sm font-normal">Oct 24 • 15 min read</p>
+</div>
+</div>
+<!-- Note Content -->
+<div class="px-4 pt-4 font-body">
+<!-- Section 1 -->
+<h2 class="font-display text-2xl font-bold leading-tight mb-4 tracking-tight">1. Principles of Scarcity</h2>
+<p class="text-slate-700 dark:text-slate-300 text-base leading-relaxed mb-6">
+                Scarcity refers to the basic economic problem, the gap between <span class="bg-primary/10 dark:bg-primary/20 text-primary dark:text-blue-300 px-1 rounded">limited resources</span> and theoretically limitless wants. This situation requires people to make decisions about how to allocate resources efficiently, in order to satisfy basic needs and as many additional wants as possible.
+            </p>
+<div class="my-6 rounded-xl overflow-hidden relative group">
+<img alt="Graph showing supply and demand curves intersection" class="w-full h-48 object-cover object-center brightness-90 dark:brightness-75" data-alt="Close up of a stock market graph on a screen with blue and red lines" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDH_YXZtwQRw-00QKa6FI8xz28DYabhfv8B3FOrfkZd86VuCYpkL585C1Tt-OTrW79oIKWJbEDN6bVEVWP3m_KY2hbH9fWeW2uHzkJjoJhA3oNYIwejs0VvoWB0FYL0AvOxHY_r_5_-k-cVfAIj0vKwr4vtxDg_haEH9vB9aLoP9CiRhPllZElzM457Qbi5yAF3p3otpq6HwtB85vmkxhJo3qOg97OOBzUrrQznL1mH9xF_uAeHWksj1avRgs0wWr0K6SY_FnHyg68"/>
+<div class="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded backdrop-blur-md">Fig 1.1</div>
+</div>
+<p class="text-slate-700 dark:text-slate-300 text-base leading-relaxed mb-4">
+                Any resource that has a non-zero cost to consume is scarce to some degree, but what matters in practice is <em class="italic text-slate-900 dark:text-white font-medium">relative scarcity</em>.
+            </p>
+<ul class="list-disc pl-5 mb-6 space-y-2 text-slate-700 dark:text-slate-300 marker:text-primary">
+<li><strong class="text-slate-900 dark:text-white">Land:</strong> Natural resources used for production.</li>
+<li><strong class="text-slate-900 dark:text-white">Labor:</strong> Human effort directed toward producing goods and services.</li>
+<li><strong class="text-slate-900 dark:text-white">Capital:</strong> Tools, equipment, and factories used in production.</li>
+</ul>
+<!-- Section 2 -->
+<h2 class="font-display text-2xl font-bold leading-tight mb-4 tracking-tight mt-8">2. Opportunity Cost</h2>
+<p class="text-slate-700 dark:text-slate-300 text-base leading-relaxed mb-6">
+                Because resources are scarce, every choice has an opportunity cost. The opportunity cost of an activity is the value of the next-best alternative that must be forgone.
+            </p>
+<p class="text-slate-700 dark:text-slate-300 text-base leading-relaxed mb-6">
+                For example, if you spend time studying for economics, you cannot spend that same time studying for history or sleeping. The value of the history study or sleep you missed is the opportunity cost.
+            </p>
+<p class="text-slate-700 dark:text-slate-300 text-base leading-relaxed mb-12">
+                This is a fundamental concept in creating efficient study plans. By allocating time to this note, your AI planner has deprioritized "Intro to Calculus" for today.
+            </p>
+</div>
+</div>
+<!-- Persistent Bottom Sheet -->
+<div class="fixed bottom-0 w-full z-30">
+<!-- Gradient fade to content behind -->
+<div class="h-8 w-full bg-gradient-to-t from-black/10 to-transparent dark:from-black/40 pointer-events-none"></div>
+<!-- Sheet Container -->
+<div class="bg-surface-light dark:bg-surface-dark border-t border-slate-200 dark:border-slate-800 rounded-t-2xl shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.1)] pb-8 pt-2">
+<!-- Drag Handle -->
+<div class="w-full flex justify-center pb-2 pt-1 cursor-grab active:cursor-grabbing">
+<div class="h-1 w-12 bg-slate-300 dark:bg-slate-600 rounded-full"></div>
+</div>
+<!-- Header -->
+<div class="px-5 pb-3 flex justify-between items-end">
+<h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Related Notes</h3>
+<button class="text-primary text-xs font-semibold hover:underline">View Graph</button>
+</div>
+<!-- Horizontal Scroll Cards -->
+<div class="flex overflow-x-auto gap-4 px-5 pb-2 no-scrollbar snap-x snap-mandatory">
+<!-- Card 1 -->
+<div class="snap-center shrink-0 w-40 h-32 bg-slate-50 dark:bg-[#151b26] border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex flex-col justify-between hover:border-primary/50 transition-colors cursor-pointer group">
+<div class="flex justify-between items-start">
+<div class="bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 p-1.5 rounded-lg">
+<span class="material-symbols-outlined text-[20px]">show_chart</span>
+</div>
+</div>
+<div>
+<p class="text-xs text-slate-500 mb-1 line-clamp-1">Microeconomics</p>
+<p class="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-tight line-clamp-2 group-hover:text-primary transition-colors">Supply &amp; Demand Curves</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="snap-center shrink-0 w-40 h-32 bg-slate-50 dark:bg-[#151b26] border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex flex-col justify-between hover:border-primary/50 transition-colors cursor-pointer group">
+<div class="flex justify-between items-start">
+<div class="bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 p-1.5 rounded-lg">
+<span class="material-symbols-outlined text-[20px]">balance</span>
+</div>
+</div>
+<div>
+<p class="text-xs text-slate-500 mb-1 line-clamp-1">Decision Making</p>
+<p class="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-tight line-clamp-2 group-hover:text-primary transition-colors">Opportunity Cost Deep Dive</p>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="snap-center shrink-0 w-40 h-32 bg-slate-50 dark:bg-[#151b26] border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex flex-col justify-between hover:border-primary/50 transition-colors cursor-pointer group">
+<div class="flex justify-between items-start">
+<div class="bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 p-1.5 rounded-lg">
+<span class="material-symbols-outlined text-[20px]">public</span>
+</div>
+</div>
+<div>
+<p class="text-xs text-slate-500 mb-1 line-clamp-1">Global Econ</p>
+<p class="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-tight line-clamp-2 group-hover:text-primary transition-colors">GDP Calculation</p>
+</div>
+</div>
+<!-- Spacer for right padding scroll -->
+<div class="w-1 shrink-0"></div>
+</div>
+</div>
+</div>
+</body></html>

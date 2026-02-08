@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Quiz Performance Results</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "primary-dark": "#0f4bc4",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#1e2736",
+                        "surface-light": "#ffffff",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"],
+                        "body": ["Lexend", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hiding for cleaner mobile look */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white h-screen flex flex-col overflow-hidden">
+<!-- Top Navigation -->
+<header class="flex items-center justify-between p-4 bg-background-light dark:bg-background-dark z-10">
+<button class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-slate-900 dark:text-white">close</span>
+</button>
+<h2 class="text-lg font-bold tracking-tight">Quiz Results</h2>
+<button class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors opacity-0 pointer-events-none">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</header>
+<!-- Scrollable Content -->
+<main class="flex-1 overflow-y-auto no-scrollbar pb-32">
+<!-- Score Header -->
+<div class="flex flex-col items-center justify-center pt-2 pb-8 px-4">
+<div class="relative flex items-center justify-center w-40 h-40 mb-6">
+<!-- Decorative rings -->
+<div class="absolute inset-0 rounded-full border-[6px] border-primary/20"></div>
+<div class="absolute inset-0 rounded-full border-[6px] border-primary border-t-transparent border-l-transparent rotate-[-45deg]" style="clip-path: circle(70%);"></div>
+<div class="flex flex-col items-center">
+<h1 class="text-5xl font-bold tracking-tighter text-slate-900 dark:text-white">80%</h1>
+</div>
+</div>
+<h2 class="text-2xl font-bold text-center mb-2">Great job!</h2>
+<p class="text-slate-500 dark:text-slate-400 text-center max-w-xs mx-auto">
+                You're mastering this topic. Just a few more tweaks and you'll be perfect.
+            </p>
+</div>
+<!-- Stats Row -->
+<div class="grid grid-cols-3 gap-3 px-4 mb-8">
+<div class="flex flex-col items-center justify-center p-3 rounded-2xl bg-surface-light dark:bg-surface-dark shadow-sm border border-slate-200 dark:border-slate-800">
+<div class="mb-1 p-1.5 rounded-full bg-blue-500/10 dark:bg-blue-500/20">
+<span class="material-symbols-outlined text-blue-600 dark:text-blue-400 text-[20px]">schedule</span>
+</div>
+<p class="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider">Time</p>
+<p class="text-sm font-bold mt-0.5">12m 30s</p>
+</div>
+<div class="flex flex-col items-center justify-center p-3 rounded-2xl bg-surface-light dark:bg-surface-dark shadow-sm border border-slate-200 dark:border-slate-800">
+<div class="mb-1 p-1.5 rounded-full bg-orange-500/10 dark:bg-orange-500/20">
+<span class="material-symbols-outlined text-orange-600 dark:text-orange-400 text-[20px] fill-1">local_fire_department</span>
+</div>
+<p class="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider">Streak</p>
+<p class="text-sm font-bold mt-0.5">5 Days</p>
+</div>
+<div class="flex flex-col items-center justify-center p-3 rounded-2xl bg-surface-light dark:bg-surface-dark shadow-sm border border-slate-200 dark:border-slate-800">
+<div class="mb-1 p-1.5 rounded-full bg-purple-500/10 dark:bg-purple-500/20">
+<span class="material-symbols-outlined text-purple-600 dark:text-purple-400 text-[20px]">bolt</span>
+</div>
+<p class="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider">XP</p>
+<p class="text-sm font-bold mt-0.5">+150</p>
+</div>
+</div>
+<!-- Detailed Analysis -->
+<div class="px-4">
+<h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">analytics</span>
+                Detailed Analysis
+            </h3>
+<div class="flex flex-col gap-3">
+<!-- Question 1: Correct (Collapsed) -->
+<div class="group bg-surface-light dark:bg-surface-dark rounded-xl p-4 flex items-start gap-3 border border-slate-200 dark:border-slate-800/50 shadow-sm cursor-pointer transition-colors hover:border-primary/30">
+<div class="mt-0.5 flex-shrink-0 w-6 h-6 rounded-full bg-green-500/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-green-600 dark:text-green-400 text-[16px]">check</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-medium text-slate-700 dark:text-slate-200">What is the powerhouse of the cell?</p>
+</div>
+<span class="material-symbols-outlined text-slate-400 text-[20px]">expand_more</span>
+</div>
+<!-- Question 2: Incorrect (Expanded) -->
+<div class="bg-surface-light dark:bg-surface-dark rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800/50 shadow-sm ring-1 ring-red-500/20 dark:ring-red-500/30">
+<!-- Card Header -->
+<div class="p-4 flex items-start gap-3 border-b border-slate-100 dark:border-slate-700/50 cursor-pointer">
+<div class="mt-0.5 flex-shrink-0 w-6 h-6 rounded-full bg-red-500/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-red-600 dark:text-red-400 text-[16px]">close</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-medium text-slate-900 dark:text-white">Explain the primary function of the Knowledge Graph.</p>
+</div>
+<span class="material-symbols-outlined text-slate-400 text-[20px] rotate-180">expand_more</span>
+</div>
+<!-- Expanded Content -->
+<div class="p-4 bg-slate-50 dark:bg-slate-800/20 flex flex-col gap-4">
+<!-- Answers Grid -->
+<div class="grid grid-cols-1 gap-3">
+<!-- User's Answer -->
+<div class="flex flex-col gap-1.5">
+<span class="text-xs font-semibold text-red-600 dark:text-red-400 uppercase tracking-wide ml-1">Your Answer</span>
+<div class="p-3 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-lg">
+<p class="text-sm text-red-800 dark:text-red-200">To store random notes without any structure.</p>
+</div>
+</div>
+<!-- Correct Answer -->
+<div class="flex flex-col gap-1.5">
+<span class="text-xs font-semibold text-green-600 dark:text-green-400 uppercase tracking-wide ml-1">Correct Answer</span>
+<div class="p-3 bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/30 rounded-lg">
+<p class="text-sm text-green-800 dark:text-green-200">To link concepts and visualize relationships between topics.</p>
+</div>
+</div>
+</div>
+<!-- AI Insight -->
+<div class="relative mt-2">
+<div class="absolute -top-3 left-3 bg-gradient-to-r from-primary to-purple-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-[12px]">auto_awesome</span>
+                                AI Insight
+                            </div>
+<div class="p-4 pt-5 rounded-xl bg-gradient-to-br from-primary/5 to-purple-500/5 border border-primary/20 dark:border-primary/30">
+<p class="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                                    It looks like you confused <strong>storage</strong> with <strong>structure</strong>. The Knowledge Graph focuses on <span class="text-primary dark:text-blue-400 font-medium">connections</span> between topics rather than just static storage. Think of it as a map, not a box.
+                                </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Question 3: Correct (Collapsed) -->
+<div class="group bg-surface-light dark:bg-surface-dark rounded-xl p-4 flex items-start gap-3 border border-slate-200 dark:border-slate-800/50 shadow-sm cursor-pointer transition-colors hover:border-primary/30">
+<div class="mt-0.5 flex-shrink-0 w-6 h-6 rounded-full bg-green-500/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-green-600 dark:text-green-400 text-[16px]">check</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-medium text-slate-700 dark:text-slate-200">Which algorithm is best for sorting large datasets?</p>
+</div>
+<span class="material-symbols-outlined text-slate-400 text-[20px]">expand_more</span>
+</div>
+<!-- Question 4: Correct (Collapsed) -->
+<div class="group bg-surface-light dark:bg-surface-dark rounded-xl p-4 flex items-start gap-3 border border-slate-200 dark:border-slate-800/50 shadow-sm cursor-pointer transition-colors hover:border-primary/30">
+<div class="mt-0.5 flex-shrink-0 w-6 h-6 rounded-full bg-green-500/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-green-600 dark:text-green-400 text-[16px]">check</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-medium text-slate-700 dark:text-slate-200">Define O(n) complexity.</p>
+</div>
+<span class="material-symbols-outlined text-slate-400 text-[20px]">expand_more</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Sticky Footer -->
+<footer class="fixed bottom-0 w-full bg-surface-light/80 dark:bg-background-dark/80 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 p-4 pb-6 z-20">
+<button class="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold py-3.5 px-4 rounded-xl shadow-lg shadow-primary/25 transition-all transform active:scale-[0.98]">
+<span class="material-symbols-outlined">hub</span>
+            Review Related Notes
+        </button>
+</footer>
+</body></html>
