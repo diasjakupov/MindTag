@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Home Dashboard</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+            extend: {
+                colors: {
+                    "primary": "#135bec",
+                    "background-light": "#f6f6f8",
+                    "background-dark": "#101622",
+                    "card-dark": "#192233",
+                    "text-secondary": "#92a4c9"
+                },
+                fontFamily: {
+                    "display": ["Lexend", "sans-serif"]
+                },
+                borderRadius: {"DEFAULT": "0.375rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+            },
+        }
+    </script>
+<style>
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white antialiased">
+<!-- Main Container -->
+<div class="relative min-h-screen flex flex-col pb-24 overflow-x-hidden">
+<!-- Header Section -->
+<header class="pt-6 px-4 pb-2">
+<div class="flex items-center justify-between mb-4">
+<!-- User Avatar -->
+<div class="flex items-center gap-3">
+<div class="h-10 w-10 rounded-full bg-cover bg-center border-2 border-primary/20" data-alt="Portrait of student user Alex" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuATYkfC9Z6miPKzZBy4nSW9EviAah-khFPxPsFFwpbM4eBmGeFFr-3FNXkP0I1BQNn9Kc117FUx_so-RNkabHG-IoLHBuXnHf1eXS6fsunaZwTCYMnqlwo9aO7_a7JGWV2rLHobNsXCK1PS9GE_UjNlySNQjK-zqjBs9EDZgBGgdcPSai46ZiUpEwmm0C2MWUiuuZKghS9L71ky4x9nk9dREHHX1XWBw4IxO5_JTgYEWEfmrofaPfYtnZ_8SB7WVYDDp7BhatvYVCQ");'></div>
+</div>
+<!-- Settings/Notifications -->
+<button class="text-white p-2 rounded-full hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-[28px]">settings</span>
+</button>
+</div>
+<!-- Greeting & AI Status -->
+<div class="flex flex-col gap-1">
+<h1 class="text-3xl font-bold tracking-tight text-white">Good morning, Alex</h1>
+<div class="flex items-center gap-1.5 text-primary">
+<span class="material-symbols-outlined text-[18px] animate-pulse">auto_awesome</span>
+<span class="text-sm font-medium">AI Plan Updated</span>
+</div>
+</div>
+</header>
+<!-- Due for Review Section -->
+<section class="mt-6">
+<div class="flex items-center justify-between px-4 mb-3">
+<h2 class="text-xl font-bold text-white">Due for Review</h2>
+<button class="text-sm font-medium text-text-secondary hover:text-primary transition-colors">See All</button>
+</div>
+<!-- Horizontal Carousel -->
+<div class="flex overflow-x-auto no-scrollbar pl-4 pb-4 gap-4 snap-x snap-mandatory">
+<!-- Card 1 -->
+<div class="snap-center shrink-0 w-[280px] flex flex-col gap-3 rounded-xl bg-card-dark p-3 border border-white/5 shadow-lg">
+<div class="w-full aspect-video rounded-lg bg-cover bg-center relative overflow-hidden group" data-alt="Abstract geometric physics representation" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCB34I2_tDEdoTxrCbdZlDGCS46y81LjbggKbTWz1cE0EhHc-cRfUF9LI2zT_RIgPMbd26u8wi0tlBU6nf0RWVSJTvTscERr4nU24vxKgN67ANhDz-rk0sXJ-shkeBhd7mOEFR89IadS3zcNOT8Lf3s6BFnVdOwOntfnFnuLHqMjbNRt9VkWsCJH8VKX4vOpMaRsUvRU4yQ0xWsy4ggb26dDxxjvLvgRT0qkEPWeDN2ocUUwJwFFR2brY3UjJ4Wskv3XP3Ula7yYRc");'>
+<div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all"></div>
+<div class="absolute top-2 right-2 bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded text-xs font-medium text-white">Physics</div>
+</div>
+<div class="flex flex-col gap-3 px-1">
+<div>
+<h3 class="text-white text-lg font-medium leading-tight mb-1">Intro to Thermodynamics</h3>
+<div class="flex items-center gap-2">
+<div class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-yellow-500 w-[45%] rounded-full"></div>
+</div>
+<span class="text-xs text-text-secondary">45%</span>
+</div>
+</div>
+<button class="w-full h-10 bg-primary hover:bg-blue-600 active:bg-blue-700 text-white text-sm font-bold rounded-lg transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">history_edu</span>
+                            Review Now
+                        </button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="snap-center shrink-0 w-[280px] flex flex-col gap-3 rounded-xl bg-card-dark p-3 border border-white/5 shadow-lg">
+<div class="w-full aspect-video rounded-lg bg-cover bg-center relative overflow-hidden group" data-alt="Old paper scroll representing history" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDuqPvl2H2CcfWn2oF3x_j3nUYvIyr68UMXf33lwWRDYQdH7vEzQxEqHiskmHObjBVJ06J_SCqNI-l4d10FI32fWdHcHpU22QCZQNSqF7GKPkP4I4n05VcrJPFBnVZoWvNNUdstzbPo6iFu_hk5OUJkSS42TFmYwtATT5NCQdBzcxdcvT80X7xxsIe3I1Jrsg6L523LxsIMd_R_79arNu7N4BtXFMDERvJoqtASt9gvjqEb6v2wobZB1DwYcA7cVqXyLl2h_D8gefU");'>
+<div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all"></div>
+<div class="absolute top-2 right-2 bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded text-xs font-medium text-white">History</div>
+</div>
+<div class="flex flex-col gap-3 px-1">
+<div>
+<h3 class="text-white text-lg font-medium leading-tight mb-1">French Revolution</h3>
+<div class="flex items-center gap-2">
+<div class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-red-500 w-[20%] rounded-full"></div>
+</div>
+<span class="text-xs text-text-secondary">20%</span>
+</div>
+</div>
+<button class="w-full h-10 bg-primary hover:bg-blue-600 active:bg-blue-700 text-white text-sm font-bold rounded-lg transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">history_edu</span>
+                            Review Now
+                        </button>
+</div>
+</div>
+<!-- Card 3 (Peek) -->
+<div class="snap-center shrink-0 w-[280px] flex flex-col gap-3 rounded-xl bg-card-dark p-3 border border-white/5 shadow-lg opacity-60">
+<div class="w-full aspect-video rounded-lg bg-cover bg-center relative overflow-hidden" data-alt="Chemical glassware for chemistry" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBNb4ZHRSuUo_fTg3GJOMSMFta7JMZDEyptQgFKcBBpsugv7qiSg0IerM8AMlGtghrXdTbjfibktQsBYi4LUmhNd3JMUo2yfpYIYeSR0Gyt5G58utmPoqsDLPAyNyqnjlv73WjMG00B0pByWx5FrNOw5BYPCuRPbfkSQv-4ENpcR67OGmLnhoNsd6-2cEbv_B0s4AB9mwdkUkCzlE12D53BaoV7Vzuk2ln8U6vu8nvyQcKzH_9N8A4WVauzGVcn1zTFkbDWJ4SBxPo");'>
+</div>
+<div class="flex flex-col gap-3 px-1">
+<div class="h-12 flex items-center text-text-secondary text-sm">Upcoming...</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Up Next Section -->
+<section class="mt-4 px-4">
+<div class="flex items-center gap-2 mb-3">
+<h2 class="text-xl font-bold text-white">Up Next</h2>
+<div class="h-px flex-1 bg-white/10"></div>
+</div>
+<!-- Current Theme Banner -->
+<div class="relative w-full rounded-xl overflow-hidden mb-4 group cursor-pointer">
+<!-- Background Gradient/Image -->
+<div class="absolute inset-0 bg-gradient-to-br from-primary/80 to-blue-900/80 z-10"></div>
+<div class="absolute inset-0 bg-cover bg-center mix-blend-overlay opacity-40 z-0" data-alt="Molecular structure model background" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDLpejXY0vIVuJfT5Pl5v02JklMQY4HhKmYtVnl8I0oKBzmVAxn2BZN4yf4NbwNofL9T4SrKA0PiedqUHSgm9XJmKr9W2Pz-8aD82Vv4NKVVBQH9K1YF9ClJdoU8hTa7sWjA5VB1CzUDMz_mSKNTu234BIXDehuYBoGvNVnI6a6TVLjaDXL27qgRBZSPSIhLeOCCLCVO63bmAjrVxTlKKV60gtbhl3NZr-g1PhtRUNJdDcL6lg1t5PiflC_2QS-aQU5E_OKyMufJEo");'></div>
+<div class="relative z-20 p-5 flex flex-col gap-1">
+<span class="text-blue-100 text-xs font-bold uppercase tracking-wider">Current Syllabus Focus</span>
+<h3 class="text-2xl font-bold text-white leading-tight">Week 4: Organic Chemistry</h3>
+<div class="flex items-center gap-2 mt-2">
+<span class="bg-white/20 backdrop-blur-md text-white text-xs px-2 py-1 rounded font-medium">3 Tasks Left</span>
+<span class="bg-white/20 backdrop-blur-md text-white text-xs px-2 py-1 rounded font-medium">Due Friday</span>
+</div>
+</div>
+</div>
+<!-- Task List -->
+<div class="flex flex-col gap-3">
+<!-- Task 1 -->
+<div class="flex items-center p-3 rounded-lg bg-card-dark border border-white/5 active:bg-white/5 transition-colors cursor-pointer gap-3">
+<div class="flex-shrink-0">
+<div class="w-6 h-6 rounded border-2 border-text-secondary/50 flex items-center justify-center hover:border-primary transition-colors">
+<!-- Unchecked state -->
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-white text-sm font-medium truncate">Read: Alkanes &amp; Cycloalkanes</p>
+<p class="text-text-secondary text-xs">Chapter 4 • Textbook</p>
+</div>
+<div class="text-text-secondary text-xs font-medium bg-background-dark px-2 py-1 rounded">20 min</div>
+</div>
+<!-- Task 2 -->
+<div class="flex items-center p-3 rounded-lg bg-card-dark border border-white/5 active:bg-white/5 transition-colors cursor-pointer gap-3">
+<div class="flex-shrink-0">
+<div class="w-6 h-6 rounded border-2 border-text-secondary/50 flex items-center justify-center hover:border-primary transition-colors">
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-white text-sm font-medium truncate">Flashcards: Functional Groups</p>
+<p class="text-text-secondary text-xs">Knowledge Graph</p>
+</div>
+<div class="text-text-secondary text-xs font-medium bg-background-dark px-2 py-1 rounded">10 min</div>
+</div>
+<!-- Task 3 -->
+<div class="flex items-center p-3 rounded-lg bg-card-dark border border-white/5 active:bg-white/5 transition-colors cursor-pointer gap-3 opacity-60">
+<div class="flex-shrink-0">
+<div class="w-6 h-6 rounded border-2 border-text-secondary/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-sm text-text-secondary">lock</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-white text-sm font-medium truncate">Quiz: Nomenclature</p>
+<p class="text-text-secondary text-xs">Locked until previous tasks complete</p>
+</div>
+<div class="text-text-secondary text-xs font-medium bg-background-dark px-2 py-1 rounded">15 min</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 w-full bg-[#111722]/95 backdrop-blur-md border-t border-white/5 pb-safe z-50">
+<div class="flex items-center justify-around h-16 max-w-md mx-auto px-2">
+<!-- Home (Active) -->
+<button class="flex flex-col items-center justify-center gap-1 w-14 group">
+<span class="material-symbols-outlined text-primary text-[26px]">home</span>
+<span class="text-[10px] font-medium text-primary">Home</span>
+</button>
+<!-- Knowledge Graph -->
+<button class="flex flex-col items-center justify-center gap-1 w-14 group">
+<span class="material-symbols-outlined text-text-secondary group-hover:text-white transition-colors text-[26px]">hub</span>
+<span class="text-[10px] font-medium text-text-secondary group-hover:text-white transition-colors">Graph</span>
+</button>
+<!-- Notes -->
+<button class="flex flex-col items-center justify-center gap-1 w-14 group">
+<span class="material-symbols-outlined text-text-secondary group-hover:text-white transition-colors text-[26px]">description</span>
+<span class="text-[10px] font-medium text-text-secondary group-hover:text-white transition-colors">Notes</span>
+</button>
+<!-- AI Planner -->
+<button class="flex flex-col items-center justify-center gap-1 w-14 group">
+<span class="material-symbols-outlined text-text-secondary group-hover:text-white transition-colors text-[26px]">calendar_month</span>
+<span class="text-[10px] font-medium text-text-secondary group-hover:text-white transition-colors">Plan</span>
+</button>
+<!-- Profile -->
+<button class="flex flex-col items-center justify-center gap-1 w-14 group">
+<span class="material-symbols-outlined text-text-secondary group-hover:text-white transition-colors text-[26px]">person</span>
+<span class="text-[10px] font-medium text-text-secondary group-hover:text-white transition-colors">Profile</span>
+</button>
+</div>
+</nav>
+<!-- Safe area padding helper for iOS home bar -->
+<style>
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom, 20px);
+        }
+    </style>
+</body></html>

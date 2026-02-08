@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Study Hub: Practice Center</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "card-dark": "#192233",
+                        "card-light": "#ffffff",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Lexend', sans-serif;
+        }
+        /* Hide scrollbar for clean UI */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white antialiased selection:bg-primary selection:text-white pb-24">
+<!-- Top App Bar -->
+<div class="sticky top-0 z-50 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+<div class="flex items-center p-4 justify-between h-16">
+<div class="flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-slate-900 dark:text-white" style="font-size: 24px;">arrow_back</span>
+</div>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Practice Center</h2>
+<div class="flex size-10 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-slate-900 dark:text-white" style="font-size: 24px;">settings</span>
+</div>
+</div>
+</div>
+<!-- Main Content -->
+<div class="flex flex-col w-full max-w-md mx-auto px-4 pt-6 space-y-6">
+<!-- Headline -->
+<div>
+<h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">Ready to<br/><span class="text-primary">level up?</span></h1>
+<p class="text-slate-500 dark:text-slate-400 mt-2 text-base font-normal">Choose your challenge for today.</p>
+</div>
+<!-- Action Cards -->
+<div class="space-y-4">
+<!-- Quick Quiz Card -->
+<div class="group relative flex flex-col overflow-hidden rounded-2xl bg-card-light dark:bg-card-dark shadow-sm ring-1 ring-slate-200 dark:ring-slate-800 hover:shadow-md transition-all">
+<div class="absolute top-0 right-0 p-4 opacity-10 dark:opacity-5">
+<span class="material-symbols-outlined text-[120px] leading-none text-primary transform rotate-12">bolt</span>
+</div>
+<div class="flex flex-row p-5 gap-4 items-center z-10">
+<div class="flex-1 flex flex-col gap-3">
+<div class="flex items-center gap-2">
+<div class="flex items-center justify-center size-8 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400">
+<span class="material-symbols-outlined text-[20px]">electric_bolt</span>
+</div>
+<span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Active Recall</span>
+</div>
+<div>
+<h3 class="text-xl font-bold text-slate-900 dark:text-white">Quick Quiz</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm mt-1">5 min review of recent notes.</p>
+</div>
+<button class="mt-2 flex items-center justify-center w-fit rounded-lg h-9 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white text-sm font-semibold transition-colors">
+                            Start Quiz
+                        </button>
+</div>
+<div class="w-24 h-24 rounded-xl bg-cover bg-center shadow-inner shrink-0" data-alt="abstract colorful gradient spheres representing energy" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC3af6UiuSqxz8cybsMj-gWbqHI3r7IUTenJ70xAxHqtdO5YmfOfM9SQPARsshsGi3FjHISTD8VHN9pvHi7Ikb2mk6EPD3vuhPJ83Zi60kGYkWAN0-11TBK8Kuqb5J4OXVxe1Lp3nm1GESgMgKQmAzJjDOfbLaeBrWdb74K4uZWIblRwLVsnPPcJh4R4rxzNzMWecJlEpn5XKqVhqIx9Aaqu6BhxE3o6vqi32LVJJjbf24gWN0aN2fSh6velyHjZ2KMVt2izhTT8kg");'>
+</div>
+</div>
+</div>
+<!-- Exam Mode Card -->
+<div class="group relative flex flex-col overflow-hidden rounded-2xl bg-card-light dark:bg-card-dark shadow-sm ring-1 ring-slate-200 dark:ring-slate-800 hover:shadow-md transition-all">
+<div class="absolute top-0 right-0 p-4 opacity-10 dark:opacity-5">
+<span class="material-symbols-outlined text-[120px] leading-none text-primary transform -rotate-12">timer</span>
+</div>
+<div class="flex flex-row p-5 gap-4 items-center z-10">
+<div class="flex-1 flex flex-col gap-3">
+<div class="flex items-center gap-2">
+<div class="flex items-center justify-center size-8 rounded-full bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-[20px]">school</span>
+</div>
+<span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Simulation</span>
+</div>
+<div>
+<h3 class="text-xl font-bold text-slate-900 dark:text-white">Start Exam Mode</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Full syllabus simulation.</p>
+</div>
+<button class="mt-2 flex items-center justify-center w-fit rounded-lg h-9 px-5 bg-primary hover:bg-primary/90 text-white text-sm font-semibold shadow-lg shadow-primary/20 transition-all">
+                            Begin Exam
+                        </button>
+</div>
+<div class="w-24 h-24 rounded-xl bg-cover bg-center shadow-inner shrink-0" data-alt="abstract geometric pattern representing structure and focus" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBPTW-CiDY_jrLVUvfJNxLqVB3eESkrv5jT11IObujp5yt3i7-ywa1WJySrZDmBr9AFEgIBobq5-DxCVlc0YZPh61KtDYr4vRv8ttDVz5RdLwxVNMFHbdi_CyfJcArFe2lwPCW1OiUKnYfMFY5DL0E0CL6E7GjalycTGhqzQ5-hZrq7z5hoig4s6ccIdCeKsZ8DmA-WFfE6iA-VJ7UqOctj2St8gic1brGrpjORUXcW6jCg_hew_efD8KlCnNzqD-EAKDzHxkooL-w");'>
+</div>
+</div>
+</div>
+</div>
+<!-- Performance Section -->
+<div>
+<div class="flex items-center justify-between mb-4 mt-2">
+<h3 class="text-slate-900 dark:text-white text-lg font-bold leading-tight">Recent Performance</h3>
+<button class="text-primary text-sm font-semibold hover:underline">View All</button>
+</div>
+<div class="p-5 rounded-2xl bg-card-light dark:bg-card-dark shadow-sm ring-1 ring-slate-200 dark:ring-slate-800">
+<!-- Summary Stats -->
+<div class="flex gap-6 mb-6">
+<div>
+<p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Avg. Score</p>
+<p class="text-2xl font-bold text-slate-900 dark:text-white mt-1">87%</p>
+</div>
+<div>
+<p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Streak</p>
+<div class="flex items-center gap-1 mt-1">
+<p class="text-2xl font-bold text-slate-900 dark:text-white">5</p>
+<span class="material-symbols-outlined text-orange-500 text-xl">local_fire_department</span>
+</div>
+</div>
+</div>
+<!-- Bar Chart -->
+<div class="flex items-end justify-between h-32 gap-2 w-full">
+<!-- Day 1 -->
+<div class="flex flex-col items-center gap-2 flex-1 group">
+<div class="w-full bg-slate-100 dark:bg-slate-700/30 rounded-t-sm h-full flex items-end relative overflow-hidden">
+<div class="w-full bg-primary/30 group-hover:bg-primary/50 transition-all h-[40%] rounded-t-sm"></div>
+</div>
+<span class="text-[10px] font-medium text-slate-400 uppercase">M</span>
+</div>
+<!-- Day 2 -->
+<div class="flex flex-col items-center gap-2 flex-1 group">
+<div class="w-full bg-slate-100 dark:bg-slate-700/30 rounded-t-sm h-full flex items-end relative overflow-hidden">
+<div class="w-full bg-primary/40 group-hover:bg-primary/60 transition-all h-[65%] rounded-t-sm"></div>
+</div>
+<span class="text-[10px] font-medium text-slate-400 uppercase">T</span>
+</div>
+<!-- Day 3 -->
+<div class="flex flex-col items-center gap-2 flex-1 group">
+<div class="w-full bg-slate-100 dark:bg-slate-700/30 rounded-t-sm h-full flex items-end relative overflow-hidden">
+<div class="w-full bg-primary/30 group-hover:bg-primary/50 transition-all h-[45%] rounded-t-sm"></div>
+</div>
+<span class="text-[10px] font-medium text-slate-400 uppercase">W</span>
+</div>
+<!-- Day 4 -->
+<div class="flex flex-col items-center gap-2 flex-1 group">
+<div class="w-full bg-slate-100 dark:bg-slate-700/30 rounded-t-sm h-full flex items-end relative overflow-hidden">
+<div class="w-full bg-primary/60 group-hover:bg-primary/80 transition-all h-[80%] rounded-t-sm"></div>
+</div>
+<span class="text-[10px] font-medium text-slate-400 uppercase">T</span>
+</div>
+<!-- Day 5 -->
+<div class="flex flex-col items-center gap-2 flex-1 group">
+<div class="w-full bg-slate-100 dark:bg-slate-700/30 rounded-t-sm h-full flex items-end relative overflow-hidden">
+<div class="w-full bg-primary/50 group-hover:bg-primary/70 transition-all h-[70%] rounded-t-sm"></div>
+</div>
+<span class="text-[10px] font-medium text-slate-400 uppercase">F</span>
+</div>
+<!-- Day 6 -->
+<div class="flex flex-col items-center gap-2 flex-1 group">
+<div class="w-full bg-slate-100 dark:bg-slate-700/30 rounded-t-sm h-full flex items-end relative overflow-hidden">
+<div class="w-full bg-primary group-hover:bg-primary transition-all h-[92%] rounded-t-sm shadow-[0_0_10px_rgba(19,91,236,0.3)]"></div>
+</div>
+<span class="text-[10px] font-bold text-primary uppercase">S</span>
+</div>
+<!-- Day 7 -->
+<div class="flex flex-col items-center gap-2 flex-1 group">
+<div class="w-full bg-slate-100 dark:bg-slate-700/30 rounded-t-sm h-full flex items-end relative overflow-hidden">
+<div class="w-full bg-primary/20 group-hover:bg-primary/40 transition-all h-[30%] rounded-t-sm"></div>
+</div>
+<span class="text-[10px] font-medium text-slate-400 uppercase">S</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Weakest Topic suggestion (Optional but fits "Focus oriented") -->
+<div class="rounded-xl bg-primary/10 border border-primary/20 p-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="flex items-center justify-center size-8 rounded-full bg-background-light dark:bg-background-dark text-primary">
+<span class="material-symbols-outlined text-[18px]">priority_high</span>
+</div>
+<div>
+<p class="text-sm font-bold text-slate-900 dark:text-white">Review: Organic Chemistry</p>
+<p class="text-xs text-slate-500 dark:text-slate-400">Identify functional groups.</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-500 text-[20px]">chevron_right</span>
+</div>
+</div>
+<!-- Bottom Navigation -->
+<div class="fixed bottom-0 w-full bg-background-light/95 dark:bg-background-dark/95 border-t border-slate-200 dark:border-slate-800 pb-safe pt-2 backdrop-blur-lg">
+<div class="flex items-center justify-around pb-5 pt-1 px-2 max-w-md mx-auto">
+<button class="flex flex-col items-center gap-1 p-2 w-16 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+<span class="material-symbols-outlined filled">home</span>
+<span class="text-[10px] font-medium">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 p-2 w-16 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+<span class="material-symbols-outlined">hub</span>
+<span class="text-[10px] font-medium">Graph</span>
+</button>
+<button class="flex flex-col items-center gap-1 p-2 w-16 text-primary">
+<div class="bg-primary/15 px-4 py-1 rounded-full flex flex-col items-center">
+<span class="material-symbols-outlined filled">edit_note</span>
+</div>
+<span class="text-[10px] font-bold">Practice</span>
+</button>
+<button class="flex flex-col items-center gap-1 p-2 w-16 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</button>
+</div>
+</div>
+</body></html>

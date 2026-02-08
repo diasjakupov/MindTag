@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Library: Knowledge Graph View</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;700&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hiding for clean UI */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display overflow-hidden h-screen flex flex-col">
+<!-- Top App Bar -->
+<div class="flex items-center px-4 pt-4 pb-2 justify-between z-20 bg-background-light dark:bg-background-dark shrink-0">
+<div class="flex size-10 shrink-0 items-center justify-center rounded-full active:bg-slate-200 dark:active:bg-slate-800 cursor-pointer text-slate-900 dark:text-white">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</div>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight flex-1 text-center">Library</h2>
+<div class="flex size-10 items-center justify-center rounded-full active:bg-slate-200 dark:active:bg-slate-800 cursor-pointer text-slate-900 dark:text-white">
+<span class="material-symbols-outlined text-2xl">filter_list</span>
+</div>
+</div>
+<!-- Search & Toggle Area -->
+<div class="flex flex-col gap-3 px-4 pb-4 z-20 bg-background-light dark:bg-background-dark shrink-0 shadow-[0_4px_20px_-12px_rgba(0,0,0,0.5)]">
+<!-- Search Bar -->
+<label class="flex flex-col w-full h-12">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full bg-white dark:bg-[#232f48] shadow-sm">
+<div class="text-slate-400 dark:text-[#92a4c9] flex items-center justify-center pl-4 pr-2">
+<span class="material-symbols-outlined text-2xl">search</span>
+</div>
+<input class="flex w-full min-w-0 flex-1 bg-transparent border-none text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-[#92a4c9] focus:outline-none focus:ring-0 text-base font-normal" placeholder="Search by meaning or concept..." value=""/>
+</div>
+</label>
+<!-- Segmented Control -->
+<div class="flex h-10 w-full items-center justify-center rounded-lg bg-slate-200 dark:bg-[#232f48] p-1">
+<label class="flex cursor-pointer h-full grow items-center justify-center rounded-md px-2 text-slate-500 dark:text-[#92a4c9] text-sm font-medium transition-all">
+<span class="truncate">List</span>
+<input class="hidden" name="view-toggle" type="radio" value="List"/>
+</label>
+<label class="flex cursor-pointer h-full grow items-center justify-center rounded-md px-2 bg-white dark:bg-[#111722] shadow-sm text-primary dark:text-white text-sm font-medium transition-all">
+<span class="truncate">Graph</span>
+<input checked="" class="hidden" name="view-toggle" type="radio" value="Graph"/>
+</label>
+</div>
+</div>
+<!-- Main Graph Area (Hero) -->
+<div class="relative flex-1 w-full bg-[#0f1115] overflow-hidden">
+<!-- Graph Background grid/pattern -->
+<div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(#334155 1px, transparent 1px); background-size: 30px 30px;"></div>
+<!-- Graph Connections (SVG Layer) -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none z-0">
+<!-- Connection: Biology -> Cell Structure -->
+<line stroke="#334155" stroke-width="2" x1="50%" x2="25%" y1="40%" y2="25%"></line>
+<!-- Connection: Biology -> DNA -->
+<line stroke="#334155" stroke-width="2" x1="50%" x2="75%" y1="40%" y2="25%"></line>
+<!-- Connection: Biology -> Mitosis (Active) -->
+<line stroke="#135bec" stroke-opacity="0.8" stroke-width="2" x1="50%" x2="50%" y1="40%" y2="60%"></line>
+<!-- Connection: DNA -> Chemistry -->
+<line stroke="#334155" stroke-dasharray="4" stroke-width="1" x1="75%" x2="90%" y1="25%" y2="40%"></line>
+</svg>
+<!-- Nodes Layer -->
+<!-- Center Node: Biology 101 -->
+<div class="absolute top-[40%] left-[50%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-2 z-10 cursor-pointer group">
+<div class="size-20 rounded-full bg-slate-800 border-4 border-slate-700 shadow-lg flex items-center justify-center text-white font-bold text-xs text-center p-1 group-hover:scale-110 transition-transform duration-200">
+                Biology 101
+            </div>
+</div>
+<!-- Node: Cell Structure -->
+<div class="absolute top-[25%] left-[25%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-2 z-10 cursor-pointer group">
+<div class="size-14 rounded-full bg-slate-800 border-2 border-slate-600 flex items-center justify-center text-slate-300 text-[10px] text-center p-1 group-hover:scale-110 transition-transform duration-200">
+                Cell<br/>Structure
+            </div>
+</div>
+<!-- Node: DNA Replication -->
+<div class="absolute top-[25%] left-[75%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-2 z-10 cursor-pointer group">
+<div class="size-14 rounded-full bg-slate-800 border-2 border-slate-600 flex items-center justify-center text-slate-300 text-[10px] text-center p-1 group-hover:scale-110 transition-transform duration-200">
+                DNA<br/>Rep.
+            </div>
+</div>
+<!-- Node: Chemistry -->
+<div class="absolute top-[40%] left-[90%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-2 z-10 cursor-pointer group">
+<div class="size-12 rounded-full bg-[#1e293b] border border-slate-700 flex items-center justify-center text-slate-500 text-[10px] text-center p-1 group-hover:scale-110 transition-transform duration-200">
+                Chem
+            </div>
+</div>
+<!-- Node: Mitosis (Selected) -->
+<div class="absolute top-[60%] left-[50%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-2 z-20 cursor-pointer">
+<!-- Glow Effect -->
+<div class="absolute -inset-4 bg-primary/30 rounded-full blur-md"></div>
+<div class="relative size-16 rounded-full bg-slate-900 border-2 border-primary shadow-[0_0_15px_rgba(19,91,236,0.5)] flex items-center justify-center text-white font-bold text-xs text-center p-1">
+                Mitosis
+            </div>
+</div>
+<!-- FAB (Add Note) -->
+<button class="absolute bottom-[240px] right-4 size-14 rounded-full bg-primary text-white shadow-lg flex items-center justify-center z-30 hover:bg-blue-600 transition-colors">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+<!-- Selected Node Preview Card (Bottom Sheet style) -->
+<div class="absolute bottom-4 left-4 right-4 z-40">
+<div class="bg-cover bg-center flex flex-col items-stretch justify-end rounded-xl shadow-2xl overflow-hidden ring-1 ring-white/10" data-alt="Abstract scientific visualization of cell division in dark blue tones" style='background-image: linear-gradient(0deg, rgba(16, 22, 34, 0.95) 20%, rgba(16, 22, 34, 0.6) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuCF2ikC2McBGpqNZNBF7bYaRXZqHN1ZYM6Rhae47KTfIZgMY98vS5-MZWVNAL80xQLNuWrLR_dfQGNOFdBHAuxIds-R79ST2dTzIzxFJklqxBjQhMiKorbyF0Qj_qcymILnqJdIv1Yiue3R67ZlWC75lAUvb-ruazgwPLIO2qyh_DeRdBNWFbNNA78gzjpL2D7I_gyAshShIGQFbD0SzVxUvZaMYQY9pXaam2Po8Tf9ljqmeOIMpX_PCQf9lqhI9KSLVoSRLGAo1w0");'>
+<div class="flex w-full flex-col gap-3 p-5 backdrop-blur-sm">
+<div class="flex items-start justify-between">
+<div class="flex flex-col gap-1">
+<span class="text-primary text-xs font-bold uppercase tracking-wider">Biology 101</span>
+<h3 class="text-white text-xl font-bold leading-tight">Mitosis Stages</h3>
+</div>
+<button class="text-slate-400 hover:text-white">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+<p class="text-slate-300 text-sm font-medium leading-relaxed line-clamp-2">
+                        Summary: Prophase, Metaphase, Anaphase, Telophase. Key checkpoints and chromosome behavior during cell division.
+                    </p>
+<div class="pt-2 flex gap-3">
+<button class="flex-1 flex items-center justify-center rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold shadow-lg shadow-blue-900/20 active:scale-95 transition-transform">
+                            View Note
+                        </button>
+<button class="flex items-center justify-center rounded-lg h-10 px-4 bg-[#232f48] text-white text-sm font-bold active:scale-95 transition-transform hover:bg-slate-700">
+<span class="material-symbols-outlined">share</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Navigation Bar -->
+<div class="h-[80px] bg-background-light dark:bg-background-dark border-t border-slate-200 dark:border-slate-800 flex items-start justify-around pt-3 shrink-0 z-50">
+<button class="flex flex-col items-center gap-1 w-16 text-slate-400 dark:text-slate-500 hover:text-primary dark:hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-2xl">home</span>
+<span class="text-[10px] font-medium">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 w-16 text-primary">
+<span class="material-symbols-outlined text-2xl fill-1">local_library</span>
+<span class="text-[10px] font-medium">Library</span>
+</button>
+<button class="flex flex-col items-center gap-1 w-16 text-slate-400 dark:text-slate-500 hover:text-primary dark:hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-2xl">calendar_month</span>
+<span class="text-[10px] font-medium">Plan</span>
+</button>
+<button class="flex flex-col items-center gap-1 w-16 text-slate-400 dark:text-slate-500 hover:text-primary dark:hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-2xl">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</button>
+</div>
+</body></html>
