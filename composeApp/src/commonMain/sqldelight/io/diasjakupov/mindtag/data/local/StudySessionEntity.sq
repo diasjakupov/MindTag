@@ -1,0 +1,36 @@
+CREATE TABLE StudySessionEntity (
+    id TEXT NOT NULL PRIMARY KEY,
+    subject_id TEXT,
+    session_type TEXT NOT NULL,
+    started_at INTEGER NOT NULL,
+    finished_at INTEGER,
+    total_questions INTEGER NOT NULL DEFAULT 0,
+    time_limit_seconds INTEGER,
+    status TEXT NOT NULL DEFAULT 'IN_PROGRESS',
+    FOREIGN KEY (subject_id) REFERENCES SubjectEntity(id)
+);
+
+selectAll:
+SELECT * FROM StudySessionEntity ORDER BY started_at DESC;
+
+selectById:
+SELECT * FROM StudySessionEntity WHERE id = ?;
+
+selectBySubjectId:
+SELECT * FROM StudySessionEntity WHERE subject_id = ? ORDER BY started_at DESC;
+
+selectActive:
+SELECT * FROM StudySessionEntity WHERE status = 'IN_PROGRESS' LIMIT 1;
+
+insert:
+INSERT OR REPLACE INTO StudySessionEntity (id, subject_id, session_type, started_at, finished_at, total_questions, time_limit_seconds, status)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+finish:
+UPDATE StudySessionEntity SET finished_at = ?, status = ? WHERE id = ?;
+
+delete:
+DELETE FROM StudySessionEntity WHERE id = ?;
+
+deleteAll:
+DELETE FROM StudySessionEntity;

@@ -1,0 +1,49 @@
+CREATE TABLE FlashCardEntity (
+    id TEXT NOT NULL PRIMARY KEY,
+    question TEXT NOT NULL,
+    type TEXT NOT NULL,
+    difficulty TEXT NOT NULL,
+    subject_id TEXT NOT NULL,
+    correct_answer TEXT NOT NULL,
+    options_json TEXT,
+    source_note_ids_json TEXT,
+    ai_explanation TEXT,
+    ease_factor REAL NOT NULL DEFAULT 2.5,
+    interval_days INTEGER NOT NULL DEFAULT 0,
+    repetitions INTEGER NOT NULL DEFAULT 0,
+    next_review_at INTEGER,
+    created_at INTEGER NOT NULL,
+    FOREIGN KEY (subject_id) REFERENCES SubjectEntity(id)
+);
+
+CREATE INDEX idx_card_subject_id ON FlashCardEntity(subject_id);
+CREATE INDEX idx_card_next_review ON FlashCardEntity(next_review_at);
+
+selectAll:
+SELECT * FROM FlashCardEntity ORDER BY created_at DESC;
+
+selectById:
+SELECT * FROM FlashCardEntity WHERE id = ?;
+
+selectBySubjectId:
+SELECT * FROM FlashCardEntity WHERE subject_id = ? ORDER BY created_at DESC;
+
+selectDueCards:
+SELECT * FROM FlashCardEntity WHERE next_review_at IS NULL OR next_review_at <= ? ORDER BY next_review_at ASC;
+
+selectDueCardsBySubject:
+SELECT * FROM FlashCardEntity WHERE subject_id = ? AND (next_review_at IS NULL OR next_review_at <= ?) ORDER BY next_review_at ASC;
+
+insert:
+INSERT OR REPLACE INTO FlashCardEntity (id, question, type, difficulty, subject_id, correct_answer, options_json, source_note_ids_json, ai_explanation, ease_factor, interval_days, repetitions, next_review_at, created_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+updateSpacedRepetition:
+UPDATE FlashCardEntity SET ease_factor = ?, interval_days = ?, repetitions = ?, next_review_at = ?
+WHERE id = ?;
+
+delete:
+DELETE FROM FlashCardEntity WHERE id = ?;
+
+deleteAll:
+DELETE FROM FlashCardEntity;

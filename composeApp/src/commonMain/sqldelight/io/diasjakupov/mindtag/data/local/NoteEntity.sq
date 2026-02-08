@@ -1,0 +1,41 @@
+CREATE TABLE NoteEntity (
+    id TEXT NOT NULL PRIMARY KEY,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    summary TEXT NOT NULL,
+    subject_id TEXT NOT NULL,
+    week_number INTEGER,
+    read_time_minutes INTEGER NOT NULL DEFAULT 1,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL,
+    FOREIGN KEY (subject_id) REFERENCES SubjectEntity(id)
+);
+
+CREATE INDEX idx_note_subject_id ON NoteEntity(subject_id);
+CREATE INDEX idx_note_updated_at ON NoteEntity(updated_at);
+
+selectAll:
+SELECT * FROM NoteEntity ORDER BY updated_at DESC;
+
+selectById:
+SELECT * FROM NoteEntity WHERE id = ?;
+
+selectBySubjectId:
+SELECT * FROM NoteEntity WHERE subject_id = ? ORDER BY updated_at DESC;
+
+countBySubjectId:
+SELECT COUNT(*) FROM NoteEntity WHERE subject_id = ?;
+
+insert:
+INSERT OR REPLACE INTO NoteEntity (id, title, content, summary, subject_id, week_number, read_time_minutes, created_at, updated_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+update:
+UPDATE NoteEntity SET title = ?, content = ?, summary = ?, week_number = ?, read_time_minutes = ?, updated_at = ?
+WHERE id = ?;
+
+delete:
+DELETE FROM NoteEntity WHERE id = ?;
+
+deleteAll:
+DELETE FROM NoteEntity;

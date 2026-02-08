@@ -1,0 +1,61 @@
+CREATE TABLE SemanticLinkEntity (
+    id TEXT NOT NULL PRIMARY KEY,
+    source_note_id TEXT NOT NULL,
+    target_note_id TEXT NOT NULL,
+    similarity_score REAL NOT NULL,
+    link_type TEXT NOT NULL,
+    strength REAL NOT NULL DEFAULT 1.0,
+    created_at INTEGER NOT NULL,
+    FOREIGN KEY (source_note_id) REFERENCES NoteEntity(id),
+    FOREIGN KEY (target_note_id) REFERENCES NoteEntity(id)
+);
+
+CREATE INDEX idx_link_source ON SemanticLinkEntity(source_note_id);
+CREATE INDEX idx_link_target ON SemanticLinkEntity(target_note_id);
+CREATE UNIQUE INDEX idx_link_pair ON SemanticLinkEntity(source_note_id, target_note_id);
+
+selectAll:
+SELECT * FROM SemanticLinkEntity;
+
+selectById:
+SELECT * FROM SemanticLinkEntity WHERE id = ?;
+
+selectBySourceNoteId:
+SELECT * FROM SemanticLinkEntity WHERE source_note_id = ?;
+
+selectByTargetNoteId:
+SELECT * FROM SemanticLinkEntity WHERE target_note_id = ?;
+
+selectByNoteId:
+SELECT * FROM SemanticLinkEntity WHERE source_note_id = ? OR target_note_id = ?;
+
+insert:
+INSERT OR REPLACE INTO SemanticLinkEntity (id, source_note_id, target_note_id, similarity_score, link_type, strength, created_at)
+VALUES (?, ?, ?, ?, ?, ?, ?);
+
+update:
+UPDATE SemanticLinkEntity SET similarity_score = ?, link_type = ?, strength = ?
+WHERE id = ?;
+
+delete:
+DELETE FROM SemanticLinkEntity WHERE id = ?;
+
+deleteAll:
+DELETE FROM SemanticLinkEntity;
+
+-- Returns related notes for a given noteId (from either side of the link)
+-- along with subject info, ordered by similarity score descending.
+selectRelatedNotes:
+SELECT
+    CASE WHEN sl.source_note_id = :noteId THEN n.id ELSE n.id END AS related_note_id,
+    n.title AS note_title,
+    s.name AS subject_name,
+    s.icon_name AS subject_icon_name,
+    s.color_hex AS subject_color_hex,
+    sl.similarity_score
+FROM SemanticLinkEntity sl
+JOIN NoteEntity n ON n.id = CASE WHEN sl.source_note_id = :noteId THEN sl.target_note_id ELSE sl.source_note_id END
+JOIN SubjectEntity s ON s.id = n.subject_id
+WHERE sl.source_note_id = :noteId OR sl.target_note_id = :noteId
+ORDER BY sl.similarity_score DESC
+LIMIT :limit;

@@ -1,0 +1,39 @@
+CREATE TABLE QuizAnswerEntity (
+    id TEXT NOT NULL PRIMARY KEY,
+    session_id TEXT NOT NULL,
+    card_id TEXT NOT NULL,
+    user_answer TEXT NOT NULL,
+    is_correct INTEGER NOT NULL DEFAULT 0,
+    confidence_rating TEXT,
+    time_spent_seconds INTEGER NOT NULL DEFAULT 0,
+    answered_at INTEGER NOT NULL,
+    FOREIGN KEY (session_id) REFERENCES StudySessionEntity(id),
+    FOREIGN KEY (card_id) REFERENCES FlashCardEntity(id)
+);
+
+CREATE INDEX idx_answer_session_id ON QuizAnswerEntity(session_id);
+
+selectAll:
+SELECT * FROM QuizAnswerEntity ORDER BY answered_at DESC;
+
+selectById:
+SELECT * FROM QuizAnswerEntity WHERE id = ?;
+
+selectBySessionId:
+SELECT * FROM QuizAnswerEntity WHERE session_id = ? ORDER BY answered_at ASC;
+
+countCorrectBySession:
+SELECT COUNT(*) FROM QuizAnswerEntity WHERE session_id = ? AND is_correct = 1;
+
+insert:
+INSERT OR REPLACE INTO QuizAnswerEntity (id, session_id, card_id, user_answer, is_correct, confidence_rating, time_spent_seconds, answered_at)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+delete:
+DELETE FROM QuizAnswerEntity WHERE id = ?;
+
+deleteBySessionId:
+DELETE FROM QuizAnswerEntity WHERE session_id = ?;
+
+deleteAll:
+DELETE FROM QuizAnswerEntity;
