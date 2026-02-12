@@ -185,6 +185,24 @@ class NoteRepositoryImpl(
         db.noteEntityQueries.delete(id)
     }
 
+    override suspend fun createSubject(name: String, colorHex: String, iconName: String): Subject {
+        Logger.d(tag, "createSubject: name='$name', color=$colorHex")
+        val id = kotlin.uuid.Uuid.random().toString()
+        val now = Clock.System.now().toEpochMilliseconds()
+        db.subjectEntityQueries.insert(
+            id = id,
+            name = name,
+            color_hex = colorHex,
+            icon_name = iconName,
+            progress = 0.0,
+            total_notes = 0,
+            reviewed_notes = 0,
+            created_at = now,
+            updated_at = now,
+        )
+        return Subject(id = id, name = name, colorHex = colorHex, iconName = iconName)
+    }
+
     private fun NoteEntity.toDomain() = Note(
         id = id,
         title = title,

@@ -1,5 +1,6 @@
 package io.diasjakupov.mindtag.core.di
 
+import io.diasjakupov.mindtag.core.data.AppPreferences
 import io.diasjakupov.mindtag.core.database.DatabaseDriverFactory
 import io.diasjakupov.mindtag.data.local.MindTagDatabase
 import io.diasjakupov.mindtag.data.seed.DatabaseSeeder
@@ -40,6 +41,7 @@ val databaseModule = module {
             DatabaseSeeder.seedIfEmpty(db)
         }
     }
+    single { AppPreferences(get()) }
 }
 
 val repositoryModule = module {
@@ -63,13 +65,13 @@ val useCaseModule = module {
 val viewModelModule = module {
     viewModel { LibraryViewModel(get(), get()) }
     viewModel { HomeViewModel(get()) }
-    viewModel { NoteCreateViewModel(get(), get()) }
-    viewModel { (noteId: String) -> NoteDetailViewModel(noteId, get(), get()) }
-    viewModel { StudyHubViewModel(get()) }
+    viewModel { (noteId: String?) -> NoteCreateViewModel(get(), get(), get(), noteId) }
+    viewModel { (noteId: String) -> NoteDetailViewModel(noteId, get(), get(), get(), get()) }
+    viewModel { StudyHubViewModel(get(), get()) }
     viewModel { (sessionId: String) -> QuizViewModel(sessionId, get(), get()) }
     viewModel { (sessionId: String) -> ResultsViewModel(sessionId, get()) }
     viewModel { PlannerViewModel(get()) }
-    viewModel { OnboardingViewModel() }
+    viewModel { OnboardingViewModel(get()) }
     viewModel { ProfileViewModel(get()) }
 }
 

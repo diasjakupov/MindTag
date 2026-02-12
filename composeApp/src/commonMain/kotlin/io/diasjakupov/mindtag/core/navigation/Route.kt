@@ -10,7 +10,7 @@ sealed interface Route : NavKey {
     @Serializable data object Practice : Route
     @Serializable data object Planner : Route
     @Serializable data object Profile : Route
-    @Serializable data object NoteCreate : Route
+    @Serializable data class NoteCreate(val noteId: String? = null) : Route
     @Serializable data class NoteDetail(val noteId: String) : Route
     @Serializable data class Quiz(val sessionId: String) : Route
     @Serializable data class QuizResults(val sessionId: String) : Route
