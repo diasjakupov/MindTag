@@ -2,6 +2,7 @@ package io.diasjakupov.mindtag.feature.study.presentation.hub
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -78,6 +79,36 @@ fun StudyHubScreen(
         }
 
         Spacer(modifier = Modifier.height(MindTagSpacing.xl))
+
+        // Error banner
+        if (state.errorMessage != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(MindTagShapes.md)
+                    .background(MindTagColors.ErrorBg)
+                    .clickable { viewModel.onIntent(StudyHubIntent.DismissError) }
+                    .padding(MindTagSpacing.lg),
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.md),
+                ) {
+                    Icon(
+                        imageVector = MindTagIcons.Close,
+                        contentDescription = "Dismiss",
+                        tint = MindTagColors.Error,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Text(
+                        text = state.errorMessage!!,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MindTagColors.Error,
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(MindTagSpacing.xl))
+        }
 
         // Quick Quiz card
         StudyActionCard(

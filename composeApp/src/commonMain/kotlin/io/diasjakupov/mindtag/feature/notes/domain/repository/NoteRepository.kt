@@ -14,4 +14,5 @@ interface NoteRepository {
     suspend fun getAllNotesSnapshot(): List<Note>
     suspend fun updateNote(id: String, title: String, content: String)
     suspend fun deleteNote(id: String)
+    suspend fun createSubject(name: String, colorHex: String, iconName: String): Subject
 }

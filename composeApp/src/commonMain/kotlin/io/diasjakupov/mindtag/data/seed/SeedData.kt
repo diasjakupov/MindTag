@@ -38,6 +38,10 @@ object SeedData {
     private const val SESSION_CS_QUICK = "session-cs-quick-1"
     private const val SESSION_BIO_EXAM = "session-bio-exam-1"
 
+    fun populateSubjectsOnly(db: MindTagDatabase) {
+        insertSubjects(db)
+    }
+
     fun populate(db: MindTagDatabase) {
         insertSubjects(db)
         insertNotes(db)

@@ -1,12 +1,15 @@
 package io.diasjakupov.mindtag.feature.onboarding.presentation
 
+import io.diasjakupov.mindtag.core.data.AppPreferences
 import io.diasjakupov.mindtag.core.mvi.MviViewModel
 import io.diasjakupov.mindtag.core.util.Logger
 import io.diasjakupov.mindtag.feature.onboarding.presentation.OnboardingContract.Effect
 import io.diasjakupov.mindtag.feature.onboarding.presentation.OnboardingContract.Intent
 import io.diasjakupov.mindtag.feature.onboarding.presentation.OnboardingContract.State
 
-class OnboardingViewModel : MviViewModel<State, Intent, Effect>(State()) {
+class OnboardingViewModel(
+    private val appPreferences: AppPreferences,
+) : MviViewModel<State, Intent, Effect>(State()) {
 
     override val tag = "OnboardingVM"
 
@@ -29,10 +32,12 @@ class OnboardingViewModel : MviViewModel<State, Intent, Effect>(State()) {
             }
             Intent.Skip -> {
                 Logger.d(tag, "Skip onboarding")
+                appPreferences.setOnboardingCompleted()
                 sendEffect(Effect.NavigateToHome)
             }
             Intent.GetStarted -> {
                 Logger.d(tag, "GetStarted")
+                appPreferences.setOnboardingCompleted()
                 sendEffect(Effect.NavigateToHome)
             }
         }
