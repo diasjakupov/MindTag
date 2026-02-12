@@ -2,12 +2,21 @@ package io.diasjakupov.mindtag.core.di
 
 import io.diasjakupov.mindtag.core.data.AppPreferences
 import io.diasjakupov.mindtag.core.database.DatabaseDriverFactory
+import io.diasjakupov.mindtag.core.network.AuthManager
+import io.diasjakupov.mindtag.core.network.HttpClientFactory
 import io.diasjakupov.mindtag.data.local.MindTagDatabase
 import io.diasjakupov.mindtag.data.seed.DatabaseSeeder
+import io.diasjakupov.mindtag.feature.auth.data.AuthApi
+import io.diasjakupov.mindtag.feature.auth.data.AuthRepositoryImpl
+import io.diasjakupov.mindtag.feature.auth.domain.AuthRepository
+import io.diasjakupov.mindtag.feature.auth.domain.LoginUseCase
+import io.diasjakupov.mindtag.feature.auth.domain.RegisterUseCase
+import io.diasjakupov.mindtag.feature.auth.presentation.AuthViewModel
 import io.diasjakupov.mindtag.feature.home.data.repository.DashboardRepositoryImpl
 import io.diasjakupov.mindtag.feature.home.domain.repository.DashboardRepository
 import io.diasjakupov.mindtag.feature.home.domain.usecase.GetDashboardUseCase
 import io.diasjakupov.mindtag.feature.home.presentation.HomeViewModel
+import io.diasjakupov.mindtag.feature.notes.data.api.NoteApi
 import io.diasjakupov.mindtag.feature.notes.data.repository.NoteRepositoryImpl
 import io.diasjakupov.mindtag.feature.notes.domain.repository.NoteRepository
 import io.diasjakupov.mindtag.feature.notes.domain.usecase.CreateNoteUseCase
@@ -44,6 +53,19 @@ val databaseModule = module {
     single { AppPreferences(get()) }
 }
 
+val networkModule = module {
+    single { AuthManager() }
+    single { HttpClientFactory.create(get()) }
+    single { AuthApi(get(), get()) }
+    single { NoteApi(get(), get()) }
+}
+
+val authModule = module {
+    single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
+    factory { LoginUseCase(get()) }
+    factory { RegisterUseCase(get()) }
+}
+
 val repositoryModule = module {
     single<NoteRepository> { NoteRepositoryImpl(get()) }
     single<StudyRepository> { StudyRepositoryImpl(get()) }
@@ -63,26 +85,24 @@ val useCaseModule = module {
 }
 
 val viewModelModule = module {
-    viewModel { LibraryViewModel(get(), get()) }
+    viewModel { LibraryViewModel(get()) }
     viewModel { HomeViewModel(get()) }
-    viewModel { (noteId: String?) -> NoteCreateViewModel(get(), get(), get(), noteId) }
-    viewModel { (noteId: String) -> NoteDetailViewModel(noteId, get(), get(), get(), get()) }
+    viewModel { (noteId: Long?) -> NoteCreateViewModel(get(), get(), get(), noteId) }
+    viewModel { (noteId: Long) -> NoteDetailViewModel(noteId, get(), get(), get(), get()) }
     viewModel { StudyHubViewModel(get(), get()) }
     viewModel { (sessionId: String) -> QuizViewModel(sessionId, get(), get()) }
     viewModel { (sessionId: String) -> ResultsViewModel(sessionId, get()) }
     viewModel { PlannerViewModel(get()) }
     viewModel { OnboardingViewModel(get()) }
     viewModel { ProfileViewModel(get()) }
-}
-
-val coreModule = module {
-    // ViewModels and shared services will be registered here
+    viewModel { AuthViewModel(get(), get()) }
 }
 
 val appModules: List<Module> = listOf(
     databaseModule,
+    networkModule,
+    authModule,
     repositoryModule,
     useCaseModule,
     viewModelModule,
-    coreModule,
 )

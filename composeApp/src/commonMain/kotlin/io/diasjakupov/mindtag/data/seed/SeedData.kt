@@ -44,8 +44,7 @@ object SeedData {
 
     fun populate(db: MindTagDatabase) {
         insertSubjects(db)
-        insertNotes(db)
-        insertSemanticLinks(db)
+        // Notes and semantic links now come from the server API
         insertFlashCards(db)
         insertUserProgress(db)
         insertStudySessions(db)
