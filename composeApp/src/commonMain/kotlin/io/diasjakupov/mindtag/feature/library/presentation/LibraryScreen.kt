@@ -74,7 +74,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun LibraryScreen(
-    onNavigateToNote: (String) -> Unit = {},
+    onNavigateToNote: (Long) -> Unit = {},
     onNavigateToCreateNote: () -> Unit = {},
 ) {
     val viewModel: LibraryViewModel = koinViewModel()
@@ -84,6 +84,7 @@ fun LibraryScreen(
         viewModel.effect.collect { effect ->
             when (effect) {
                 is LibraryContract.Effect.NavigateToNote -> onNavigateToNote(effect.noteId)
+
                 is LibraryContract.Effect.NavigateToCreateNote -> onNavigateToCreateNote()
             }
         }
@@ -333,7 +334,7 @@ private fun FilterChip(
 @Composable
 private fun NoteListView(
     notes: List<LibraryContract.NoteListItem>,
-    onNoteTap: (String) -> Unit,
+    onNoteTap: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -420,8 +421,8 @@ private fun NoteListCard(
 private fun GraphView(
     nodes: List<LibraryContract.GraphNode>,
     edges: List<LibraryContract.GraphEdge>,
-    selectedNodeId: String?,
-    onNodeTap: (String) -> Unit,
+    selectedNodeId: Long?,
+    onNodeTap: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val textMeasurer = rememberTextMeasurer()

@@ -18,9 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import androidx.compose.runtime.collectAsState
 import io.diasjakupov.mindtag.core.designsystem.MindTagTheme
 import io.diasjakupov.mindtag.core.navigation.MindTagBottomBar
 import io.diasjakupov.mindtag.core.navigation.Route
+import io.diasjakupov.mindtag.core.network.AuthManager
+import io.diasjakupov.mindtag.core.network.AuthState
+import io.diasjakupov.mindtag.feature.auth.presentation.AuthScreen
 import io.diasjakupov.mindtag.feature.home.presentation.HomeScreen
 import io.diasjakupov.mindtag.feature.library.presentation.LibraryScreen
 import io.diasjakupov.mindtag.feature.notes.presentation.create.NoteCreateScreen
@@ -31,8 +35,11 @@ import io.diasjakupov.mindtag.feature.profile.presentation.ProfileScreen
 import io.diasjakupov.mindtag.feature.study.presentation.hub.StudyHubScreen
 import io.diasjakupov.mindtag.feature.study.presentation.quiz.QuizScreen
 import io.diasjakupov.mindtag.feature.study.presentation.results.ResultsScreen
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import io.diasjakupov.mindtag.core.data.AppPreferences
+import org.koin.compose.koinInject
 
 private val topLevelRoutes: Set<Route> = setOf(
     Route.Home, Route.Library, Route.Practice, Route.Planner, Route.Profile,
@@ -98,11 +105,35 @@ private class TopLevelBackStack(startKey: Route) {
 @Composable
 fun App() {
     MindTagTheme {
-        val nav = remember { TopLevelBackStack(Route.Home) }
-        val currentEntry = nav.backStack.lastOrNull()
-        val showBottomBar = currentEntry is Route && currentEntry in topLevelRoutes
+        val authManager: AuthManager = koinInject()
+        val authState by authManager.state.collectAsState()
 
-        Scaffold(
+        when (authState) {
+            is AuthState.Unauthenticated -> {
+                AuthScreen(onNavigateToHome = { /* handled by auth state change */ })
+            }
+            is AuthState.Authenticated -> {
+                MainApp()
+            }
+        }
+    }
+}
+
+@Composable
+private fun MainApp() {
+    val nav = remember { TopLevelBackStack(Route.Home) }
+    val appPreferences: AppPreferences = koinInject()
+
+    LaunchedEffect(Unit) {
+        if (!appPreferences.isOnboardingCompleted()) {
+            nav.push(Route.Onboarding)
+        }
+    }
+
+    val currentEntry = nav.backStack.lastOrNull()
+    val showBottomBar = currentEntry is Route && currentEntry in topLevelRoutes
+
+    Scaffold(
             bottomBar = {
                 if (showBottomBar) {
                     MindTagBottomBar(
@@ -131,7 +162,7 @@ fun App() {
                     entry<Route.Library> {
                         LibraryScreen(
                             onNavigateToNote = { noteId -> nav.push(Route.NoteDetail(noteId)) },
-                            onNavigateToCreateNote = { nav.push(Route.NoteCreate) },
+                            onNavigateToCreateNote = { nav.push(Route.NoteCreate()) },
                         )
                     }
                     entry<Route.Practice> {
@@ -141,14 +172,19 @@ fun App() {
                     }
                     entry<Route.Planner> { PlannerScreen() }
                     entry<Route.Profile> { ProfileScreen() }
-                    entry<Route.NoteCreate>(metadata = pushScreenMetadata) {
-                        NoteCreateScreen(onNavigateBack = { nav.removeLast() })
+                    entry<Route.NoteCreate>(metadata = pushScreenMetadata) { key ->
+                        NoteCreateScreen(
+                            noteId = key.noteId,
+                            onNavigateBack = { nav.removeLast() },
+                        )
                     }
                     entry<Route.NoteDetail>(metadata = pushScreenMetadata) { key ->
                         NoteDetailScreen(
                             noteId = key.noteId,
                             onNavigateBack = { nav.removeLast() },
                             onNavigateToNote = { noteId -> nav.push(Route.NoteDetail(noteId)) },
+                            onNavigateToEdit = { noteId -> nav.push(Route.NoteCreate(noteId)) },
+                            onNavigateToQuiz = { sessionId -> nav.push(Route.Quiz(sessionId)) },
                         )
                     }
                     entry<Route.Quiz>(metadata = pushScreenMetadata) { key ->
@@ -169,11 +205,10 @@ fun App() {
                     }
                     entry<Route.Onboarding>(metadata = pushScreenMetadata) {
                         OnboardingScreen(
-                            onNavigateToHome = { nav.selectTab(Route.Home) },
+                            onNavigateToHome = { nav.removeLast() },
                         )
                     }
                 },
             )
         }
-    }
 }

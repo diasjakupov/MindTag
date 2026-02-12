@@ -33,12 +33,14 @@ import io.diasjakupov.mindtag.core.designsystem.MindTagIcons
 import io.diasjakupov.mindtag.core.designsystem.MindTagShapes
 import io.diasjakupov.mindtag.core.designsystem.MindTagSpacing
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun NoteCreateScreen(
+    noteId: Long? = null,
     onNavigateBack: () -> Unit,
 ) {
-    val viewModel: NoteCreateViewModel = koinViewModel()
+    val viewModel: NoteCreateViewModel = koinViewModel(parameters = { parametersOf(noteId) })
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(Unit) {
@@ -71,7 +73,7 @@ fun NoteCreateScreen(
                 )
             }
             Text(
-                text = "New Note",
+                text = if (state.isEditMode) "Edit Note" else "New Note",
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.White,
                 modifier = Modifier.weight(1f),
@@ -127,38 +129,72 @@ fun NoteCreateScreen(
 
         Spacer(modifier = Modifier.height(MindTagSpacing.xl))
 
-        // Subject selector
-        Row(
+        // Subject name field with suggestion chips
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
                 .padding(horizontal = MindTagSpacing.screenHorizontalPadding),
-            horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.md),
         ) {
-            state.subjects.forEach { subject ->
-                val isSelected = subject.id == state.selectedSubjectId
-                val chipColor = try {
-                    Color(("FF" + subject.colorHex.removePrefix("#")).toLong(16))
-                } catch (_: Exception) {
-                    MindTagColors.Primary
-                }
+            BasicTextField(
+                value = state.subjectName,
+                onValueChange = { viewModel.onIntent(NoteCreateIntent.UpdateSubjectName(it)) },
+                textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.White),
+                cursorBrush = SolidColor(MindTagColors.Primary),
+                singleLine = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(MindTagShapes.lg)
+                    .background(MindTagColors.SearchBarBg)
+                    .padding(horizontal = MindTagSpacing.lg, vertical = MindTagSpacing.md),
+                decorationBox = { innerTextField ->
+                    Box {
+                        if (state.subjectName.isEmpty()) {
+                            Text(
+                                text = "Subject name",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MindTagColors.TextSecondary,
+                            )
+                        }
+                        innerTextField()
+                    }
+                },
+            )
 
-                Box(
+            // Existing subject suggestion chips
+            if (state.subjects.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(MindTagSpacing.md))
+                Row(
                     modifier = Modifier
-                        .clip(MindTagShapes.full)
-                        .background(
-                            if (isSelected) chipColor.copy(alpha = 0.2f)
-                            else MindTagColors.SearchBarBg,
-                        )
-                        .clickable { viewModel.onIntent(NoteCreateIntent.SelectSubject(subject.id)) }
-                        .padding(horizontal = MindTagSpacing.lg, vertical = MindTagSpacing.sm),
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.md),
                 ) {
-                    Text(
-                        text = subject.name,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = if (isSelected) chipColor else MindTagColors.TextSecondary,
-                        maxLines = 1,
-                    )
+                    state.subjects.forEach { subject ->
+                        val isSelected = subject.name == state.subjectName
+                        val chipColor = try {
+                            Color(("FF" + subject.colorHex.removePrefix("#")).toLong(16))
+                        } catch (_: Exception) {
+                            MindTagColors.Primary
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .clip(MindTagShapes.full)
+                                .background(
+                                    if (isSelected) chipColor.copy(alpha = 0.2f)
+                                    else MindTagColors.SearchBarBg,
+                                )
+                                .clickable { viewModel.onIntent(NoteCreateIntent.SelectSubject(subject.name)) }
+                                .padding(horizontal = MindTagSpacing.lg, vertical = MindTagSpacing.sm),
+                        ) {
+                            Text(
+                                text = subject.name,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = if (isSelected) chipColor else MindTagColors.TextSecondary,
+                                maxLines = 1,
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -166,27 +202,41 @@ fun NoteCreateScreen(
         Spacer(modifier = Modifier.height(MindTagSpacing.xl))
 
         // Content field
-        BasicTextField(
-            value = state.content,
-            onValueChange = { viewModel.onIntent(NoteCreateIntent.UpdateContent(it)) },
-            textStyle = MaterialTheme.typography.bodyLarge.copy(color = MindTagColors.TextSlate300),
-            cursorBrush = SolidColor(MindTagColors.Primary),
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .padding(horizontal = MindTagSpacing.screenHorizontalPadding),
-            decorationBox = { innerTextField ->
-                Box {
-                    if (state.content.isEmpty()) {
-                        Text(
-                            text = "Start writing...",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MindTagColors.TextSecondary,
-                        )
+        Column(
+            modifier = Modifier.weight(1f),
+        ) {
+            BasicTextField(
+                value = state.content,
+                onValueChange = { viewModel.onIntent(NoteCreateIntent.UpdateContent(it)) },
+                textStyle = MaterialTheme.typography.bodyLarge.copy(color = MindTagColors.TextSlate300),
+                cursorBrush = SolidColor(MindTagColors.Primary),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(horizontal = MindTagSpacing.screenHorizontalPadding),
+                decorationBox = { innerTextField ->
+                    Box {
+                        if (state.content.isEmpty()) {
+                            Text(
+                                text = "Start writing...",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MindTagColors.TextSecondary,
+                            )
+                        }
+                        innerTextField()
                     }
-                    innerTextField()
-                }
-            },
-        )
+                },
+            )
+            if (state.contentError != null) {
+                Text(
+                    text = state.contentError!!,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MindTagColors.Error,
+                    modifier = Modifier
+                        .padding(horizontal = MindTagSpacing.screenHorizontalPadding)
+                        .padding(bottom = MindTagSpacing.md),
+                )
+            }
+        }
     }
 }

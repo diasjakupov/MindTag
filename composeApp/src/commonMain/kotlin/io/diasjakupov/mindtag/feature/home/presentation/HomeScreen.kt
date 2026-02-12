@@ -61,7 +61,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun HomeScreen(
-    onNavigateToNote: (String) -> Unit = {},
+    onNavigateToNote: (Long) -> Unit = {},
 ) {
     val viewModel: HomeViewModel = koinViewModel()
     val state by viewModel.state.collectAsState()
@@ -190,7 +190,7 @@ private fun HeaderSection(
 @Composable
 private fun DueForReviewSection(
     reviewCards: List<ReviewCard>,
-    onCardClick: (String) -> Unit,
+    onCardClick: (Long) -> Unit,
 ) {
     Column {
         // Section header

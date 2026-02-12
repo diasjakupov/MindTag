@@ -17,10 +17,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -48,9 +51,11 @@ import org.koin.core.parameter.parametersOf
 
 @Composable
 fun NoteDetailScreen(
-    noteId: String,
+    noteId: Long,
     onNavigateBack: () -> Unit,
-    onNavigateToNote: (String) -> Unit,
+    onNavigateToNote: (Long) -> Unit,
+    onNavigateToQuiz: (String) -> Unit,
+    onNavigateToEdit: (Long) -> Unit = {},
 ) {
     val viewModel: NoteDetailViewModel = koinViewModel(parameters = { parametersOf(noteId) })
     val state by viewModel.state.collectAsState()
@@ -60,7 +65,9 @@ fun NoteDetailScreen(
             when (effect) {
                 is NoteDetailEffect.NavigateBack -> onNavigateBack()
                 is NoteDetailEffect.NavigateToNote -> onNavigateToNote(effect.noteId)
-                is NoteDetailEffect.NavigateToQuiz -> { /* Phase 3 */ }
+                is NoteDetailEffect.NavigateToQuiz -> onNavigateToQuiz(effect.sessionId)
+                is NoteDetailEffect.NavigateToEdit -> onNavigateToEdit(effect.noteId)
+                is NoteDetailEffect.ShowError -> { /* TODO: snackbar */ }
             }
         }
     }
@@ -101,8 +108,22 @@ fun NoteDetailScreen(
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
             )
-            // Spacer to balance the back button
-            Spacer(modifier = Modifier.size(MindTagSpacing.iconButtonSize))
+            Row {
+                IconButton(onClick = { viewModel.onIntent(NoteDetailIntent.TapEdit) }) {
+                    Icon(
+                        imageVector = MindTagIcons.Edit,
+                        contentDescription = "Edit",
+                        tint = MindTagColors.TextSlate300,
+                    )
+                }
+                IconButton(onClick = { viewModel.onIntent(NoteDetailIntent.TapDelete) }) {
+                    Icon(
+                        imageVector = MindTagIcons.Delete,
+                        contentDescription = "Delete",
+                        tint = MindTagColors.TextSlate300,
+                    )
+                }
+            }
         }
 
         // Toolbar actions: Listen + Quiz Me
@@ -122,11 +143,19 @@ fun NoteDetailScreen(
                 )
             }
             // Quiz Me pill button
-            MindTagButton(
-                text = "Quiz Me",
-                onClick = { viewModel.onIntent(NoteDetailIntent.TapQuizMe) },
-                variant = MindTagButtonVariant.Pill,
-            )
+            if (state.isCreatingQuiz) {
+                CircularProgressIndicator(
+                    color = MindTagColors.Primary,
+                    modifier = Modifier.size(24.dp),
+                    strokeWidth = 2.dp,
+                )
+            } else {
+                MindTagButton(
+                    text = "Quiz Me",
+                    onClick = { viewModel.onIntent(NoteDetailIntent.TapQuizMe) },
+                    variant = MindTagButtonVariant.Pill,
+                )
+            }
         }
 
         // Metadata chips row
@@ -184,12 +213,36 @@ fun NoteDetailScreen(
             )
         }
     }
+
+    if (state.showDeleteConfirmation) {
+        AlertDialog(
+            onDismissRequest = { viewModel.onIntent(NoteDetailIntent.DismissDeleteDialog) },
+            title = { Text("Delete Note", color = Color.White) },
+            text = {
+                Text(
+                    "Are you sure you want to delete this note? This cannot be undone.",
+                    color = MindTagColors.TextSecondary,
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { viewModel.onIntent(NoteDetailIntent.ConfirmDelete) }) {
+                    Text("Delete", color = MindTagColors.Error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.onIntent(NoteDetailIntent.DismissDeleteDialog) }) {
+                    Text("Cancel", color = MindTagColors.TextSecondary)
+                }
+            },
+            containerColor = MindTagColors.CardDark,
+        )
+    }
 }
 
 @Composable
 private fun RelatedNotesSection(
     relatedNotes: List<RelatedNote>,
-    onNoteTap: (String) -> Unit,
+    onNoteTap: (Long) -> Unit,
 ) {
     Column(
         modifier = Modifier
