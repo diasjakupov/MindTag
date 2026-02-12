@@ -51,11 +51,11 @@ import org.koin.core.parameter.parametersOf
 
 @Composable
 fun NoteDetailScreen(
-    noteId: String,
+    noteId: Long,
     onNavigateBack: () -> Unit,
-    onNavigateToNote: (String) -> Unit,
+    onNavigateToNote: (Long) -> Unit,
     onNavigateToQuiz: (String) -> Unit,
-    onNavigateToEdit: (String) -> Unit = {},
+    onNavigateToEdit: (Long) -> Unit = {},
 ) {
     val viewModel: NoteDetailViewModel = koinViewModel(parameters = { parametersOf(noteId) })
     val state by viewModel.state.collectAsState()
@@ -242,7 +242,7 @@ fun NoteDetailScreen(
 @Composable
 private fun RelatedNotesSection(
     relatedNotes: List<RelatedNote>,
-    onNoteTap: (String) -> Unit,
+    onNoteTap: (Long) -> Unit,
 ) {
     Column(
         modifier = Modifier

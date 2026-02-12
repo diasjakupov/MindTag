@@ -14,13 +14,13 @@ object HomeContract {
     )
 
     sealed interface Intent {
-        data class TapReviewCard(val noteId: String) : Intent
+        data class TapReviewCard(val noteId: Long) : Intent
         data class TapTask(val taskId: String) : Intent
         data object Refresh : Intent
     }
 
     sealed interface Effect {
-        data class NavigateToNote(val noteId: String) : Effect
+        data class NavigateToNote(val noteId: Long) : Effect
         data class NavigateToQuiz(val sessionId: String) : Effect
     }
 }

@@ -18,9 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import androidx.compose.runtime.collectAsState
 import io.diasjakupov.mindtag.core.designsystem.MindTagTheme
 import io.diasjakupov.mindtag.core.navigation.MindTagBottomBar
 import io.diasjakupov.mindtag.core.navigation.Route
+import io.diasjakupov.mindtag.core.network.AuthManager
+import io.diasjakupov.mindtag.core.network.AuthState
+import io.diasjakupov.mindtag.feature.auth.presentation.AuthScreen
 import io.diasjakupov.mindtag.feature.home.presentation.HomeScreen
 import io.diasjakupov.mindtag.feature.library.presentation.LibraryScreen
 import io.diasjakupov.mindtag.feature.notes.presentation.create.NoteCreateScreen
@@ -101,19 +105,35 @@ private class TopLevelBackStack(startKey: Route) {
 @Composable
 fun App() {
     MindTagTheme {
-        val nav = remember { TopLevelBackStack(Route.Home) }
-        val appPreferences: AppPreferences = koinInject()
+        val authManager: AuthManager = koinInject()
+        val authState by authManager.state.collectAsState()
 
-        LaunchedEffect(Unit) {
-            if (!appPreferences.isOnboardingCompleted()) {
-                nav.push(Route.Onboarding)
+        when (authState) {
+            is AuthState.Unauthenticated -> {
+                AuthScreen(onNavigateToHome = { /* handled by auth state change */ })
+            }
+            is AuthState.Authenticated -> {
+                MainApp()
             }
         }
+    }
+}
 
-        val currentEntry = nav.backStack.lastOrNull()
-        val showBottomBar = currentEntry is Route && currentEntry in topLevelRoutes
+@Composable
+private fun MainApp() {
+    val nav = remember { TopLevelBackStack(Route.Home) }
+    val appPreferences: AppPreferences = koinInject()
 
-        Scaffold(
+    LaunchedEffect(Unit) {
+        if (!appPreferences.isOnboardingCompleted()) {
+            nav.push(Route.Onboarding)
+        }
+    }
+
+    val currentEntry = nav.backStack.lastOrNull()
+    val showBottomBar = currentEntry is Route && currentEntry in topLevelRoutes
+
+    Scaffold(
             bottomBar = {
                 if (showBottomBar) {
                     MindTagBottomBar(
@@ -191,5 +211,4 @@ fun App() {
                 },
             )
         }
-    }
 }

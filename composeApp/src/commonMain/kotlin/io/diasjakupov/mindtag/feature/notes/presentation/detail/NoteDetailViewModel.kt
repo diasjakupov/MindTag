@@ -8,14 +8,11 @@ import io.diasjakupov.mindtag.feature.notes.domain.usecase.GetNoteWithConnection
 import io.diasjakupov.mindtag.feature.notes.domain.usecase.GetSubjectsUseCase
 import io.diasjakupov.mindtag.feature.study.domain.model.SessionType
 import io.diasjakupov.mindtag.feature.study.domain.usecase.StartQuizUseCase
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class NoteDetailViewModel(
-    private val noteId: String,
+    private val noteId: Long,
     private val getNoteWithConnectionsUseCase: GetNoteWithConnectionsUseCase,
     private val getSubjectsUseCase: GetSubjectsUseCase,
     private val noteRepository: NoteRepository,
@@ -30,27 +27,31 @@ class NoteDetailViewModel(
 
     private fun loadNote() {
         Logger.d(tag, "loadNote: start — noteId=$noteId")
-        combine(
-            getNoteWithConnectionsUseCase(noteId),
-            getSubjectsUseCase(),
-        ) { noteWithConnections, subjects ->
-            if (noteWithConnections != null) {
-                val subject = subjects.find { it.id == noteWithConnections.note.subjectId }
-                Logger.d(tag, "loadNote: success — title='${noteWithConnections.note.title}', related=${noteWithConnections.relatedNotes.size}")
-                updateState {
-                    copy(
-                        note = noteWithConnections.note,
-                        subjectName = subject?.name ?: "",
-                        subjectColorHex = subject?.colorHex ?: "",
-                        relatedNotes = noteWithConnections.relatedNotes,
-                        isLoading = false,
-                    )
+        viewModelScope.launch {
+            try {
+                val noteWithConnections = getNoteWithConnectionsUseCase(noteId)
+                if (noteWithConnections != null) {
+                    val subjects = getSubjectsUseCase()
+                    val subject = subjects.find { it.id == noteWithConnections.note.subjectId }
+                    Logger.d(tag, "loadNote: success — title='${noteWithConnections.note.title}', related=${noteWithConnections.relatedNotes.size}")
+                    updateState {
+                        copy(
+                            note = noteWithConnections.note,
+                            subjectName = noteWithConnections.note.subjectName.ifEmpty { subject?.name ?: "" },
+                            subjectColorHex = subject?.colorHex ?: "",
+                            relatedNotes = noteWithConnections.relatedNotes,
+                            isLoading = false,
+                        )
+                    }
+                } else {
+                    Logger.d(tag, "loadNote: note not found — noteId=$noteId")
+                    updateState { copy(isLoading = false) }
                 }
-            } else {
-                Logger.d(tag, "loadNote: note not found — noteId=$noteId")
+            } catch (e: Exception) {
+                Logger.e(tag, "loadNote: error", e)
                 updateState { copy(isLoading = false) }
             }
-        }.launchIn(viewModelScope)
+        }
     }
 
     override fun onIntent(intent: NoteDetailIntent) {
@@ -77,6 +78,7 @@ class NoteDetailViewModel(
                         sendEffect(NoteDetailEffect.NavigateBack)
                     } catch (e: Exception) {
                         Logger.e(tag, "deleteNote: error", e)
+                        sendEffect(NoteDetailEffect.ShowError("Failed to delete note"))
                     }
                 }
             }

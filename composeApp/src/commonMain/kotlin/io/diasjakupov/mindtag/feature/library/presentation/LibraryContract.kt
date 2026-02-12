@@ -10,14 +10,14 @@ object LibraryContract {
         val searchQuery: String = "",
         val graphNodes: List<GraphNode> = emptyList(),
         val graphEdges: List<GraphEdge> = emptyList(),
-        val selectedNodeId: String? = null,
+        val selectedNodeId: Long? = null,
         val isLoading: Boolean = true,
     )
 
     enum class ViewMode { LIST, GRAPH }
 
     data class NoteListItem(
-        val id: String,
+        val id: Long,
         val title: String,
         val summary: String,
         val subjectName: String,
@@ -34,7 +34,7 @@ object LibraryContract {
     )
 
     data class GraphNode(
-        val noteId: String,
+        val noteId: Long,
         val label: String,
         val subjectColorHex: String,
         val x: Float,
@@ -43,8 +43,8 @@ object LibraryContract {
     )
 
     data class GraphEdge(
-        val sourceNoteId: String,
-        val targetNoteId: String,
+        val sourceNoteId: Long,
+        val targetNoteId: Long,
         val strength: Float,
         val type: String,
     )
@@ -53,14 +53,14 @@ object LibraryContract {
         data class SwitchView(val mode: ViewMode) : Intent
         data class Search(val query: String) : Intent
         data class SelectSubjectFilter(val subjectId: String?) : Intent
-        data class TapNote(val noteId: String) : Intent
-        data class TapGraphNode(val noteId: String) : Intent
+        data class TapNote(val noteId: Long) : Intent
+        data class TapGraphNode(val noteId: Long) : Intent
         data object TapCreateNote : Intent
         data object Refresh : Intent
     }
 
     sealed interface Effect {
-        data class NavigateToNote(val noteId: String) : Effect
+        data class NavigateToNote(val noteId: Long) : Effect
         data object NavigateToCreateNote : Effect
     }
 }
