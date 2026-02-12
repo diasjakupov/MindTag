@@ -44,6 +44,7 @@ class DashboardRepositoryImpl(
                 val latestNote = subjectNotes.maxByOrNull { it.updated_at }
 
                 ReviewCard(
+                    subjectId = subject.id,
                     noteId = latestNote?.id?.toLongOrNull() ?: 0L,
                     noteTitle = latestNote?.title ?: "${subject.name} Notes",
                     subjectName = subject.name,

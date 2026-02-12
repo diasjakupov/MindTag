@@ -224,7 +224,7 @@ private fun DueForReviewSection(
                 contentPadding = PaddingValues(horizontal = MindTagSpacing.screenHorizontalPadding),
                 horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.xl),
             ) {
-                items(reviewCards, key = { it.noteId }) { card ->
+                items(reviewCards, key = { it.subjectId }) { card ->
                     ReviewCardItem(
                         card = card,
                         onClick = { onCardClick(card.noteId) },
