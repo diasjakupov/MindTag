@@ -67,7 +67,7 @@ val authModule = module {
 }
 
 val repositoryModule = module {
-    single<NoteRepository> { NoteRepositoryImpl(get()) }
+    single<NoteRepository> { NoteRepositoryImpl(get(), get()) }
     single<StudyRepository> { StudyRepositoryImpl(get()) }
     single<QuizRepository> { QuizRepositoryImpl(get()) }
     single<DashboardRepository> { DashboardRepositoryImpl(get()) }
