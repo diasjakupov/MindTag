@@ -3,6 +3,7 @@ package io.diasjakupov.mindtag.core.network
 import io.diasjakupov.mindtag.core.util.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
@@ -34,6 +35,12 @@ object HttpClientFactory {
                 }
             }
             level = LogLevel.ALL
+        }
+
+        install(HttpTimeout) {
+            requestTimeoutMillis = 30_000
+            connectTimeoutMillis = 10_000
+            socketTimeoutMillis = 15_000
         }
 
         defaultRequest {
