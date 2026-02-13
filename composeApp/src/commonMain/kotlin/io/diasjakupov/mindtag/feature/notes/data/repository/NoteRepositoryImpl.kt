@@ -5,6 +5,7 @@ import io.diasjakupov.mindtag.core.network.ApiResult
 import io.diasjakupov.mindtag.core.network.dto.NoteResponseDto
 import io.diasjakupov.mindtag.core.util.Logger
 import io.diasjakupov.mindtag.data.local.MindTagDatabase
+import io.diasjakupov.mindtag.data.local.NoteEntity
 import io.diasjakupov.mindtag.feature.notes.data.api.NoteApi
 import io.diasjakupov.mindtag.feature.notes.domain.model.Note
 import io.diasjakupov.mindtag.feature.notes.domain.model.RelatedNote
@@ -74,11 +75,11 @@ class NoteRepositoryImpl(
                 result.data
                     .map { it.subject }
                     .distinct()
-                    .mapIndexed { index, name ->
+                    .map { name ->
                         Subject(
                             id = name,
                             name = name,
-                            colorHex = subjectColors[index % subjectColors.size],
+                            colorHex = colorForSubject(name),
                             iconName = "book",
                         )
                     }
@@ -118,43 +119,40 @@ class NoteRepositoryImpl(
         }
     }
 
-    // --- Write-through cache helpers ---
+    // --- Write-through cache ---
 
     private fun cacheNotes(dtos: List<NoteResponseDto>) {
-        val now = Clock.System.now().toEpochMilliseconds()
-        dtos.forEach { dto ->
-            // Ensure subject exists in local DB (FK constraint)
-            val subjectId = dto.subject
-            val existingSubject = db.subjectEntityQueries.selectById(subjectId).executeAsOneOrNull()
-            if (existingSubject == null) {
-                val colorIndex = subjectId.hashCode().and(0x7FFFFFFF) % subjectColors.size
-                db.subjectEntityQueries.insert(
-                    id = subjectId,
-                    name = subjectId,
-                    color_hex = subjectColors[colorIndex],
-                    icon_name = "book",
-                    progress = 0.0,
-                    total_notes = 0,
-                    reviewed_notes = 0,
-                    created_at = now,
-                    updated_at = now,
+        db.transaction {
+            val now = Clock.System.now().toEpochMilliseconds()
+            dtos.forEach { dto ->
+                val subjectId = dto.subject
+                val existingSubject = db.subjectEntityQueries.selectById(subjectId).executeAsOneOrNull()
+                if (existingSubject == null) {
+                    db.subjectEntityQueries.insert(
+                        id = subjectId,
+                        name = subjectId,
+                        color_hex = colorForSubject(subjectId),
+                        icon_name = "book",
+                        progress = 0.0,
+                        total_notes = 0,
+                        reviewed_notes = 0,
+                        created_at = now,
+                        updated_at = now,
+                    )
+                }
+
+                db.noteEntityQueries.insert(
+                    id = dto.id.toString(),
+                    title = dto.title,
+                    content = dto.body,
+                    summary = summarize(dto.body),
+                    subject_id = dto.subject,
+                    week_number = null,
+                    read_time_minutes = estimateReadTimeMinutes(dto.body).toLong(),
+                    created_at = parseTimestamp(dto.createdAt),
+                    updated_at = parseTimestamp(dto.updatedAt),
                 )
             }
-
-            // Upsert note (INSERT OR REPLACE)
-            val summary = dto.body.take(150).let { if (dto.body.length > 150) "$it..." else it }
-            val readTime = (dto.body.split(" ").size / 200).coerceAtLeast(1).toLong()
-            db.noteEntityQueries.insert(
-                id = dto.id.toString(),
-                title = dto.title,
-                content = dto.body,
-                summary = summary,
-                subject_id = dto.subject,
-                week_number = null,
-                read_time_minutes = readTime,
-                created_at = parseTimestamp(dto.createdAt),
-                updated_at = parseTimestamp(dto.updatedAt),
-            )
         }
     }
 
@@ -164,38 +162,11 @@ class NoteRepositoryImpl(
         } else {
             db.noteEntityQueries.selectAll().executeAsList()
         }
-        return entities.map { entity ->
-            Note(
-                id = entity.id.toLongOrNull() ?: 0L,
-                title = entity.title,
-                content = entity.content,
-                summary = entity.summary,
-                subjectId = entity.subject_id,
-                subjectName = entity.subject_id,
-                weekNumber = entity.week_number?.toInt(),
-                readTimeMinutes = entity.read_time_minutes.toInt(),
-                createdAt = entity.created_at,
-                updatedAt = entity.updated_at,
-            )
-        }
+        return entities.map { it.toDomain() }
     }
 
-    private fun getNoteFromCache(id: Long): Note? {
-        val entity = db.noteEntityQueries.selectById(id.toString()).executeAsOneOrNull()
-            ?: return null
-        return Note(
-            id = entity.id.toLongOrNull() ?: 0L,
-            title = entity.title,
-            content = entity.content,
-            summary = entity.summary,
-            subjectId = entity.subject_id,
-            subjectName = entity.subject_id,
-            weekNumber = entity.week_number?.toInt(),
-            readTimeMinutes = entity.read_time_minutes.toInt(),
-            createdAt = entity.created_at,
-            updatedAt = entity.updated_at,
-        )
-    }
+    private fun getNoteFromCache(id: Long): Note? =
+        db.noteEntityQueries.selectById(id.toString()).executeAsOneOrNull()?.toDomain()
 
     private fun getSubjectsFromCache(): List<Subject> {
         return db.subjectEntityQueries.selectAll().executeAsList().map { entity ->
@@ -208,18 +179,46 @@ class NoteRepositoryImpl(
         }
     }
 
+    // --- Mappers ---
+
     private fun NoteResponseDto.toDomain() = Note(
         id = id,
         title = title,
         content = body,
-        summary = body.take(150).let { if (body.length > 150) "$it..." else it },
+        summary = summarize(body),
         subjectId = subject,
         subjectName = subject,
         weekNumber = null,
-        readTimeMinutes = (body.split(" ").size / 200).coerceAtLeast(1),
+        readTimeMinutes = estimateReadTimeMinutes(body),
         createdAt = parseTimestamp(createdAt),
         updatedAt = parseTimestamp(updatedAt),
     )
+
+    private fun NoteEntity.toDomain() = Note(
+        id = id.toLongOrNull() ?: 0L,
+        title = title,
+        content = content,
+        summary = summary,
+        subjectId = subject_id,
+        subjectName = subject_id,
+        weekNumber = week_number?.toInt(),
+        readTimeMinutes = read_time_minutes.toInt(),
+        createdAt = created_at,
+        updatedAt = updated_at,
+    )
+
+    // --- Helpers ---
+
+    private fun summarize(body: String): String {
+        val truncated = body.take(150)
+        return if (body.length > 150) "$truncated..." else truncated
+    }
+
+    private fun estimateReadTimeMinutes(body: String): Int =
+        (body.split(" ").size / 200).coerceAtLeast(1)
+
+    private fun colorForSubject(name: String): String =
+        subjectColors[name.hashCode().and(0x7FFFFFFF) % subjectColors.size]
 
     private fun parseTimestamp(iso: String): Long = try {
         Instant.parse(iso).toEpochMilliseconds()
