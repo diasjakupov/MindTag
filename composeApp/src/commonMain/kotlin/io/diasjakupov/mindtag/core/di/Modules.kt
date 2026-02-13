@@ -54,7 +54,7 @@ val databaseModule = module {
 }
 
 val networkModule = module {
-    single { AuthManager() }
+    single { AuthManager(get()) }
     single { HttpClientFactory.create(get()) }
     single { AuthApi(get(), get()) }
     single { NoteApi(get(), get()) }

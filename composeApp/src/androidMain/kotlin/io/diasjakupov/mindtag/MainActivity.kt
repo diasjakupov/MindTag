@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import io.diasjakupov.mindtag.core.database.DatabaseDriverFactory
 import io.diasjakupov.mindtag.core.di.initKoin
+import io.diasjakupov.mindtag.core.network.TokenStorage
 import org.koin.dsl.module
 
 class MainActivity : ComponentActivity() {
@@ -17,6 +18,7 @@ class MainActivity : ComponentActivity() {
 
         initKoin(module {
             single { DatabaseDriverFactory(this@MainActivity) }
+            single { TokenStorage(this@MainActivity) }
         })
 
         setContent {
