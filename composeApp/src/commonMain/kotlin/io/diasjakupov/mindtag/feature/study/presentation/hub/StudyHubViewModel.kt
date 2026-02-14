@@ -16,41 +16,65 @@ class StudyHubViewModel(
 
     override val tag = "StudyHubVM"
 
+    init {
+        loadData()
+    }
+
+    private fun loadData() {
+        viewModelScope.launch {
+            try {
+                val subjects = studyRepository.getSubjects().firstOrNull() ?: emptyList()
+                val dueCount = studyRepository.getDueCardCount()
+
+                updateState {
+                    copy(
+                        subjects = subjects.map { SubjectUi(id = it.id, name = it.name) },
+                        cardsDueCount = dueCount,
+                    )
+                }
+            } catch (e: Exception) {
+                Logger.e(tag, "loadData: error", e)
+            }
+        }
+    }
+
     override fun onIntent(intent: StudyHubIntent) {
         Logger.d(tag, "onIntent: $intent")
         when (intent) {
-            is StudyHubIntent.TapStartQuiz -> createAndNavigate(SessionType.QUICK_QUIZ)
-            is StudyHubIntent.TapBeginExam -> createAndNavigate(SessionType.EXAM_MODE)
+            is StudyHubIntent.SelectSubject -> updateState { copy(selectedSubjectId = intent.subjectId) }
+            is StudyHubIntent.SelectQuestionCount -> updateState { copy(questionCount = intent.count) }
+            is StudyHubIntent.ToggleTimer -> updateState { copy(timerEnabled = intent.enabled) }
+            is StudyHubIntent.SelectTimerDuration -> updateState { copy(timerMinutes = intent.minutes) }
+            is StudyHubIntent.StartQuiz -> createAndNavigate()
             is StudyHubIntent.DismissError -> updateState { copy(errorMessage = null) }
         }
     }
 
-    private fun createAndNavigate(type: SessionType) {
+    private fun createAndNavigate() {
         if (state.value.isCreatingSession) return
-        Logger.d(tag, "createAndNavigate: start — type=$type")
         updateState { copy(isCreatingSession = true, errorMessage = null) }
 
         viewModelScope.launch {
             try {
-                val cards = studyRepository.getCardsForSession(null, 1).firstOrNull()
+                val s = state.value
+                val cards = studyRepository.getCardsForSession(s.selectedSubjectId, 1).firstOrNull()
                 if (cards.isNullOrEmpty()) {
-                    Logger.d(tag, "createAndNavigate: no flashcards available")
                     updateState {
                         copy(
                             isCreatingSession = false,
-                            errorMessage = "Create some notes first to generate quiz questions",
+                            errorMessage = "No flashcards available. Create some notes first.",
                         )
                     }
                     return@launch
                 }
 
-                val timeLimitSeconds = if (type == SessionType.EXAM_MODE) 45 * 60 else null
+                val timeLimitSeconds = if (s.timerEnabled) s.timerMinutes * 60 else null
                 val quizData = startQuizUseCase(
-                    type = type,
-                    questionCount = if (type == SessionType.EXAM_MODE) 50 else 10,
+                    type = SessionType.QUIZ,
+                    subjectId = s.selectedSubjectId,
+                    questionCount = s.questionCount,
                     timeLimitSeconds = timeLimitSeconds,
                 )
-                Logger.d(tag, "createAndNavigate: success — sessionId=${quizData.session.id}")
                 updateState { copy(isCreatingSession = false) }
                 sendEffect(StudyHubEffect.NavigateToQuiz(quizData.session.id))
             } catch (e: Exception) {
