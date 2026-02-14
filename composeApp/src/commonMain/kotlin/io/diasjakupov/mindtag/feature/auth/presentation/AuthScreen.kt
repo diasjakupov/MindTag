@@ -186,12 +186,13 @@ private fun AuthFormSection(
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Outlined.Email,
-                    contentDescription = null,
+                    contentDescription = "Email",
                     modifier = Modifier.size(20.dp),
                 )
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             singleLine = true,
+            enabled = !state.isLoading,
             colors = filledFieldColors,
             shape = MindTagShapes.lg,
             modifier = Modifier.fillMaxWidth(),
@@ -205,7 +206,7 @@ private fun AuthFormSection(
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Outlined.Lock,
-                    contentDescription = null,
+                    contentDescription = "Password",
                     modifier = Modifier.size(20.dp),
                 )
             },
@@ -223,6 +224,7 @@ private fun AuthFormSection(
                                    else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             singleLine = true,
+            enabled = !state.isLoading,
             colors = filledFieldColors,
             shape = MindTagShapes.lg,
             modifier = Modifier.fillMaxWidth(),
@@ -240,23 +242,20 @@ private fun AuthFormSection(
         Spacer(modifier = Modifier.height(MindTagSpacing.md))
 
         // Submit button
-        if (state.isLoading) {
-            Box(
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                contentAlignment = Alignment.Center,
-            ) {
+        Box(contentAlignment = Alignment.Center) {
+            MindTagButton(
+                text = if (state.isLoading) "" else if (state.isLoginMode) "Log in" else "Register",
+                onClick = onSubmit,
+                enabled = !state.isLoading,
+                variant = MindTagButtonVariant.PrimaryLarge,
+            )
+            if (state.isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(24.dp),
-                    color = MindTagColors.Primary,
+                    color = Color.White,
                     strokeWidth = 2.dp,
                 )
             }
-        } else {
-            MindTagButton(
-                text = if (state.isLoginMode) "Log in" else "Register",
-                onClick = onSubmit,
-                variant = MindTagButtonVariant.PrimaryLarge,
-            )
         }
 
         // Toggle login/register
