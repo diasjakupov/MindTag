@@ -3,8 +3,8 @@ package io.diasjakupov.mindtag.feature.study.presentation.quiz
 import androidx.lifecycle.viewModelScope
 import io.diasjakupov.mindtag.core.mvi.MviViewModel
 import io.diasjakupov.mindtag.core.util.Logger
+import io.diasjakupov.mindtag.feature.study.domain.model.CardType
 import io.diasjakupov.mindtag.feature.study.domain.model.FlashCard
-import io.diasjakupov.mindtag.feature.study.domain.model.SessionType
 import io.diasjakupov.mindtag.feature.study.domain.repository.StudyRepository
 import io.diasjakupov.mindtag.feature.study.domain.usecase.SubmitAnswerUseCase
 import kotlinx.coroutines.Job
@@ -48,7 +48,6 @@ class QuizViewModel(
 
                 updateState {
                     copy(
-                        sessionType = session.sessionType.name,
                         totalQuestions = cards.size,
                         currentQuestionIndex = 0,
                         progressPercent = if (cards.isNotEmpty()) (1f / cards.size) * 100f else 0f,
@@ -56,14 +55,17 @@ class QuizViewModel(
                         currentOptions = firstCard?.toOptionUiList() ?: emptyList(),
                         selectedOptionId = null,
                         isAnswerSubmitted = false,
-                        timeRemainingSeconds = if (session.sessionType == SessionType.EXAM_MODE) session.timeLimitSeconds else null,
-                        timeRemainingFormatted = if (session.sessionType == SessionType.EXAM_MODE) formatTime(session.timeLimitSeconds ?: 0) else "",
+                        timeRemainingSeconds = session.timeLimitSeconds,
+                        timeRemainingFormatted = if (session.timeLimitSeconds != null) formatTime(session.timeLimitSeconds) else "",
                         isLoading = false,
                         isLastQuestion = cards.size <= 1,
+                        cardType = firstCard?.type ?: CardType.MULTIPLE_CHOICE,
+                        isFlipped = false,
+                        flashcardAnswer = firstCard?.correctAnswer ?: "",
                     )
                 }
 
-                if (session.sessionType == SessionType.EXAM_MODE) {
+                if (session.timeLimitSeconds != null) {
                     startTimer()
                 }
             } catch (e: Exception) {
@@ -97,6 +99,10 @@ class QuizViewModel(
                 sendEffect(QuizEffect.ShowExitConfirmation)
             }
             is QuizIntent.TimerTick -> handleTimerTick()
+            is QuizIntent.FlipCard -> {
+                updateState { copy(isFlipped = !isFlipped) }
+            }
+            is QuizIntent.SelfAssess -> handleSelfAssess(intent.quality)
         }
     }
 
@@ -126,32 +132,71 @@ class QuizViewModel(
                 Logger.e(tag, "handleNext: submitAnswer error", e)
             }
 
-            if (currentState.isLastQuestion) {
-                Logger.d(tag, "handleNext: last question — navigating to results")
-                timerJob?.cancel()
-                sendEffect(QuizEffect.NavigateToResults(sessionId))
-                return@launch
+            advanceToNextCard(currentState)
+        }
+    }
+
+    private fun handleSelfAssess(quality: Int) {
+        val currentState = state.value
+        val currentIndex = currentState.currentQuestionIndex
+        val currentCard = cards.getOrNull(currentIndex) ?: return
+
+        // Map: 0=No (quality 1), 1=Kinda (quality 3), 2=Yes (quality 5)
+        val isCorrect = quality >= 1 // Kinda or Yes counts as "seen"
+        val userAnswer = when (quality) {
+            0 -> "Didn't know"
+            1 -> "Partially knew"
+            else -> "Knew it"
+        }
+
+        viewModelScope.launch {
+            try {
+                submitAnswerUseCase(
+                    sessionId = sessionId,
+                    cardId = currentCard.id,
+                    userAnswer = userAnswer,
+                    isCorrect = isCorrect,
+                    confidenceRating = null,
+                    timeSpentSeconds = 0,
+                    currentQuestionIndex = currentIndex,
+                    totalQuestions = currentState.totalQuestions,
+                )
+            } catch (e: Exception) {
+                Logger.e(tag, "handleSelfAssess: error", e)
             }
 
-            val nextIndex = currentIndex + 1
-            val nextCard = cards.getOrNull(nextIndex)
+            advanceToNextCard(currentState)
+        }
+    }
 
-            if (nextCard != null) {
-                updateState {
-                    copy(
-                        currentQuestionIndex = nextIndex,
-                        progressPercent = ((nextIndex + 1).toFloat() / totalQuestions) * 100f,
-                        currentQuestion = nextCard.question,
-                        currentOptions = nextCard.toOptionUiList(),
-                        selectedOptionId = null,
-                        isAnswerSubmitted = false,
-                        isLastQuestion = nextIndex >= totalQuestions - 1,
-                    )
-                }
-            } else {
-                timerJob?.cancel()
-                sendEffect(QuizEffect.NavigateToResults(sessionId))
+    private fun advanceToNextCard(currentState: QuizState) {
+        if (currentState.isLastQuestion) {
+            timerJob?.cancel()
+            sendEffect(QuizEffect.NavigateToResults(sessionId))
+            return
+        }
+
+        val nextIndex = currentState.currentQuestionIndex + 1
+        val nextCard = cards.getOrNull(nextIndex)
+
+        if (nextCard != null) {
+            updateState {
+                copy(
+                    currentQuestionIndex = nextIndex,
+                    progressPercent = ((nextIndex + 1).toFloat() / totalQuestions) * 100f,
+                    currentQuestion = nextCard.question,
+                    currentOptions = nextCard.toOptionUiList(),
+                    selectedOptionId = null,
+                    isAnswerSubmitted = false,
+                    isLastQuestion = nextIndex >= totalQuestions - 1,
+                    cardType = nextCard.type,
+                    isFlipped = false,
+                    flashcardAnswer = nextCard.correctAnswer,
+                )
             }
+        } else {
+            timerJob?.cancel()
+            sendEffect(QuizEffect.NavigateToResults(sessionId))
         }
     }
 
