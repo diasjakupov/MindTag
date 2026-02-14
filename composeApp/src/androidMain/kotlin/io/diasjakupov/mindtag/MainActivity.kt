@@ -4,8 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
 import io.diasjakupov.mindtag.core.database.DatabaseDriverFactory
 import io.diasjakupov.mindtag.core.di.initKoin
 import io.diasjakupov.mindtag.core.network.TokenStorage
@@ -25,10 +23,4 @@ class MainActivity : ComponentActivity() {
             App()
         }
     }
-}
-
-@Preview
-@Composable
-fun AppAndroidPreview() {
-    App()
 }
