@@ -89,7 +89,7 @@ class NoteDetailViewModel(
         viewModelScope.launch {
             try {
                 val quizData = startQuizUseCase(
-                    type = SessionType.QUICK_QUIZ,
+                    type = SessionType.QUIZ,
                     subjectId = subjectId,
                     questionCount = 10,
                 )
