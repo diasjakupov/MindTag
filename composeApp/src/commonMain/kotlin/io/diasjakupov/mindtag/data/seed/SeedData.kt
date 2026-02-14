@@ -134,124 +134,125 @@ object SeedData {
             "[\"$N_ECON_2\"]", "Expenditure: C+I+G+NX. All three approaches should yield the same GDP figure.",
             2.5, 0, 0, null, now)
 
-        q.insert("card-${i++}", "How does expansionary monetary policy affect interest rates?",
-            "MULTIPLE_CHOICE", "MEDIUM", ECON, "It lowers interest rates, stimulating borrowing",
-            """[{"id":"a","text":"It raises interest rates to slow inflation","isCorrect":false},{"id":"b","text":"It lowers interest rates, stimulating borrowing","isCorrect":true},{"id":"c","text":"It has no effect on interest rates","isCorrect":false},{"id":"d","text":"It eliminates interest rates entirely","isCorrect":false}]""",
-            "[\"$N_ECON_3\"]", "Central bank buys bonds (open market operations), increasing money supply and reducing rates.",
+        // TRUE_FALSE cards (13-22) — Economics + CS mix
+        q.insert("card-${i++}", "Expansionary monetary policy lowers interest rates.",
+            "TRUE_FALSE", "MEDIUM", ECON, "True",
+            """[{"id":"a","text":"True","isCorrect":true},{"id":"b","text":"False","isCorrect":false}]""",
+            "[\"$N_ECON_3\"]", "Central bank buys bonds, increasing money supply and reducing rates.",
             2.5, 0, 0, null, now)
 
-        q.insert("card-${i++}", "How might a central bank's rate cut affect GDP growth?",
-            "MULTIPLE_CHOICE", "HARD", ECON, "Lower rates boost investment and consumption, increasing aggregate demand and GDP",
-            """[{"id":"a","text":"Lower rates boost investment and consumption, increasing aggregate demand and GDP","isCorrect":true},{"id":"b","text":"Lower rates reduce GDP by discouraging saving","isCorrect":false},{"id":"c","text":"Rate cuts only affect inflation, not GDP","isCorrect":false},{"id":"d","text":"GDP is unrelated to monetary policy","isCorrect":false}]""",
-            "[\"$N_ECON_2\",\"$N_ECON_3\"]", "This connects monetary policy transmission to national income accounting.",
+        q.insert("card-${i++}", "A central bank rate cut decreases GDP growth.",
+            "TRUE_FALSE", "HARD", ECON, "False",
+            """[{"id":"a","text":"True","isCorrect":false},{"id":"b","text":"False","isCorrect":true}]""",
+            "[\"$N_ECON_2\",\"$N_ECON_3\"]", "Lower rates boost investment and consumption, increasing aggregate demand and GDP.",
             2.5, 0, 0, null, now)
 
-        q.insert("card-${i++}", "In which market structure do firms earn zero economic profit in the long run?",
-            "MULTIPLE_CHOICE", "EASY", ECON, "Perfect competition",
-            """[{"id":"a","text":"Perfect competition","isCorrect":true},{"id":"b","text":"Monopoly","isCorrect":false},{"id":"c","text":"Oligopoly","isCorrect":false},{"id":"d","text":"Monopsony","isCorrect":false}]""",
+        q.insert("card-${i++}", "In perfect competition, firms earn zero economic profit in the long run.",
+            "TRUE_FALSE", "EASY", ECON, "True",
+            """[{"id":"a","text":"True","isCorrect":true},{"id":"b","text":"False","isCorrect":false}]""",
             "[\"$N_ECON_4\"]", "Free entry and exit drives economic profit to zero as new firms enter profitable markets.",
             2.5, 0, 0, null, now)
 
-        q.insert("card-${i++}", "How does comparative advantage differ from absolute advantage?",
-            "MULTIPLE_CHOICE", "MEDIUM", ECON, "Comparative advantage is about lower opportunity cost, not total output",
-            """[{"id":"a","text":"They mean the same thing","isCorrect":false},{"id":"b","text":"Comparative advantage is about lower opportunity cost, not total output","isCorrect":true},{"id":"c","text":"Absolute advantage considers opportunity cost","isCorrect":false},{"id":"d","text":"Comparative advantage only applies to large countries","isCorrect":false}]""",
+        q.insert("card-${i++}", "Comparative advantage is based on lower opportunity cost, not total output.",
+            "TRUE_FALSE", "MEDIUM", ECON, "True",
+            """[{"id":"a","text":"True","isCorrect":true},{"id":"b","text":"False","isCorrect":false}]""",
             "[\"$N_ECON_5\"]", "Ricardo's key insight: what matters is relative (opportunity) cost, not absolute productivity.",
             2.5, 0, 0, null, now)
 
-        q.insert("card-${i++}", "How do tariffs affect consumer surplus and total welfare?",
-            "MULTIPLE_CHOICE", "HARD", ECON, "Tariffs reduce consumer surplus and create deadweight loss",
-            """[{"id":"a","text":"Tariffs increase total welfare for everyone","isCorrect":false},{"id":"b","text":"Tariffs reduce consumer surplus and create deadweight loss","isCorrect":true},{"id":"c","text":"Tariffs have no effect on consumer surplus","isCorrect":false},{"id":"d","text":"Tariffs only benefit foreign producers","isCorrect":false}]""",
-            "[\"$N_ECON_5\",\"$N_ECON_1\"]", "The net welfare effect is negative because deadweight loss exceeds the redistribution gains.",
+        q.insert("card-${i++}", "Tariffs increase total welfare for all participants in trade.",
+            "TRUE_FALSE", "HARD", ECON, "False",
+            """[{"id":"a","text":"True","isCorrect":false},{"id":"b","text":"False","isCorrect":true}]""",
+            "[\"$N_ECON_5\",\"$N_ECON_1\"]", "Tariffs reduce consumer surplus and create deadweight loss.",
             2.5, 0, 0, null, now)
 
-        q.insert("card-${i++}", "What does the GDP expenditure formula C + I + G + NX represent?",
-            "MULTIPLE_CHOICE", "EASY", ECON, "Consumption + Investment + Government spending + Net exports",
-            """[{"id":"a","text":"Consumption + Investment + Government spending + Net exports","isCorrect":true},{"id":"b","text":"Cost + Income + Growth + Net exchange","isCorrect":false},{"id":"c","text":"Capital + Interest + Goods + National expenditure","isCorrect":false},{"id":"d","text":"Credit + Insurance + Grants + New exports","isCorrect":false}]""",
-            "[\"$N_ECON_2\"]", "Each component measures a different source of spending in the economy.",
+        q.insert("card-${i++}", "The GDP expenditure formula is C + I + G + NX.",
+            "TRUE_FALSE", "EASY", ECON, "True",
+            """[{"id":"a","text":"True","isCorrect":true},{"id":"b","text":"False","isCorrect":false}]""",
+            "[\"$N_ECON_2\"]", "Consumption + Investment + Government spending + Net exports.",
             2.5, 0, 0, null, now)
 
-        q.insert("card-${i++}", "What is the main tool central banks use in open market operations?",
-            "MULTIPLE_CHOICE", "MEDIUM", ECON, "Buying and selling government bonds",
-            """[{"id":"a","text":"Printing more currency","isCorrect":false},{"id":"b","text":"Buying and selling government bonds","isCorrect":true},{"id":"c","text":"Setting minimum wages","isCorrect":false},{"id":"d","text":"Controlling stock market prices","isCorrect":false}]""",
-            "[\"$N_ECON_3\"]", "Buying bonds injects money → lower rates. Selling bonds withdraws money → higher rates.",
+        q.insert("card-${i++}", "Central banks use buying and selling government bonds in open market operations.",
+            "TRUE_FALSE", "MEDIUM", ECON, "True",
+            """[{"id":"a","text":"True","isCorrect":true},{"id":"b","text":"False","isCorrect":false}]""",
+            "[\"$N_ECON_3\"]", "Buying bonds injects money (lower rates). Selling bonds withdraws money (higher rates).",
             2.5, 0, 0, null, now)
 
-        q.insert("card-${i++}", "A monopoly can persist in the long run because of:",
-            "MULTIPLE_CHOICE", "MEDIUM", ECON, "High barriers to entry",
-            """[{"id":"a","text":"High barriers to entry","isCorrect":true},{"id":"b","text":"Perfect information among consumers","isCorrect":false},{"id":"c","text":"Free entry and exit of firms","isCorrect":false},{"id":"d","text":"Identical products across all firms","isCorrect":false}]""",
-            "[\"$N_ECON_4\"]", "Patents, economies of scale, and government licenses create barriers that sustain monopoly power.",
+        q.insert("card-${i++}", "A monopoly can persist in the long run due to low barriers to entry.",
+            "TRUE_FALSE", "MEDIUM", ECON, "False",
+            """[{"id":"a","text":"True","isCorrect":false},{"id":"b","text":"False","isCorrect":true}]""",
+            "[\"$N_ECON_4\"]", "Monopolies persist due to HIGH barriers to entry (patents, economies of scale, licenses).",
             2.5, 0, 0, null, now)
 
-        // CS flashcards (12)
-        q.insert("card-${i++}", "What is the worst-case time complexity for searching in an unbalanced BST?",
-            "MULTIPLE_CHOICE", "MEDIUM", CS, "O(n)",
-            """[{"id":"a","text":"O(1)","isCorrect":false},{"id":"b","text":"O(log n)","isCorrect":false},{"id":"c","text":"O(n)","isCorrect":true},{"id":"d","text":"O(n log n)","isCorrect":false}]""",
-            "[\"$N_CS_1\"]", "An unbalanced BST can degenerate into a linked list with height n.",
+        q.insert("card-${i++}", "The worst-case time complexity for searching an unbalanced BST is O(log n).",
+            "TRUE_FALSE", "MEDIUM", CS, "False",
+            """[{"id":"a","text":"True","isCorrect":false},{"id":"b","text":"False","isCorrect":true}]""",
+            "[\"$N_CS_1\"]", "An unbalanced BST can degenerate into a linked list, making worst-case O(n).",
             2.5, 0, 0, null, now)
 
-        q.insert("card-${i++}", "What is the time complexity of binary search?",
-            "MULTIPLE_CHOICE", "EASY", CS, "O(log n)",
-            """[{"id":"a","text":"O(1)","isCorrect":false},{"id":"b","text":"O(log n)","isCorrect":true},{"id":"c","text":"O(n)","isCorrect":false},{"id":"d","text":"O(n^2)","isCorrect":false}]""",
+        q.insert("card-${i++}", "The time complexity of binary search is O(log n).",
+            "TRUE_FALSE", "EASY", CS, "True",
+            """[{"id":"a","text":"True","isCorrect":true},{"id":"b","text":"False","isCorrect":false}]""",
             "[\"$N_CS_2\"]", "Each comparison halves the search space, giving log2(n) steps.",
             2.5, 0, 0, null, now)
 
-        q.insert("card-${i++}", "What data structure does BFS use and what does DFS use?",
-            "MULTIPLE_CHOICE", "EASY", CS, "BFS uses a queue; DFS uses a stack",
-            """[{"id":"a","text":"BFS uses a queue; DFS uses a stack","isCorrect":true},{"id":"b","text":"BFS uses a stack; DFS uses a queue","isCorrect":false},{"id":"c","text":"Both use a priority queue","isCorrect":false},{"id":"d","text":"Both use a stack","isCorrect":false}]""",
+        // FLASHCARD cards (23-32) — CS
+        q.insert("card-${i++}", "What data structures do BFS and DFS use respectively?",
+            "FLASHCARD", "EASY", CS, "BFS uses a queue (FIFO for level-order); DFS uses a stack (LIFO for depth-first).",
+            "[]",
             "[\"$N_CS_3\"]", "Queue = FIFO for level-order; Stack = LIFO for depth-first exploration.",
             2.5, 0, 0, null, now)
 
         q.insert("card-${i++}", "Why is the lower bound for comparison-based sorting O(n log n)?",
-            "MULTIPLE_CHOICE", "HARD", CS, "A decision tree must have n! leaves, requiring height >= log2(n!)",
-            """[{"id":"a","text":"A decision tree must have n! leaves, requiring height >= log2(n!)","isCorrect":true},{"id":"b","text":"All algorithms need at least n log n memory","isCorrect":false},{"id":"c","text":"It is impossible to compare elements faster","isCorrect":false},{"id":"d","text":"The CPU can only process log n comparisons per cycle","isCorrect":false}]""",
+            "FLASHCARD", "HARD", CS, "A decision tree must have n! leaves, requiring height >= log2(n!). This information-theoretic argument applies to all comparison sorts.",
+            "[]",
             "[\"$N_CS_4\",\"$N_CS_2\"]", "This information-theoretic argument applies to all comparison sorts.",
             2.5, 0, 0, null, now)
 
         q.insert("card-${i++}", "What two properties must a problem have to be solvable with dynamic programming?",
-            "MULTIPLE_CHOICE", "MEDIUM", CS, "Overlapping subproblems and optimal substructure",
-            """[{"id":"a","text":"Overlapping subproblems and optimal substructure","isCorrect":true},{"id":"b","text":"Constant time lookup and linear space","isCorrect":false},{"id":"c","text":"Sorted input and binary division","isCorrect":false},{"id":"d","text":"Greedy choice property and matroid structure","isCorrect":false}]""",
-            "[\"$N_CS_5\"]", "Overlapping subproblems = same subproblem solved multiple times. Optimal substructure = optimal solution contains optimal sub-solutions.",
+            "FLASHCARD", "MEDIUM", CS, "Overlapping subproblems (same subproblem solved multiple times) and optimal substructure (optimal solution contains optimal sub-solutions).",
+            "[]",
+            "[\"$N_CS_5\"]", "Both properties must be present for DP to be applicable.",
             2.5, 0, 0, null, now)
 
         q.insert("card-${i++}", "Compare the space complexity of merge sort vs. quick sort.",
-            "MULTIPLE_CHOICE", "MEDIUM", CS, "Merge sort: O(n) extra space; Quick sort: O(log n) average",
-            """[{"id":"a","text":"Merge sort: O(n) extra space; Quick sort: O(log n) average","isCorrect":true},{"id":"b","text":"Both use O(1) extra space","isCorrect":false},{"id":"c","text":"Merge sort: O(1); Quick sort: O(n)","isCorrect":false},{"id":"d","text":"Both use O(n) extra space","isCorrect":false}]""",
+            "FLASHCARD", "MEDIUM", CS, "Merge sort: O(n) extra space. Quick sort: O(log n) average (stack frames). This space trade-off is why quick sort is often preferred.",
+            "[]",
             "[\"$N_CS_4\"]", "This space trade-off is a key reason quick sort is often preferred in practice.",
             2.5, 0, 0, null, now)
 
         q.insert("card-${i++}", "Which algorithm finds shortest paths in a weighted graph with non-negative edges?",
-            "MULTIPLE_CHOICE", "EASY", CS, "Dijkstra's algorithm",
-            """[{"id":"a","text":"DFS","isCorrect":false},{"id":"b","text":"BFS","isCorrect":false},{"id":"c","text":"Dijkstra's algorithm","isCorrect":true},{"id":"d","text":"Bubble sort","isCorrect":false}]""",
+            "FLASHCARD", "EASY", CS, "Dijkstra's algorithm. It uses a priority queue (min-heap) for greedy edge relaxation.",
+            "[]",
             "[\"$N_CS_3\"]", "Dijkstra uses a priority queue (min-heap) for greedy edge relaxation.",
             2.5, 0, 0, null, now)
 
-        q.insert("card-${i++}", "How can graph algorithms be applied to analyze evolutionary trees in biology?",
-            "MULTIPLE_CHOICE", "HARD", CS, "Phylogenetic trees are graphs; BFS/DFS traverse them and MST infers evolutionary distances",
-            """[{"id":"a","text":"Phylogenetic trees are graphs; BFS/DFS traverse them and MST infers evolutionary distances","isCorrect":true},{"id":"b","text":"Graph algorithms cannot be applied to biology","isCorrect":false},{"id":"c","text":"Only sorting algorithms apply to biological data","isCorrect":false},{"id":"d","text":"Evolution follows a stack-based LIFO pattern","isCorrect":false}]""",
-            "[\"$N_CS_3\",\"$N_BIO_5\"]", "This is a cross-disciplinary application connecting CS graph theory to evolutionary biology.",
+        q.insert("card-${i++}", "How can graph algorithms be applied to evolutionary biology?",
+            "FLASHCARD", "HARD", CS, "Phylogenetic trees are graphs. BFS/DFS can traverse them and MST algorithms can infer evolutionary distances between species.",
+            "[]",
+            "[\"$N_CS_3\",\"$N_BIO_5\"]", "Cross-disciplinary application connecting CS graph theory to evolutionary biology.",
             2.5, 0, 0, null, now)
 
         q.insert("card-${i++}", "What is the difference between memoization and tabulation in DP?",
-            "MULTIPLE_CHOICE", "MEDIUM", CS, "Memoization is top-down (recursive + cache); tabulation is bottom-up (iterative table)",
-            """[{"id":"a","text":"They are the same technique with different names","isCorrect":false},{"id":"b","text":"Memoization is top-down (recursive + cache); tabulation is bottom-up (iterative table)","isCorrect":true},{"id":"c","text":"Memoization uses more memory than tabulation always","isCorrect":false},{"id":"d","text":"Tabulation requires recursion while memoization does not","isCorrect":false}]""",
+            "FLASHCARD", "MEDIUM", CS, "Memoization is top-down (recursive + cache). Tabulation is bottom-up (iterative table). Both avoid recomputation but differ in traversal order.",
+            "[]",
             "[\"$N_CS_5\"]", "Both avoid recomputation but differ in traversal order and stack usage.",
             2.5, 0, 0, null, now)
 
         q.insert("card-${i++}", "How does BST structure relate to sorting?",
-            "MULTIPLE_CHOICE", "MEDIUM", CS, "In-order traversal of a BST yields elements in sorted order",
-            """[{"id":"a","text":"BSTs cannot be used for sorting","isCorrect":false},{"id":"b","text":"In-order traversal of a BST yields elements in sorted order","isCorrect":true},{"id":"c","text":"Pre-order traversal gives sorted output","isCorrect":false},{"id":"d","text":"BSTs sort data during insertion in O(1) time","isCorrect":false}]""",
+            "FLASHCARD", "MEDIUM", CS, "In-order traversal of a BST yields elements in sorted order. This connects tree data structures to sorting algorithms.",
+            "[]",
             "[\"$N_CS_1\",\"$N_CS_4\"]", "This connects tree data structures to sorting algorithms through in-order traversal.",
             2.5, 0, 0, null, now)
 
         q.insert("card-${i++}", "How does dynamic programming relate to optimization in economics?",
-            "MULTIPLE_CHOICE", "HARD", CS, "Both break complex decisions into subproblems; the knapsack problem mirrors budget allocation",
-            """[{"id":"a","text":"Both break complex decisions into subproblems; the knapsack problem mirrors budget allocation","isCorrect":true},{"id":"b","text":"DP has no connection to economics","isCorrect":false},{"id":"c","text":"Economics only uses greedy algorithms","isCorrect":false},{"id":"d","text":"DP was invented for stock trading specifically","isCorrect":false}]""",
+            "FLASHCARD", "HARD", CS, "Both break complex decisions into subproblems. The knapsack problem mirrors budget allocation. Richard Bellman developed DP partly from economic optimization theory.",
+            "[]",
             "[\"$N_CS_5\",\"$N_ECON_5\"]", "Richard Bellman developed DP partly from economic optimization theory.",
             2.5, 0, 0, null, now)
 
-        q.insert("card-${i}", "What is the time complexity of inserting into an AVL tree?",
-            "MULTIPLE_CHOICE", "MEDIUM", CS, "O(log n)",
-            """[{"id":"a","text":"O(1)","isCorrect":false},{"id":"b","text":"O(log n)","isCorrect":true},{"id":"c","text":"O(n)","isCorrect":false},{"id":"d","text":"O(n log n)","isCorrect":false}]""",
+        q.insert("card-${i}", "What is the time complexity of inserting into an AVL tree and why?",
+            "FLASHCARD", "MEDIUM", CS, "O(log n). AVL trees maintain balance with rotations after each insertion, guaranteeing O(log n) height.",
+            "[]",
             "[\"$N_CS_1\",\"$N_CS_2\"]", "AVL trees maintain balance with rotations, guaranteeing O(log n) height.",
             2.5, 0, 0, null, now)
     }
@@ -259,16 +260,16 @@ object SeedData {
     private fun insertStudySessions(db: MindTagDatabase) {
         val q = db.studySessionEntityQueries
 
-        // CS Quick Quiz — 5 questions, completed yesterday
+        // CS Quiz — 5 questions, completed yesterday
         q.insert(
-            SESSION_CS_QUICK, CS, "QUICK_QUIZ",
+            SESSION_CS_QUICK, CS, "QUIZ",
             yesterday, yesterday + 180_000L, // 3 min duration
             5, null, "COMPLETED"
         )
 
-        // Biology Exam Mode — 7 questions, completed today, 10-min time limit
+        // Biology Quiz — 7 questions, completed today, 10-min time limit
         q.insert(
-            SESSION_BIO_EXAM, BIO, "EXAM_MODE",
+            SESSION_BIO_EXAM, BIO, "QUIZ",
             now - 900_000L, now - 300_000L, // 10 min ago, finished 5 min ago
             7, 600, "COMPLETED"
         )
