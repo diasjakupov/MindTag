@@ -6,8 +6,6 @@ data class SessionResult(
     val totalCorrect: Int,
     val totalQuestions: Int,
     val timeSpentFormatted: String,
-    val xpEarned: Int,
-    val currentStreak: Int,
     val answers: List<QuizAnswerDetail>,
 )
 

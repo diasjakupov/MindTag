@@ -51,8 +51,6 @@ class ResultsViewModel(
                         feedbackMessage = feedback,
                         feedbackSubtext = subtext,
                         timeSpent = result.timeSpentFormatted,
-                        streak = result.currentStreak,
-                        xpEarned = result.xpEarned,
                         answers = answers,
                         isLoading = false,
                     )

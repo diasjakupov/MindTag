@@ -80,7 +80,6 @@ class QuizRepositoryImpl(
             val totalCorrect = answerDetails.count { it.isCorrect }
             val totalQuestions = answerDetails.size.coerceAtLeast(1)
             val scorePercent = (totalCorrect * 100) / totalQuestions
-            val xpEarned = totalCorrect * 10
 
             Logger.d(tag, "getSessionResults: score=$scorePercent%, correct=$totalCorrect/$totalQuestions")
 
@@ -91,19 +90,12 @@ class QuizRepositoryImpl(
             }
             val timeSpentFormatted = formatTime(timeSpentSeconds)
 
-            val progress = session.subjectId?.let {
-                db.userProgressEntityQueries.selectBySubjectId(it).executeAsOneOrNull()
-            }
-            val currentStreak = progress?.current_streak?.toInt() ?: 0
-
             SessionResult(
                 session = session,
                 scorePercent = scorePercent,
                 totalCorrect = totalCorrect,
                 totalQuestions = totalQuestions,
                 timeSpentFormatted = timeSpentFormatted,
-                xpEarned = xpEarned,
-                currentStreak = currentStreak,
                 answers = answerDetails,
             )
         }

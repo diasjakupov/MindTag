@@ -42,7 +42,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.graphics.vector.ImageVector
 import io.diasjakupov.mindtag.core.designsystem.MindTagColors
 import io.diasjakupov.mindtag.core.designsystem.MindTagIcons
 import io.diasjakupov.mindtag.core.designsystem.MindTagShapes
@@ -97,12 +96,8 @@ fun ResultsScreen(
                 feedbackSubtext = state.feedbackSubtext,
             )
 
-            // Stats row
-            StatsRow(
-                timeSpent = state.timeSpent,
-                streak = state.streak,
-                xpEarned = state.xpEarned,
-            )
+            // Time stat
+            TimeStatCard(timeSpent = state.timeSpent)
 
             Spacer(modifier = Modifier.height(MindTagSpacing.xxxxl))
 
@@ -263,94 +258,53 @@ private fun ScoreRingSection(
 }
 
 @Composable
-private fun StatsRow(
-    timeSpent: String,
-    streak: Int,
-    xpEarned: Int,
-) {
+private fun TimeStatCard(timeSpent: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = MindTagSpacing.xl),
-        horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.lg),
     ) {
-        StatCard(
-            icon = MindTagIcons.Schedule,
-            iconColor = MindTagColors.Info,
-            iconBgColor = MindTagColors.Info.copy(alpha = 0.2f),
-            label = "TIME",
-            value = timeSpent,
-            modifier = Modifier.weight(1f),
-        )
-        StatCard(
-            icon = MindTagIcons.LocalFireDepartment,
-            iconColor = MindTagColors.Warning,
-            iconBgColor = MindTagColors.Warning.copy(alpha = 0.2f),
-            label = "STREAK",
-            value = "$streak Days",
-            modifier = Modifier.weight(1f),
-        )
-        StatCard(
-            icon = MindTagIcons.BoltOutlined,
-            iconColor = MindTagColors.AccentPurple,
-            iconBgColor = MindTagColors.AccentPurple.copy(alpha = 0.2f),
-            label = "XP",
-            value = "+$xpEarned",
-            modifier = Modifier.weight(1f),
-        )
-    }
-}
-
-@Composable
-private fun StatCard(
-    icon: ImageVector,
-    iconColor: Color,
-    iconBgColor: Color,
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier
-            .clip(MindTagShapes.xl)
-            .background(MindTagColors.SurfaceDarkAlt)
-            .border(1.dp, MindTagColors.BorderMedium, MindTagShapes.xl)
-            .padding(MindTagSpacing.lg),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        // Icon in colored circle
-        Box(
+        Row(
             modifier = Modifier
-                .size(32.dp)
-                .clip(MindTagShapes.full)
-                .background(iconBgColor),
-            contentAlignment = Alignment.Center,
+                .fillMaxWidth()
+                .clip(MindTagShapes.xl)
+                .background(MindTagColors.SurfaceDarkAlt)
+                .border(1.dp, MindTagColors.BorderMedium, MindTagShapes.xl)
+                .padding(MindTagSpacing.xl),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = iconColor,
-                modifier = Modifier.size(20.dp),
-            )
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(MindTagShapes.full)
+                    .background(MindTagColors.Info.copy(alpha = 0.2f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = MindTagIcons.Schedule,
+                    contentDescription = null,
+                    tint = MindTagColors.Info,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+
+            Spacer(modifier = Modifier.width(MindTagSpacing.lg))
+
+            Column {
+                Text(
+                    text = "TIME",
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
+                    color = MindTagColors.TextTertiary,
+                    letterSpacing = 1.sp,
+                )
+                Text(
+                    text = timeSpent,
+                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
+                    color = Color.White,
+                )
+            }
         }
-
-        Spacer(modifier = Modifier.height(MindTagSpacing.md))
-
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
-            color = MindTagColors.TextTertiary,
-            letterSpacing = 1.sp,
-        )
-
-        Spacer(modifier = Modifier.height(MindTagSpacing.xs))
-
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
-            color = Color.White,
-        )
     }
 }
 
@@ -600,22 +554,14 @@ private fun ResultsShimmerSkeleton() {
 
         Spacer(modifier = Modifier.height(MindTagSpacing.xxxxl))
 
-        // Stats row shimmer
-        Row(
+        // Time stat shimmer
+        ShimmerBox(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = MindTagSpacing.xl),
-            horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.lg),
-        ) {
-            repeat(3) {
-                ShimmerBox(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(100.dp),
-                    shape = MindTagShapes.xl,
-                )
-            }
-        }
+                .padding(horizontal = MindTagSpacing.xl)
+                .height(64.dp),
+            shape = MindTagShapes.xl,
+        )
 
         Spacer(modifier = Modifier.height(MindTagSpacing.xxxxl))
 

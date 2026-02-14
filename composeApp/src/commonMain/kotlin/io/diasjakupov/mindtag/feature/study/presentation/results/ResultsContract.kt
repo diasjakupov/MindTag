@@ -5,8 +5,6 @@ data class ResultsState(
     val feedbackMessage: String = "",
     val feedbackSubtext: String = "",
     val timeSpent: String = "",
-    val streak: Int = 0,
-    val xpEarned: Int = 0,
     val answers: List<AnswerDetailUi> = emptyList(),
     val expandedAnswerId: String? = null,
     val isLoading: Boolean = true,
