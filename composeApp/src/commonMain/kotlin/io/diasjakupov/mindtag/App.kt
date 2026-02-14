@@ -1,6 +1,5 @@
 package io.diasjakupov.mindtag
 
-import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -25,24 +24,17 @@ import io.diasjakupov.mindtag.core.navigation.Route
 import io.diasjakupov.mindtag.core.network.AuthManager
 import io.diasjakupov.mindtag.core.network.AuthState
 import io.diasjakupov.mindtag.feature.auth.presentation.AuthScreen
-import io.diasjakupov.mindtag.feature.home.presentation.HomeScreen
 import io.diasjakupov.mindtag.feature.library.presentation.LibraryScreen
 import io.diasjakupov.mindtag.feature.notes.presentation.create.NoteCreateScreen
 import io.diasjakupov.mindtag.feature.notes.presentation.detail.NoteDetailScreen
-import io.diasjakupov.mindtag.feature.onboarding.presentation.OnboardingScreen
-import io.diasjakupov.mindtag.feature.planner.presentation.PlannerScreen
-import io.diasjakupov.mindtag.feature.profile.presentation.ProfileScreen
 import io.diasjakupov.mindtag.feature.study.presentation.hub.StudyHubScreen
 import io.diasjakupov.mindtag.feature.study.presentation.quiz.QuizScreen
 import io.diasjakupov.mindtag.feature.study.presentation.results.ResultsScreen
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import io.diasjakupov.mindtag.core.data.AppPreferences
 import org.koin.compose.koinInject
 
 private val topLevelRoutes: Set<Route> = setOf(
-    Route.Home, Route.Library, Route.Practice, Route.Planner, Route.Profile,
+    Route.Library, Route.Study,
 )
 
 private val slideEnterTransition = NavDisplay.transitionSpec {
@@ -121,94 +113,75 @@ fun App() {
 
 @Composable
 private fun MainApp() {
-    val nav = remember { TopLevelBackStack(Route.Home) }
-    val appPreferences: AppPreferences = koinInject()
-
-    LaunchedEffect(Unit) {
-        if (!appPreferences.isOnboardingCompleted()) {
-            nav.push(Route.Onboarding)
-        }
-    }
+    val nav = remember { TopLevelBackStack(Route.Library) }
 
     val currentEntry = nav.backStack.lastOrNull()
     val showBottomBar = currentEntry is Route && currentEntry in topLevelRoutes
 
     Scaffold(
-            bottomBar = {
-                if (showBottomBar) {
-                    MindTagBottomBar(
-                        currentRoute = nav.topLevelKey,
-                        onTabSelected = { nav.selectTab(it) },
+        bottomBar = {
+            if (showBottomBar) {
+                MindTagBottomBar(
+                    currentRoute = nav.topLevelKey,
+                    onTabSelected = { nav.selectTab(it) },
+                )
+            }
+        },
+    ) { innerPadding ->
+        NavDisplay(
+            backStack = nav.backStack,
+            onBack = { nav.removeLast() },
+            modifier = Modifier.padding(innerPadding),
+            transitionSpec = {
+                fadeIn(tween(200)) togetherWith fadeOut(tween(200))
+            },
+            popTransitionSpec = {
+                fadeIn(tween(200)) togetherWith fadeOut(tween(200))
+            },
+            entryProvider = entryProvider {
+                entry<Route.Library> {
+                    LibraryScreen(
+                        onNavigateToNote = { noteId -> nav.push(Route.NoteDetail(noteId)) },
+                        onNavigateToCreateNote = { nav.push(Route.NoteCreate()) },
+                    )
+                }
+                entry<Route.Study> {
+                    StudyHubScreen(
+                        onNavigateToQuiz = { sessionId -> nav.push(Route.Quiz(sessionId)) },
+                    )
+                }
+                entry<Route.NoteCreate>(metadata = pushScreenMetadata) { key ->
+                    NoteCreateScreen(
+                        noteId = key.noteId,
+                        onNavigateBack = { nav.removeLast() },
+                    )
+                }
+                entry<Route.NoteDetail>(metadata = pushScreenMetadata) { key ->
+                    NoteDetailScreen(
+                        noteId = key.noteId,
+                        onNavigateBack = { nav.removeLast() },
+                        onNavigateToNote = { noteId -> nav.push(Route.NoteDetail(noteId)) },
+                        onNavigateToEdit = { noteId -> nav.push(Route.NoteCreate(noteId)) },
+                        onNavigateToQuiz = { sessionId -> nav.push(Route.Quiz(sessionId)) },
+                    )
+                }
+                entry<Route.Quiz>(metadata = pushScreenMetadata) { key ->
+                    QuizScreen(
+                        sessionId = key.sessionId,
+                        onNavigateBack = { nav.removeLast() },
+                        onNavigateToResults = { sessionId ->
+                            nav.push(Route.QuizResults(sessionId))
+                        },
+                    )
+                }
+                entry<Route.QuizResults>(metadata = pushScreenMetadata) { key ->
+                    ResultsScreen(
+                        sessionId = key.sessionId,
+                        onNavigateBack = { nav.removeLast() },
+                        onNavigateToLibrary = { nav.selectTab(Route.Library) },
                     )
                 }
             },
-        ) { innerPadding ->
-            NavDisplay(
-                backStack = nav.backStack,
-                onBack = { nav.removeLast() },
-                modifier = Modifier.padding(innerPadding),
-                transitionSpec = {
-                    fadeIn(tween(200)) togetherWith fadeOut(tween(200))
-                },
-                popTransitionSpec = {
-                    fadeIn(tween(200)) togetherWith fadeOut(tween(200))
-                },
-                entryProvider = entryProvider {
-                    entry<Route.Home> {
-                        HomeScreen(
-                            onNavigateToNote = { noteId -> nav.push(Route.NoteDetail(noteId)) },
-                        )
-                    }
-                    entry<Route.Library> {
-                        LibraryScreen(
-                            onNavigateToNote = { noteId -> nav.push(Route.NoteDetail(noteId)) },
-                            onNavigateToCreateNote = { nav.push(Route.NoteCreate()) },
-                        )
-                    }
-                    entry<Route.Practice> {
-                        StudyHubScreen(
-                            onNavigateToQuiz = { sessionId -> nav.push(Route.Quiz(sessionId)) },
-                        )
-                    }
-                    entry<Route.Planner> { PlannerScreen() }
-                    entry<Route.Profile> { ProfileScreen() }
-                    entry<Route.NoteCreate>(metadata = pushScreenMetadata) { key ->
-                        NoteCreateScreen(
-                            noteId = key.noteId,
-                            onNavigateBack = { nav.removeLast() },
-                        )
-                    }
-                    entry<Route.NoteDetail>(metadata = pushScreenMetadata) { key ->
-                        NoteDetailScreen(
-                            noteId = key.noteId,
-                            onNavigateBack = { nav.removeLast() },
-                            onNavigateToNote = { noteId -> nav.push(Route.NoteDetail(noteId)) },
-                            onNavigateToEdit = { noteId -> nav.push(Route.NoteCreate(noteId)) },
-                            onNavigateToQuiz = { sessionId -> nav.push(Route.Quiz(sessionId)) },
-                        )
-                    }
-                    entry<Route.Quiz>(metadata = pushScreenMetadata) { key ->
-                        QuizScreen(
-                            sessionId = key.sessionId,
-                            onNavigateBack = { nav.removeLast() },
-                            onNavigateToResults = { sessionId ->
-                                nav.push(Route.QuizResults(sessionId))
-                            },
-                        )
-                    }
-                    entry<Route.QuizResults>(metadata = pushScreenMetadata) { key ->
-                        ResultsScreen(
-                            sessionId = key.sessionId,
-                            onNavigateBack = { nav.removeLast() },
-                            onNavigateToLibrary = { nav.selectTab(Route.Library) },
-                        )
-                    }
-                    entry<Route.Onboarding>(metadata = pushScreenMetadata) {
-                        OnboardingScreen(
-                            onNavigateToHome = { nav.removeLast() },
-                        )
-                    }
-                },
-            )
-        }
+        )
+    }
 }
