@@ -19,4 +19,5 @@ captures
 node_modules/
 firebase-debug.log
 .claude/
+.worktrees/
 *.db
