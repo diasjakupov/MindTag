@@ -1,11 +1,8 @@
 package io.diasjakupov.mindtag.core.navigation
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.EditNote
-import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.LocalLibrary
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -27,11 +24,8 @@ private data class BottomTab(
 )
 
 private val tabs = listOf(
-    BottomTab(Route.Home, "Home", Icons.Outlined.Home),
     BottomTab(Route.Library, "Library", Icons.Outlined.LocalLibrary),
-    BottomTab(Route.Practice, "Practice", Icons.Outlined.EditNote),
-    BottomTab(Route.Planner, "Planner", Icons.Outlined.CalendarMonth),
-    BottomTab(Route.Profile, "Profile", Icons.Outlined.Person),
+    BottomTab(Route.Study, "Study", Icons.Outlined.EditNote),
 )
 
 @Composable
