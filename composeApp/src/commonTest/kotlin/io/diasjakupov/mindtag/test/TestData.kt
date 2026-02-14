@@ -1,10 +1,6 @@
 package io.diasjakupov.mindtag.test
 
 import io.diasjakupov.mindtag.core.domain.model.Subject
-import io.diasjakupov.mindtag.feature.home.domain.model.DashboardData
-import io.diasjakupov.mindtag.feature.home.domain.model.ReviewCard
-import io.diasjakupov.mindtag.feature.home.domain.model.TaskType
-import io.diasjakupov.mindtag.feature.home.domain.model.UpNextTask
 import io.diasjakupov.mindtag.feature.notes.domain.model.Note
 import io.diasjakupov.mindtag.feature.notes.domain.model.RelatedNote
 import io.diasjakupov.mindtag.feature.study.domain.model.AnswerOption
@@ -115,7 +111,7 @@ object TestData {
     val flashCard2 = FlashCard(
         id = "card-2",
         question = "Newton's second law states F = ?",
-        type = CardType.FACT_CHECK,
+        type = CardType.TRUE_FALSE,
         difficulty = Difficulty.MEDIUM,
         subjectId = "subj-2",
         correctAnswer = "ma",
@@ -135,7 +131,7 @@ object TestData {
     val activeSession = StudySession(
         id = "session-1",
         subjectId = "subj-1",
-        sessionType = SessionType.QUICK_QUIZ,
+        sessionType = SessionType.QUIZ,
         startedAt = 1700000000000L,
         finishedAt = null,
         totalQuestions = 10,
@@ -146,7 +142,7 @@ object TestData {
     val completedSession = StudySession(
         id = "session-2",
         subjectId = "subj-2",
-        sessionType = SessionType.EXAM_MODE,
+        sessionType = SessionType.QUIZ,
         startedAt = 1700000000000L,
         finishedAt = 1700001800000L,
         totalQuestions = 5,
@@ -186,8 +182,6 @@ object TestData {
         totalCorrect = 4,
         totalQuestions = 5,
         timeSpentFormatted = "15:00",
-        xpEarned = 50,
-        currentStreak = 3,
         answers = listOf(
             QuizAnswerDetail(
                 cardId = "card-1",
@@ -198,34 +192,5 @@ object TestData {
                 aiInsight = null,
             ),
         ),
-    )
-
-    // --- Dashboard ---
-
-    val reviewCard = ReviewCard(
-        noteId = "note-1",
-        noteTitle = "Linear Algebra Basics",
-        subjectName = "Mathematics",
-        subjectColorHex = "#FF5733",
-        subjectIconName = "calculate",
-        progressPercent = 0.6f,
-        dueCardCount = 3,
-        weekNumber = 1,
-    )
-
-    val upNextTask = UpNextTask(
-        id = "task-1",
-        title = "Review Linear Algebra",
-        subtitle = "3 cards due",
-        type = TaskType.REVIEW,
-    )
-
-    val dashboardData = DashboardData(
-        userName = "Test User",
-        totalNotesCount = 3,
-        totalReviewsDue = 5,
-        currentStreak = 3,
-        reviewCards = listOf(reviewCard),
-        upNextTasks = listOf(upNextTask),
     )
 }

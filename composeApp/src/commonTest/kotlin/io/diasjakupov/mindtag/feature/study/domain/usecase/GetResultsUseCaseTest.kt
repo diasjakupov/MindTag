@@ -25,8 +25,6 @@ class GetResultsUseCaseTest {
             assertEquals(4, result.totalCorrect)
             assertEquals(5, result.totalQuestions)
             assertEquals("15:00", result.timeSpentFormatted)
-            assertEquals(50, result.xpEarned)
-            assertEquals(3, result.currentStreak)
             cancelAndConsumeRemainingEvents()
         }
     }

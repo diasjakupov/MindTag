@@ -29,7 +29,7 @@ class StudySessionEntityTest {
         database.studySessionEntityQueries.insert(
             id = "session-1",
             subject_id = "subj-bio",
-            session_type = "QUICK_QUIZ",
+            session_type = "QUIZ",
             started_at = now,
             finished_at = null,
             total_questions = 10,
@@ -40,7 +40,7 @@ class StudySessionEntityTest {
         val session = database.studySessionEntityQueries.selectById("session-1").executeAsOneOrNull()
         assertNotNull(session)
         assertEquals("subj-bio", session.subject_id)
-        assertEquals("QUICK_QUIZ", session.session_type)
+        assertEquals("QUIZ", session.session_type)
         assertEquals(10L, session.total_questions)
         assertNull(session.finished_at)
         assertEquals("IN_PROGRESS", session.status)
@@ -49,9 +49,9 @@ class StudySessionEntityTest {
     @Test
     fun selectBySubjectId() {
         val now = System.currentTimeMillis()
-        database.studySessionEntityQueries.insert("s1", "subj-bio", "QUICK_QUIZ", now, null, 10, null, "IN_PROGRESS")
-        database.studySessionEntityQueries.insert("s2", "subj-bio", "EXAM_MODE", now + 1000, null, 20, 600, "IN_PROGRESS")
-        database.studySessionEntityQueries.insert("s3", null, "QUICK_QUIZ", now + 2000, null, 5, null, "IN_PROGRESS")
+        database.studySessionEntityQueries.insert("s1", "subj-bio", "QUIZ", now, null, 10, null, "IN_PROGRESS")
+        database.studySessionEntityQueries.insert("s2", "subj-bio", "QUIZ", now + 1000, null, 20, 600, "IN_PROGRESS")
+        database.studySessionEntityQueries.insert("s3", null, "QUIZ", now + 2000, null, 5, null, "IN_PROGRESS")
 
         val bioSessions = database.studySessionEntityQueries.selectBySubjectId("subj-bio").executeAsList()
         assertEquals(2, bioSessions.size)
@@ -63,7 +63,7 @@ class StudySessionEntityTest {
     @Test
     fun finishSession() {
         val now = System.currentTimeMillis()
-        database.studySessionEntityQueries.insert("s1", "subj-bio", "QUICK_QUIZ", now, null, 10, null, "IN_PROGRESS")
+        database.studySessionEntityQueries.insert("s1", "subj-bio", "QUIZ", now, null, 10, null, "IN_PROGRESS")
 
         val finishedAt = now + 300_000L
         database.studySessionEntityQueries.finish(
@@ -81,8 +81,8 @@ class StudySessionEntityTest {
     @Test
     fun selectActiveReturnsInProgressSession() {
         val now = System.currentTimeMillis()
-        database.studySessionEntityQueries.insert("s1", "subj-bio", "QUICK_QUIZ", now, now + 300_000, 10, null, "COMPLETED")
-        database.studySessionEntityQueries.insert("s2", "subj-bio", "EXAM_MODE", now + 1000, null, 20, 600, "IN_PROGRESS")
+        database.studySessionEntityQueries.insert("s1", "subj-bio", "QUIZ", now, now + 300_000, 10, null, "COMPLETED")
+        database.studySessionEntityQueries.insert("s2", "subj-bio", "QUIZ", now + 1000, null, 20, 600, "IN_PROGRESS")
 
         val active = database.studySessionEntityQueries.selectActive().executeAsOneOrNull()
         assertNotNull(active)
@@ -92,7 +92,7 @@ class StudySessionEntityTest {
     @Test
     fun selectActiveReturnsNullWhenNoActiveSessions() {
         val now = System.currentTimeMillis()
-        database.studySessionEntityQueries.insert("s1", "subj-bio", "QUICK_QUIZ", now, now + 300_000, 10, null, "COMPLETED")
+        database.studySessionEntityQueries.insert("s1", "subj-bio", "QUIZ", now, now + 300_000, 10, null, "COMPLETED")
 
         val active = database.studySessionEntityQueries.selectActive().executeAsOneOrNull()
         assertNull(active)
@@ -101,7 +101,7 @@ class StudySessionEntityTest {
     @Test
     fun nullSubjectIdIsAllowed() {
         val now = System.currentTimeMillis()
-        database.studySessionEntityQueries.insert("s1", null, "QUICK_QUIZ", now, null, 10, null, "IN_PROGRESS")
+        database.studySessionEntityQueries.insert("s1", null, "QUIZ", now, null, 10, null, "IN_PROGRESS")
 
         val session = database.studySessionEntityQueries.selectById("s1").executeAsOneOrNull()
         assertNotNull(session)
@@ -111,7 +111,7 @@ class StudySessionEntityTest {
     @Test
     fun timeLimitSecondsCanBeNull() {
         val now = System.currentTimeMillis()
-        database.studySessionEntityQueries.insert("s1", "subj-bio", "QUICK_QUIZ", now, null, 10, null, "IN_PROGRESS")
+        database.studySessionEntityQueries.insert("s1", "subj-bio", "QUIZ", now, null, 10, null, "IN_PROGRESS")
 
         val session = database.studySessionEntityQueries.selectById("s1").executeAsOneOrNull()
         assertNotNull(session)
@@ -121,7 +121,7 @@ class StudySessionEntityTest {
     @Test
     fun timeLimitSecondsCanBeSet() {
         val now = System.currentTimeMillis()
-        database.studySessionEntityQueries.insert("s1", "subj-bio", "EXAM_MODE", now, null, 20, 600, "IN_PROGRESS")
+        database.studySessionEntityQueries.insert("s1", "subj-bio", "QUIZ", now, null, 20, 600, "IN_PROGRESS")
 
         val session = database.studySessionEntityQueries.selectById("s1").executeAsOneOrNull()
         assertNotNull(session)
@@ -131,7 +131,7 @@ class StudySessionEntityTest {
     @Test
     fun deleteSession() {
         val now = System.currentTimeMillis()
-        database.studySessionEntityQueries.insert("s1", "subj-bio", "QUICK_QUIZ", now, null, 10, null, "IN_PROGRESS")
+        database.studySessionEntityQueries.insert("s1", "subj-bio", "QUIZ", now, null, 10, null, "IN_PROGRESS")
 
         database.studySessionEntityQueries.delete("s1")
 
@@ -142,8 +142,8 @@ class StudySessionEntityTest {
     @Test
     fun deleteAllSessions() {
         val now = System.currentTimeMillis()
-        database.studySessionEntityQueries.insert("s1", "subj-bio", "QUICK_QUIZ", now, null, 10, null, "IN_PROGRESS")
-        database.studySessionEntityQueries.insert("s2", "subj-bio", "EXAM_MODE", now, null, 20, 600, "IN_PROGRESS")
+        database.studySessionEntityQueries.insert("s1", "subj-bio", "QUIZ", now, null, 10, null, "IN_PROGRESS")
+        database.studySessionEntityQueries.insert("s2", "subj-bio", "QUIZ", now, null, 20, 600, "IN_PROGRESS")
 
         database.studySessionEntityQueries.deleteAll()
 
@@ -154,8 +154,8 @@ class StudySessionEntityTest {
     @Test
     fun selectAllOrderedByStartedAtDesc() {
         val now = System.currentTimeMillis()
-        database.studySessionEntityQueries.insert("s-old", "subj-bio", "QUICK_QUIZ", now, null, 10, null, "IN_PROGRESS")
-        database.studySessionEntityQueries.insert("s-new", "subj-bio", "EXAM_MODE", now + 5000, null, 20, 600, "IN_PROGRESS")
+        database.studySessionEntityQueries.insert("s-old", "subj-bio", "QUIZ", now, null, 10, null, "IN_PROGRESS")
+        database.studySessionEntityQueries.insert("s-new", "subj-bio", "QUIZ", now + 5000, null, 20, 600, "IN_PROGRESS")
 
         val sessions = database.studySessionEntityQueries.selectAll().executeAsList()
         assertEquals(2, sessions.size)

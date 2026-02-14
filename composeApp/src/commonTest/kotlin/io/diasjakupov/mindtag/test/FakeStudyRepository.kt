@@ -1,5 +1,6 @@
 package io.diasjakupov.mindtag.test
 
+import io.diasjakupov.mindtag.core.domain.model.Subject
 import io.diasjakupov.mindtag.feature.study.domain.model.FlashCard
 import io.diasjakupov.mindtag.feature.study.domain.model.SessionStatus
 import io.diasjakupov.mindtag.feature.study.domain.model.SessionType
@@ -7,6 +8,7 @@ import io.diasjakupov.mindtag.feature.study.domain.model.StudySession
 import io.diasjakupov.mindtag.feature.study.domain.repository.StudyRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.datetime.Clock
@@ -68,4 +70,8 @@ class FakeStudyRepository : StudyRepository {
             filtered.take(count)
         }
     }
+
+    override fun getSubjects(): Flow<List<Subject>> = flowOf(emptyList())
+
+    override suspend fun getDueCardCount(): Int = 0
 }

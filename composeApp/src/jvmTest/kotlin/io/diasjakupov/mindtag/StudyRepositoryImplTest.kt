@@ -34,7 +34,7 @@ class StudyRepositoryImplTest {
     @Test
     fun createSessionReturnsSessionWithGeneratedId() = runTest {
         val session = repository.createSession(
-            type = SessionType.QUICK_QUIZ,
+            type = SessionType.QUIZ,
             subjectId = "subj-bio",
             questionCount = 10,
             timeLimitSeconds = null,
@@ -43,7 +43,7 @@ class StudyRepositoryImplTest {
         assertNotNull(session.id)
         assertTrue(session.id.isNotBlank())
         assertEquals("subj-bio", session.subjectId)
-        assertEquals(SessionType.QUICK_QUIZ, session.sessionType)
+        assertEquals(SessionType.QUIZ, session.sessionType)
         assertEquals(10, session.totalQuestions)
         assertNull(session.timeLimitSeconds)
         assertEquals(SessionStatus.IN_PROGRESS, session.status)
@@ -53,13 +53,13 @@ class StudyRepositoryImplTest {
     @Test
     fun createExamModeSessionWithTimeLimit() = runTest {
         val session = repository.createSession(
-            type = SessionType.EXAM_MODE,
+            type = SessionType.QUIZ,
             subjectId = "subj-bio",
             questionCount = 20,
             timeLimitSeconds = 600,
         )
 
-        assertEquals(SessionType.EXAM_MODE, session.sessionType)
+        assertEquals(SessionType.QUIZ, session.sessionType)
         assertEquals(20, session.totalQuestions)
         assertEquals(600, session.timeLimitSeconds)
     }
@@ -67,7 +67,7 @@ class StudyRepositoryImplTest {
     @Test
     fun createSessionWithNullSubjectId() = runTest {
         val session = repository.createSession(
-            type = SessionType.QUICK_QUIZ,
+            type = SessionType.QUIZ,
             subjectId = null,
             questionCount = 5,
         )
@@ -78,7 +78,7 @@ class StudyRepositoryImplTest {
     @Test
     fun getSessionReturnsCreatedSession() = runTest {
         val created = repository.createSession(
-            type = SessionType.QUICK_QUIZ,
+            type = SessionType.QUIZ,
             subjectId = "subj-bio",
             questionCount = 10,
         )
@@ -87,7 +87,7 @@ class StudyRepositoryImplTest {
             val session = awaitItem()
             assertNotNull(session)
             assertEquals(created.id, session.id)
-            assertEquals(SessionType.QUICK_QUIZ, session.sessionType)
+            assertEquals(SessionType.QUIZ, session.sessionType)
             assertEquals(SessionStatus.IN_PROGRESS, session.status)
             cancelAndIgnoreRemainingEvents()
         }
@@ -105,7 +105,7 @@ class StudyRepositoryImplTest {
     @Test
     fun completeSessionUpdatesStatus() = runTest {
         val created = repository.createSession(
-            type = SessionType.QUICK_QUIZ,
+            type = SessionType.QUIZ,
             subjectId = "subj-bio",
             questionCount = 10,
         )
@@ -125,9 +125,9 @@ class StudyRepositoryImplTest {
     fun getCardsForSessionReturnsDueCards() = runTest {
         val now = System.currentTimeMillis()
         // Insert flash cards - all with null next_review_at (never reviewed, so all are due)
-        database.flashCardEntityQueries.insert("card-1", "Q1", "FACT_CHECK", "EASY", "subj-bio", "A1", null, null, null, 2.5, 0, 0, null, now)
+        database.flashCardEntityQueries.insert("card-1", "Q1", "MULTIPLE_CHOICE", "EASY", "subj-bio", "A1", null, null, null, 2.5, 0, 0, null, now)
         database.flashCardEntityQueries.insert("card-2", "Q2", "MULTIPLE_CHOICE", "MEDIUM", "subj-bio", "A2", null, null, null, 2.5, 0, 0, null, now)
-        database.flashCardEntityQueries.insert("card-3", "Q3", "SYNTHESIS", "HARD", "subj-cs", "A3", null, null, null, 2.5, 0, 0, null, now)
+        database.flashCardEntityQueries.insert("card-3", "Q3", "TRUE_FALSE", "HARD", "subj-cs", "A3", null, null, null, 2.5, 0, 0, null, now)
 
         repository.getCardsForSession(subjectId = "subj-bio", count = 5).test {
             val cards = awaitItem()
@@ -140,8 +140,8 @@ class StudyRepositoryImplTest {
     @Test
     fun getCardsForSessionWithNullSubjectReturnsAllDueCards() = runTest {
         val now = System.currentTimeMillis()
-        database.flashCardEntityQueries.insert("card-1", "Q1", "FACT_CHECK", "EASY", "subj-bio", "A1", null, null, null, 2.5, 0, 0, null, now)
-        database.flashCardEntityQueries.insert("card-2", "Q2", "FACT_CHECK", "EASY", "subj-cs", "A2", null, null, null, 2.5, 0, 0, null, now)
+        database.flashCardEntityQueries.insert("card-1", "Q1", "MULTIPLE_CHOICE", "EASY", "subj-bio", "A1", null, null, null, 2.5, 0, 0, null, now)
+        database.flashCardEntityQueries.insert("card-2", "Q2", "MULTIPLE_CHOICE", "EASY", "subj-cs", "A2", null, null, null, 2.5, 0, 0, null, now)
 
         repository.getCardsForSession(subjectId = null, count = 10).test {
             val cards = awaitItem()
@@ -153,9 +153,9 @@ class StudyRepositoryImplTest {
     @Test
     fun getCardsForSessionRespectsCount() = runTest {
         val now = System.currentTimeMillis()
-        database.flashCardEntityQueries.insert("card-1", "Q1", "FACT_CHECK", "EASY", "subj-bio", "A1", null, null, null, 2.5, 0, 0, null, now)
-        database.flashCardEntityQueries.insert("card-2", "Q2", "FACT_CHECK", "EASY", "subj-bio", "A2", null, null, null, 2.5, 0, 0, null, now)
-        database.flashCardEntityQueries.insert("card-3", "Q3", "FACT_CHECK", "EASY", "subj-bio", "A3", null, null, null, 2.5, 0, 0, null, now)
+        database.flashCardEntityQueries.insert("card-1", "Q1", "MULTIPLE_CHOICE", "EASY", "subj-bio", "A1", null, null, null, 2.5, 0, 0, null, now)
+        database.flashCardEntityQueries.insert("card-2", "Q2", "MULTIPLE_CHOICE", "EASY", "subj-bio", "A2", null, null, null, 2.5, 0, 0, null, now)
+        database.flashCardEntityQueries.insert("card-3", "Q3", "MULTIPLE_CHOICE", "EASY", "subj-bio", "A3", null, null, null, 2.5, 0, 0, null, now)
 
         repository.getCardsForSession(subjectId = "subj-bio", count = 2).test {
             val cards = awaitItem()
@@ -170,9 +170,9 @@ class StudyRepositoryImplTest {
         val future = now + 86_400_000L * 30 // 30 days in the future
 
         // 1 due card, 2 not due
-        database.flashCardEntityQueries.insert("card-due", "Q1", "FACT_CHECK", "EASY", "subj-bio", "A1", null, null, null, 2.5, 0, 0, null, now)
-        database.flashCardEntityQueries.insert("card-notdue-1", "Q2", "FACT_CHECK", "EASY", "subj-bio", "A2", null, null, null, 2.5, 6, 2, future, now)
-        database.flashCardEntityQueries.insert("card-notdue-2", "Q3", "FACT_CHECK", "EASY", "subj-bio", "A3", null, null, null, 2.5, 6, 2, future, now)
+        database.flashCardEntityQueries.insert("card-due", "Q1", "MULTIPLE_CHOICE", "EASY", "subj-bio", "A1", null, null, null, 2.5, 0, 0, null, now)
+        database.flashCardEntityQueries.insert("card-notdue-1", "Q2", "MULTIPLE_CHOICE", "EASY", "subj-bio", "A2", null, null, null, 2.5, 6, 2, future, now)
+        database.flashCardEntityQueries.insert("card-notdue-2", "Q3", "MULTIPLE_CHOICE", "EASY", "subj-bio", "A3", null, null, null, 2.5, 6, 2, future, now)
 
         repository.getCardsForSession(subjectId = "subj-bio", count = 3).test {
             val cards = awaitItem()

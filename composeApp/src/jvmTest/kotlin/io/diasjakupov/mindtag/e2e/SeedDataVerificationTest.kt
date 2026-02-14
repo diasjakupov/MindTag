@@ -266,7 +266,7 @@ class SeedDataVerificationTest {
 
     @Test
     fun seed_flashCardsHaveValidTypes() {
-        val validTypes = setOf("FACT_CHECK", "SYNTHESIS", "MULTIPLE_CHOICE")
+        val validTypes = setOf("MULTIPLE_CHOICE", "TRUE_FALSE", "FLASHCARD")
         val cards = database.flashCardEntityQueries.selectAll().executeAsList()
         cards.forEach { card ->
             assertTrue(
@@ -339,50 +339,6 @@ class SeedDataVerificationTest {
         assertTrue(bioDueCards.all { it.subject_id == "subj-bio-101" })
     }
 
-    // --- User Progress ---
-
-    @Test
-    fun seed_creates3UserProgressEntries() {
-        val progress = database.userProgressEntityQueries.selectAll().executeAsList()
-        assertEquals(3, progress.size)
-    }
-
-    @Test
-    fun seed_biologyProgressCorrect() {
-        val bio = database.userProgressEntityQueries.selectBySubjectId("subj-bio-101").executeAsOneOrNull()
-        assertNotNull(bio)
-        assertEquals(65.0, bio.mastery_percent)
-        assertEquals(3L, bio.notes_reviewed)
-        assertEquals(5L, bio.total_notes)
-        assertEquals(72.0, bio.avg_quiz_score)
-        assertEquals(4L, bio.current_streak)
-        assertEquals(1250L, bio.total_xp)
-    }
-
-    @Test
-    fun seed_economicsProgressCorrect() {
-        val econ = database.userProgressEntityQueries.selectBySubjectId("subj-econ-101").executeAsOneOrNull()
-        assertNotNull(econ)
-        assertEquals(42.0, econ.mastery_percent)
-        assertEquals(2L, econ.notes_reviewed)
-        assertEquals(5L, econ.total_notes)
-        assertEquals(58.0, econ.avg_quiz_score)
-        assertEquals(2L, econ.current_streak)
-        assertEquals(680L, econ.total_xp)
-    }
-
-    @Test
-    fun seed_csProgressCorrect() {
-        val cs = database.userProgressEntityQueries.selectBySubjectId("subj-cs-101").executeAsOneOrNull()
-        assertNotNull(cs)
-        assertEquals(78.0, cs.mastery_percent)
-        assertEquals(4L, cs.notes_reviewed)
-        assertEquals(5L, cs.total_notes)
-        assertEquals(85.0, cs.avg_quiz_score)
-        assertEquals(7L, cs.current_streak)
-        assertEquals(2100L, cs.total_xp)
-    }
-
     // --- Cross-table relationships ---
 
     @Test
@@ -393,18 +349,6 @@ class SeedDataVerificationTest {
             assertTrue(
                 card.subject_id in subjectIds,
                 "Card ${card.id} references non-existent subject ${card.subject_id}"
-            )
-        }
-    }
-
-    @Test
-    fun seed_userProgressReferencesValidSubjects() {
-        val subjectIds = database.subjectEntityQueries.selectAll().executeAsList().map { it.id }.toSet()
-        val progress = database.userProgressEntityQueries.selectAll().executeAsList()
-        progress.forEach { p ->
-            assertTrue(
-                p.subject_id in subjectIds,
-                "UserProgress references non-existent subject ${p.subject_id}"
             )
         }
     }

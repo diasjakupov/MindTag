@@ -22,9 +22,9 @@ class QuizAnswerEntityTest {
         val now = System.currentTimeMillis()
         // Set up required parent records
         database.subjectEntityQueries.insert("subj-bio", "Biology", "#22C55E", "leaf", 0.0, 0, 0, now, now)
-        database.studySessionEntityQueries.insert("session-1", "subj-bio", "QUICK_QUIZ", now, null, 10, null, "IN_PROGRESS")
-        database.studySessionEntityQueries.insert("session-2", "subj-bio", "EXAM_MODE", now, null, 20, 600, "IN_PROGRESS")
-        database.flashCardEntityQueries.insert("card-1", "Q1", "FACT_CHECK", "EASY", "subj-bio", "A1", null, null, null, 2.5, 0, 0, null, now)
+        database.studySessionEntityQueries.insert("session-1", "subj-bio", "QUIZ", now, null, 10, null, "IN_PROGRESS")
+        database.studySessionEntityQueries.insert("session-2", "subj-bio", "QUIZ", now, null, 20, 600, "IN_PROGRESS")
+        database.flashCardEntityQueries.insert("card-1", "Q1", "MULTIPLE_CHOICE", "EASY", "subj-bio", "A1", null, null, null, 2.5, 0, 0, null, now)
         database.flashCardEntityQueries.insert("card-2", "Q2", "MULTIPLE_CHOICE", "MEDIUM", "subj-bio", "A2", null, null, null, 2.5, 0, 0, null, now)
     }
 

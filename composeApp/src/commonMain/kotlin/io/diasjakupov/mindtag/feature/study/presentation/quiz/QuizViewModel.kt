@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import io.diasjakupov.mindtag.core.mvi.MviViewModel
 import io.diasjakupov.mindtag.core.util.Logger
 import io.diasjakupov.mindtag.feature.study.domain.model.CardType
+import io.diasjakupov.mindtag.feature.study.domain.model.ConfidenceRating
 import io.diasjakupov.mindtag.feature.study.domain.model.FlashCard
 import io.diasjakupov.mindtag.feature.study.domain.repository.StudyRepository
 import io.diasjakupov.mindtag.feature.study.domain.usecase.SubmitAnswerUseCase
@@ -141,8 +142,13 @@ class QuizViewModel(
         val currentIndex = currentState.currentQuestionIndex
         val currentCard = cards.getOrNull(currentIndex) ?: return
 
-        // Map: 0=No (quality 1), 1=Kinda (quality 3), 2=Yes (quality 5)
-        val isCorrect = quality >= 1 // Kinda or Yes counts as "seen"
+        // Map: 0=No, 1=Kinda (HARD), 2=Yes (EASY)
+        val isCorrect = quality >= 1
+        val confidenceRating = when (quality) {
+            0 -> null
+            1 -> ConfidenceRating.HARD
+            else -> ConfidenceRating.EASY
+        }
         val userAnswer = when (quality) {
             0 -> "Didn't know"
             1 -> "Partially knew"
@@ -156,7 +162,7 @@ class QuizViewModel(
                     cardId = currentCard.id,
                     userAnswer = userAnswer,
                     isCorrect = isCorrect,
-                    confidenceRating = null,
+                    confidenceRating = confidenceRating,
                     timeSpentSeconds = 0,
                     currentQuestionIndex = currentIndex,
                     totalQuestions = currentState.totalQuestions,

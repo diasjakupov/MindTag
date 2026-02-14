@@ -20,19 +20,19 @@ class StartQuizUseCaseTest {
     fun createsSessionWithCorrectType() = runTest {
         repository.setFlashCards(TestData.flashCards)
 
-        val result = useCase(type = SessionType.QUICK_QUIZ)
+        val result = useCase(type = SessionType.QUIZ)
 
-        assertEquals(SessionType.QUICK_QUIZ, result.session.sessionType)
+        assertEquals(SessionType.QUIZ, result.session.sessionType)
         assertEquals(SessionStatus.IN_PROGRESS, result.session.status)
     }
 
     @Test
-    fun createsExamModeSession() = runTest {
+    fun createsTimedSession() = runTest {
         repository.setFlashCards(TestData.flashCards)
 
-        val result = useCase(type = SessionType.EXAM_MODE, timeLimitSeconds = 1800)
+        val result = useCase(type = SessionType.QUIZ, timeLimitSeconds = 1800)
 
-        assertEquals(SessionType.EXAM_MODE, result.session.sessionType)
+        assertEquals(SessionType.QUIZ, result.session.sessionType)
         assertEquals(1800, result.session.timeLimitSeconds)
     }
 
@@ -40,7 +40,7 @@ class StartQuizUseCaseTest {
     fun createsSessionWithDefaultQuestionCount() = runTest {
         repository.setFlashCards(TestData.flashCards)
 
-        val result = useCase(type = SessionType.QUICK_QUIZ)
+        val result = useCase(type = SessionType.QUIZ)
 
         assertEquals(10, result.session.totalQuestions)
     }
@@ -49,7 +49,7 @@ class StartQuizUseCaseTest {
     fun createsSessionWithCustomQuestionCount() = runTest {
         repository.setFlashCards(TestData.flashCards)
 
-        val result = useCase(type = SessionType.QUICK_QUIZ, questionCount = 5)
+        val result = useCase(type = SessionType.QUIZ, questionCount = 5)
 
         assertEquals(5, result.session.totalQuestions)
     }
@@ -58,7 +58,7 @@ class StartQuizUseCaseTest {
     fun createsSessionWithSubjectFilter() = runTest {
         repository.setFlashCards(TestData.flashCards)
 
-        val result = useCase(type = SessionType.QUICK_QUIZ, subjectId = "subj-1")
+        val result = useCase(type = SessionType.QUIZ, subjectId = "subj-1")
 
         assertEquals("subj-1", result.session.subjectId)
     }
@@ -67,7 +67,7 @@ class StartQuizUseCaseTest {
     fun createsSessionWithNullSubject() = runTest {
         repository.setFlashCards(TestData.flashCards)
 
-        val result = useCase(type = SessionType.QUICK_QUIZ)
+        val result = useCase(type = SessionType.QUIZ)
 
         assertNull(result.session.subjectId)
     }
@@ -76,7 +76,7 @@ class StartQuizUseCaseTest {
     fun returnsFlashCardsFlow() = runTest {
         repository.setFlashCards(TestData.flashCards)
 
-        val result = useCase(type = SessionType.QUICK_QUIZ, questionCount = 10)
+        val result = useCase(type = SessionType.QUIZ, questionCount = 10)
 
         result.cards.test {
             val cards = awaitItem()
@@ -89,7 +89,7 @@ class StartQuizUseCaseTest {
     fun returnsFilteredFlashCardsBySubject() = runTest {
         repository.setFlashCards(TestData.flashCards)
 
-        val result = useCase(type = SessionType.QUICK_QUIZ, subjectId = "subj-1", questionCount = 10)
+        val result = useCase(type = SessionType.QUIZ, subjectId = "subj-1", questionCount = 10)
 
         result.cards.test {
             val cards = awaitItem()
@@ -103,7 +103,7 @@ class StartQuizUseCaseTest {
     fun sessionHasNoTimeLimitByDefault() = runTest {
         repository.setFlashCards(TestData.flashCards)
 
-        val result = useCase(type = SessionType.QUICK_QUIZ)
+        val result = useCase(type = SessionType.QUIZ)
 
         assertNull(result.session.timeLimitSeconds)
     }
@@ -112,7 +112,7 @@ class StartQuizUseCaseTest {
     fun sessionStartedAtIsSet() = runTest {
         repository.setFlashCards(TestData.flashCards)
 
-        val result = useCase(type = SessionType.QUICK_QUIZ)
+        val result = useCase(type = SessionType.QUIZ)
 
         assertNotNull(result.session.startedAt)
         assertNull(result.session.finishedAt)

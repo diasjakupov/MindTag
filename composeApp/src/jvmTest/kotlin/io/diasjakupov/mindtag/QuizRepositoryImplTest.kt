@@ -28,9 +28,9 @@ class QuizRepositoryImplTest {
 
         val now = System.currentTimeMillis()
         database.subjectEntityQueries.insert("subj-bio", "Biology", "#22C55E", "leaf", 0.0, 0, 0, now, now)
-        database.flashCardEntityQueries.insert("card-1", "What are the stages of mitosis?", "FACT_CHECK", "MEDIUM", "subj-bio", "PMAT", null, null, "Remember PMAT", 2.5, 0, 0, null, now)
-        database.flashCardEntityQueries.insert("card-2", "What is DNA?", "FACT_CHECK", "EASY", "subj-bio", "Deoxyribonucleic acid", null, null, "The molecule of heredity", 2.5, 0, 0, null, now)
-        database.studySessionEntityQueries.insert("session-1", "subj-bio", "QUICK_QUIZ", now, null, 10, null, "IN_PROGRESS")
+        database.flashCardEntityQueries.insert("card-1", "What are the stages of mitosis?", "MULTIPLE_CHOICE", "MEDIUM", "subj-bio", "PMAT", null, null, "Remember PMAT", 2.5, 0, 0, null, now)
+        database.flashCardEntityQueries.insert("card-2", "What is DNA?", "MULTIPLE_CHOICE", "EASY", "subj-bio", "Deoxyribonucleic acid", null, null, "The molecule of heredity", 2.5, 0, 0, null, now)
+        database.studySessionEntityQueries.insert("session-1", "subj-bio", "QUIZ", now, null, 10, null, "IN_PROGRESS")
     }
 
     @Test
@@ -92,9 +92,6 @@ class QuizRepositoryImplTest {
             id = "session-1",
         )
 
-        // Insert user progress for streak info
-        database.userProgressEntityQueries.insert("subj-bio", 65.0, 3, 5, 72.0, 4, 1250, now)
-
         // Submit answers
         repository.submitAnswer(QuizAnswer("a1", "session-1", "card-1", "PMAT", true, ConfidenceRating.EASY, 15, now))
         repository.submitAnswer(QuizAnswer("a2", "session-1", "card-2", "Wrong", false, null, 20, now + 1000))
@@ -105,8 +102,6 @@ class QuizRepositoryImplTest {
             assertEquals(50, result.scorePercent) // 1 out of 2
             assertEquals(1, result.totalCorrect)
             assertEquals(2, result.totalQuestions)
-            assertEquals(10, result.xpEarned) // 1 correct * 10
-            assertEquals(4, result.currentStreak) // from user progress
             assertEquals(2, result.answers.size)
 
             // Check answer details

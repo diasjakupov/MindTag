@@ -30,7 +30,7 @@ class FlashCardEntityTest {
         database.flashCardEntityQueries.insert(
             id = "card-1",
             question = "What are the stages of mitosis?",
-            type = "FACT_CHECK",
+            type = "MULTIPLE_CHOICE",
             difficulty = "MEDIUM",
             subject_id = "subj-bio",
             correct_answer = "Prophase, Metaphase, Anaphase, Telophase",
@@ -47,7 +47,7 @@ class FlashCardEntityTest {
         val card = database.flashCardEntityQueries.selectById("card-1").executeAsOneOrNull()
         assertNotNull(card)
         assertEquals("What are the stages of mitosis?", card.question)
-        assertEquals("FACT_CHECK", card.type)
+        assertEquals("MULTIPLE_CHOICE", card.type)
         assertEquals("MEDIUM", card.difficulty)
         assertEquals("subj-bio", card.subject_id)
         assertEquals(2.5, card.ease_factor)
@@ -59,9 +59,9 @@ class FlashCardEntityTest {
     @Test
     fun selectBySubjectId() {
         val now = System.currentTimeMillis()
-        database.flashCardEntityQueries.insert("card-1", "Q1", "FACT_CHECK", "EASY", "subj-bio", "A1", null, null, null, 2.5, 0, 0, null, now)
+        database.flashCardEntityQueries.insert("card-1", "Q1", "MULTIPLE_CHOICE", "EASY", "subj-bio", "A1", null, null, null, 2.5, 0, 0, null, now)
         database.flashCardEntityQueries.insert("card-2", "Q2", "MULTIPLE_CHOICE", "HARD", "subj-bio", "A2", null, null, null, 2.5, 0, 0, null, now)
-        database.flashCardEntityQueries.insert("card-3", "Q3", "SYNTHESIS", "MEDIUM", "subj-cs", "A3", null, null, null, 2.5, 0, 0, null, now)
+        database.flashCardEntityQueries.insert("card-3", "Q3", "TRUE_FALSE", "MEDIUM", "subj-cs", "A3", null, null, null, 2.5, 0, 0, null, now)
 
         val bioCards = database.flashCardEntityQueries.selectBySubjectId("subj-bio").executeAsList()
         assertEquals(2, bioCards.size)
@@ -77,11 +77,11 @@ class FlashCardEntityTest {
         val future = now + 86_400_000L
 
         // Card with null next_review_at (never reviewed) - should be due
-        database.flashCardEntityQueries.insert("card-1", "Q1", "FACT_CHECK", "EASY", "subj-bio", "A1", null, null, null, 2.5, 0, 0, null, now)
+        database.flashCardEntityQueries.insert("card-1", "Q1", "MULTIPLE_CHOICE", "EASY", "subj-bio", "A1", null, null, null, 2.5, 0, 0, null, now)
         // Card with past review date - should be due
-        database.flashCardEntityQueries.insert("card-2", "Q2", "FACT_CHECK", "EASY", "subj-bio", "A2", null, null, null, 2.5, 1, 1, past, now)
+        database.flashCardEntityQueries.insert("card-2", "Q2", "MULTIPLE_CHOICE", "EASY", "subj-bio", "A2", null, null, null, 2.5, 1, 1, past, now)
         // Card with future review date - should NOT be due
-        database.flashCardEntityQueries.insert("card-3", "Q3", "FACT_CHECK", "EASY", "subj-bio", "A3", null, null, null, 2.5, 6, 2, future, now)
+        database.flashCardEntityQueries.insert("card-3", "Q3", "MULTIPLE_CHOICE", "EASY", "subj-bio", "A3", null, null, null, 2.5, 6, 2, future, now)
 
         val dueCards = database.flashCardEntityQueries.selectDueCards(now).executeAsList()
         assertEquals(2, dueCards.size)
@@ -93,9 +93,9 @@ class FlashCardEntityTest {
     fun selectDueCardsBySubject() {
         val now = System.currentTimeMillis()
         // Due card for bio
-        database.flashCardEntityQueries.insert("card-1", "Q1", "FACT_CHECK", "EASY", "subj-bio", "A1", null, null, null, 2.5, 0, 0, null, now)
+        database.flashCardEntityQueries.insert("card-1", "Q1", "MULTIPLE_CHOICE", "EASY", "subj-bio", "A1", null, null, null, 2.5, 0, 0, null, now)
         // Due card for cs
-        database.flashCardEntityQueries.insert("card-2", "Q2", "FACT_CHECK", "EASY", "subj-cs", "A2", null, null, null, 2.5, 0, 0, null, now)
+        database.flashCardEntityQueries.insert("card-2", "Q2", "MULTIPLE_CHOICE", "EASY", "subj-cs", "A2", null, null, null, 2.5, 0, 0, null, now)
 
         val bioDue = database.flashCardEntityQueries.selectDueCardsBySubject("subj-bio", now).executeAsList()
         assertEquals(1, bioDue.size)
@@ -105,7 +105,7 @@ class FlashCardEntityTest {
     @Test
     fun updateSpacedRepetition() {
         val now = System.currentTimeMillis()
-        database.flashCardEntityQueries.insert("card-1", "Q1", "FACT_CHECK", "EASY", "subj-bio", "A1", null, null, null, 2.5, 0, 0, null, now)
+        database.flashCardEntityQueries.insert("card-1", "Q1", "MULTIPLE_CHOICE", "EASY", "subj-bio", "A1", null, null, null, 2.5, 0, 0, null, now)
 
         val nextReview = now + 86_400_000L
         database.flashCardEntityQueries.updateSpacedRepetition(
@@ -127,7 +127,7 @@ class FlashCardEntityTest {
     @Test
     fun deleteCard() {
         val now = System.currentTimeMillis()
-        database.flashCardEntityQueries.insert("card-1", "Q1", "FACT_CHECK", "EASY", "subj-bio", "A1", null, null, null, 2.5, 0, 0, null, now)
+        database.flashCardEntityQueries.insert("card-1", "Q1", "MULTIPLE_CHOICE", "EASY", "subj-bio", "A1", null, null, null, 2.5, 0, 0, null, now)
 
         database.flashCardEntityQueries.delete("card-1")
 
@@ -138,8 +138,8 @@ class FlashCardEntityTest {
     @Test
     fun deleteAllCards() {
         val now = System.currentTimeMillis()
-        database.flashCardEntityQueries.insert("card-1", "Q1", "FACT_CHECK", "EASY", "subj-bio", "A1", null, null, null, 2.5, 0, 0, null, now)
-        database.flashCardEntityQueries.insert("card-2", "Q2", "FACT_CHECK", "EASY", "subj-cs", "A2", null, null, null, 2.5, 0, 0, null, now)
+        database.flashCardEntityQueries.insert("card-1", "Q1", "MULTIPLE_CHOICE", "EASY", "subj-bio", "A1", null, null, null, 2.5, 0, 0, null, now)
+        database.flashCardEntityQueries.insert("card-2", "Q2", "MULTIPLE_CHOICE", "EASY", "subj-cs", "A2", null, null, null, 2.5, 0, 0, null, now)
 
         database.flashCardEntityQueries.deleteAll()
 
@@ -150,8 +150,8 @@ class FlashCardEntityTest {
     @Test
     fun selectAllOrderedByCreatedAtDesc() {
         val now = System.currentTimeMillis()
-        database.flashCardEntityQueries.insert("card-old", "Q1", "FACT_CHECK", "EASY", "subj-bio", "A1", null, null, null, 2.5, 0, 0, null, now)
-        database.flashCardEntityQueries.insert("card-new", "Q2", "FACT_CHECK", "EASY", "subj-bio", "A2", null, null, null, 2.5, 0, 0, null, now + 5000)
+        database.flashCardEntityQueries.insert("card-old", "Q1", "MULTIPLE_CHOICE", "EASY", "subj-bio", "A1", null, null, null, 2.5, 0, 0, null, now)
+        database.flashCardEntityQueries.insert("card-new", "Q2", "MULTIPLE_CHOICE", "EASY", "subj-bio", "A2", null, null, null, 2.5, 0, 0, null, now + 5000)
 
         val cards = database.flashCardEntityQueries.selectAll().executeAsList()
         assertEquals(2, cards.size)

@@ -96,7 +96,7 @@ class SubmitAnswerUseCaseTest {
     @Test
     fun completesSessionOnLastQuestion() = runTest {
         val session = studyRepository.createSession(
-            type = SessionType.QUICK_QUIZ,
+            type = SessionType.QUIZ,
             subjectId = null,
             questionCount = 2,
         )
@@ -121,7 +121,7 @@ class SubmitAnswerUseCaseTest {
     @Test
     fun doesNotCompleteSessionOnMiddleQuestion() = runTest {
         val session = studyRepository.createSession(
-            type = SessionType.QUICK_QUIZ,
+            type = SessionType.QUIZ,
             subjectId = null,
             questionCount = 5,
         )

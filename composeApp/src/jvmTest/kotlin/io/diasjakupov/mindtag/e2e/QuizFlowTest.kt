@@ -135,28 +135,17 @@ class QuizFlowTest {
             )
         }
 
-        // Insert user progress for streak testing
-        database.userProgressEntityQueries.insert(
-            subject_id = "subj-test",
-            mastery_percent = 60.0,
-            notes_reviewed = 1,
-            total_notes = 1,
-            avg_quiz_score = 75.0,
-            current_streak = 3,
-            total_xp = 500,
-            last_studied_at = now,
-        )
     }
 
     @Test
     fun startQuiz_createsSessionAndLoadsCards() = runTest {
         val quizData = startQuizUseCase(
-            type = SessionType.QUICK_QUIZ,
+            type = SessionType.QUIZ,
             questionCount = 5,
         )
 
         assertNotNull(quizData.session)
-        assertEquals(SessionType.QUICK_QUIZ, quizData.session.sessionType)
+        assertEquals(SessionType.QUIZ, quizData.session.sessionType)
         assertEquals(5, quizData.session.totalQuestions)
         assertEquals(SessionStatus.IN_PROGRESS, quizData.session.status)
 
@@ -170,7 +159,7 @@ class QuizFlowTest {
     @Test
     fun fullQuizFlow_startAnswerAndViewResults() = runTest {
         val quizData = startQuizUseCase(
-            type = SessionType.QUICK_QUIZ,
+            type = SessionType.QUIZ,
             questionCount = 3,
         )
         val sessionId = quizData.session.id
@@ -211,7 +200,6 @@ class QuizFlowTest {
             assertEquals(3, result.totalQuestions)
             assertEquals(2, result.totalCorrect)
             assertEquals(66, result.scorePercent) // 2/3 = 66%
-            assertEquals(20, result.xpEarned) // 2 correct * 10 XP
             assertEquals(3, result.answers.size)
             assertTrue(result.answers[0].isCorrect)
             assertTrue(!result.answers[1].isCorrect)
@@ -223,12 +211,12 @@ class QuizFlowTest {
     @Test
     fun examMode_createsSessionWithTimeLimit() = runTest {
         val quizData = startQuizUseCase(
-            type = SessionType.EXAM_MODE,
+            type = SessionType.QUIZ,
             questionCount = 5,
             timeLimitSeconds = 45 * 60,
         )
 
-        assertEquals(SessionType.EXAM_MODE, quizData.session.sessionType)
+        assertEquals(SessionType.QUIZ, quizData.session.sessionType)
         assertEquals(5, quizData.session.totalQuestions)
         assertEquals(45 * 60, quizData.session.timeLimitSeconds)
     }
@@ -236,7 +224,7 @@ class QuizFlowTest {
     @Test
     fun subjectSpecificQuiz_onlyLoadsCardsForSubject() = runTest {
         val quizData = startQuizUseCase(
-            type = SessionType.QUICK_QUIZ,
+            type = SessionType.QUIZ,
             subjectId = "subj-test",
             questionCount = 5,
         )
@@ -252,7 +240,7 @@ class QuizFlowTest {
     @Test
     fun submitAnswer_updatesCardSpacedRepetition() = runTest {
         val quizData = startQuizUseCase(
-            type = SessionType.QUICK_QUIZ,
+            type = SessionType.QUIZ,
             questionCount = 1,
         )
         val sessionId = quizData.session.id
@@ -288,7 +276,7 @@ class QuizFlowTest {
     @Test
     fun quizAnswers_persistedCorrectly() = runTest {
         val quizData = startQuizUseCase(
-            type = SessionType.QUICK_QUIZ,
+            type = SessionType.QUIZ,
             questionCount = 2,
         )
         val sessionId = quizData.session.id
@@ -327,7 +315,7 @@ class QuizFlowTest {
     @Test
     fun allCorrectAnswers_resultsShow100Percent() = runTest {
         val quizData = startQuizUseCase(
-            type = SessionType.QUICK_QUIZ,
+            type = SessionType.QUIZ,
             questionCount = 3,
         )
         val sessionId = quizData.session.id
@@ -352,38 +340,6 @@ class QuizFlowTest {
             assertNotNull(result)
             assertEquals(100, result.scorePercent)
             assertEquals(3, result.totalCorrect)
-            assertEquals(30, result.xpEarned)
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
-
-    @Test
-    fun resultsIncludeStreakFromUserProgress() = runTest {
-        // Start a subject-specific quiz so the results can lookup progress
-        val quizData = startQuizUseCase(
-            type = SessionType.QUICK_QUIZ,
-            subjectId = "subj-test",
-            questionCount = 1,
-        )
-        val sessionId = quizData.session.id
-        val cards = quizData.cards.firstOrNull() ?: emptyList()
-        assertTrue(cards.isNotEmpty())
-
-        submitAnswerUseCase(
-            sessionId = sessionId,
-            cardId = cards[0].id,
-            userAnswer = cards[0].correctAnswer,
-            isCorrect = true,
-            confidenceRating = null,
-            timeSpentSeconds = 5,
-            currentQuestionIndex = 0,
-            totalQuestions = 1,
-        )
-
-        getResultsUseCase(sessionId).test {
-            val result = awaitItem()
-            assertNotNull(result)
-            assertEquals(3, result.currentStreak) // From seeded UserProgress
             cancelAndIgnoreRemainingEvents()
         }
     }
@@ -391,7 +347,7 @@ class QuizFlowTest {
     @Test
     fun multipleChoiceCards_haveProperOptions() = runTest {
         val quizData = startQuizUseCase(
-            type = SessionType.QUICK_QUIZ,
+            type = SessionType.QUIZ,
             questionCount = 1,
         )
         val cards = quizData.cards.firstOrNull() ?: emptyList()
