@@ -62,18 +62,10 @@ class NoteCreateViewModel(
     override fun onIntent(intent: NoteCreateIntent) {
         Logger.d(tag, "onIntent: $intent")
         when (intent) {
-            is NoteCreateIntent.UpdateTitle -> {
-                updateState { copy(title = intent.title, titleError = null) }
-            }
-            is NoteCreateIntent.UpdateContent -> {
-                updateState { copy(content = intent.content, contentError = null) }
-            }
-            is NoteCreateIntent.UpdateSubjectName -> {
-                updateState { copy(subjectName = intent.name) }
-            }
-            is NoteCreateIntent.SelectSubject -> {
-                updateState { copy(subjectName = intent.subjectName) }
-            }
+            is NoteCreateIntent.UpdateTitle -> updateState { copy(title = intent.title, titleError = null) }
+            is NoteCreateIntent.UpdateContent -> updateState { copy(content = intent.content, contentError = null) }
+            is NoteCreateIntent.UpdateSubjectName -> updateState { copy(subjectName = intent.name) }
+            is NoteCreateIntent.SelectSubject -> updateState { copy(subjectName = intent.subjectName) }
             is NoteCreateIntent.Save -> save()
         }
     }

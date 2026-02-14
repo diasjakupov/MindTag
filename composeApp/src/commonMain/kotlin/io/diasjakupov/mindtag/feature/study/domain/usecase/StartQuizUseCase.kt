@@ -5,7 +5,6 @@ import io.diasjakupov.mindtag.feature.study.domain.model.SessionType
 import io.diasjakupov.mindtag.feature.study.domain.model.StudySession
 import io.diasjakupov.mindtag.feature.study.domain.repository.StudyRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
 data class QuizStartData(
     val session: StudySession,

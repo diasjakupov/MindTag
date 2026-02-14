@@ -10,19 +10,22 @@ Students accumulate notes across multiple courses but lack tools that surface me
 
 ### Proposed Solution
 
-MindTag constructs a **semantic knowledge graph** from student notes, automatically discovering and classifying relationships between concepts using **offline TF-IDF text similarity**. Combined with the **SM-2 spaced repetition algorithm** for adaptive review scheduling, MindTag transforms passive note storage into an active learning system — entirely on-device, with zero backend dependency.
+MindTag constructs a **semantic knowledge graph** from student notes, automatically discovering and classifying relationships between concepts. Combined with the **SM-2 spaced repetition algorithm** for adaptive review scheduling, MindTag transforms passive note storage into an active learning system.
 
 ### Key Innovation
 
-All intelligence runs locally. The TF-IDF vectorization engine computes cosine similarity across the full note corpus at note-creation time, classifying links as `PREREQUISITE`, `RELATED`, or `ANALOGY` based on subject membership and temporal ordering. No network requests are made for any analytical operation.
+The app follows a **server-first architecture** with JWT-based authentication. Notes are synced with a backend API, while semantic analysis and flashcard generation are handled server-side. The SM-2 spaced repetition engine runs locally for responsive review scheduling. An auth gate ensures all data flows are user-scoped and secure.
 
 ## Key Features
 
 | Feature | Description |
 |---------|-------------|
-| **Semantic Linking** | Automatic TF-IDF-based note relationship discovery with cosine similarity scoring and three-type link classification |
-| **Auto Flashcards** | Flashcard generation tied to source notes, supporting FACT_CHECK, SYNTHESIS, and MULTIPLE_CHOICE card types |
+| **Authentication** | JWT-based login/register with auth gate — unauthenticated users see the auth screen, authenticated users enter the main app |
+| **Server-Synced Notes** | CRUD operations via REST API with Ktor HTTP client; notes are fetched, created, updated, and deleted through the backend |
+| **Semantic Linking** | Server-side relationship discovery between notes; related notes fetched via API |
+| **Auto Flashcards** | Multiple-choice flashcard generation tied to source notes |
 | **Spaced Repetition (SM-2)** | Adaptive review scheduling using the SuperMemo SM-2 algorithm with confidence-weighted quality mapping |
+| **Note Editing** | Full edit support — navigate from note detail to edit screen with pre-populated fields |
 | **Knowledge Graph Visualization** | Interactive Canvas-based graph rendering with subject-clustered layout, edge typing, and node selection |
 | **Weekly Planner** | Curriculum-aligned weekly task tracking with expandable week cards, type badges, and progress calculation |
 | **Live Profile Stats** | Reactive statistics dashboard aggregating mastery, streaks, XP, and session counts from SQLDelight flows |
@@ -34,6 +37,7 @@ All intelligence runs locally. The TF-IDF vectorization engine computes cosine s
 |-----------|---------|------|
 | Kotlin | 2.3.0 | Language |
 | Compose Multiplatform | 1.10.0 | Shared UI framework |
+| Ktor | 3.1.1 | HTTP client (REST API, auth, content negotiation, logging) |
 | SQLDelight | 2.0.2 | Cross-platform local database |
 | Koin | 4.0.2 | Dependency injection |
 | Navigation 3 | 1.0.0-alpha05 | Multiplatform navigation |
@@ -71,7 +75,12 @@ The base `MviViewModel<S, I, E>` provides:
 │   UseCase → Repository (interface)      │
 ├─────────────────────────────────────────┤
 │             Data Layer                  │
-│   RepositoryImpl → SQLDelight Queries   │
+│   RepositoryImpl → API (Ktor HTTP)      │
+│                  → SQLDelight Queries   │
+├─────────────────────────────────────────┤
+│           Network Layer                 │
+│   HttpClientFactory, AuthManager,       │
+│   ApiResult, DTOs, safeApiCall          │
 └─────────────────────────────────────────┘
 ```
 
@@ -82,18 +91,22 @@ composeApp/src/
 ├── commonMain/kotlin/io/diasjakupov/mindtag/
 │   ├── core/
 │   │   ├── config/          # Dev configuration flags
+│   │   ├── data/            # AppPreferences
 │   │   ├── database/        # DatabaseDriverFactory (expect/actual)
 │   │   ├── designsystem/    # Theme, colors, typography, reusable components
 │   │   ├── di/              # Koin module definitions
-│   │   ├── domain/          # Shared models and SemanticAnalyzer
+│   │   ├── domain/          # Shared models
 │   │   ├── mvi/             # Base MviViewModel
 │   │   ├── navigation/      # Routes, bottom bar, NavConfig
+│   │   ├── network/         # HttpClientFactory, AuthManager, ApiResult, ServerConfig
+│   │   │   └── dto/         # AuthDtos, NoteDtos (serializable request/response models)
 │   │   └── util/            # Shared utilities
 │   ├── data/seed/           # Database seeder and sample data
 │   └── feature/
+│       ├── auth/            # Login/register (data/domain/presentation)
 │       ├── home/            # Dashboard (data/domain/presentation)
 │       ├── library/         # Note list + knowledge graph (presentation)
-│       ├── notes/           # CRUD + detail (data/domain/presentation)
+│       ├── notes/           # CRUD + detail + API client (data/domain/presentation)
 │       ├── onboarding/      # Intro flow (presentation)
 │       ├── planner/         # Weekly curriculum (presentation)
 │       ├── profile/         # User stats (presentation)
@@ -105,7 +118,7 @@ composeApp/src/
 
 ## Database Schema
 
-SQLDelight schema with 7 tables and 8 indexes, located in `composeApp/src/commonMain/sqldelight/`.
+SQLDelight schema with 8 tables and 8 indexes, located in `composeApp/src/commonMain/sqldelight/`.
 
 | Table | Primary Key | Purpose |
 |-------|------------|---------|
@@ -116,6 +129,7 @@ SQLDelight schema with 7 tables and 8 indexes, located in `composeApp/src/common
 | `StudySessionEntity` | `id TEXT` | Quiz/exam sessions with type, timer, and status tracking |
 | `QuizAnswerEntity` | `id TEXT` | Per-question answers with correctness and confidence rating |
 | `UserProgressEntity` | `subject_id TEXT` | Aggregate mastery, streak, XP, and accuracy per subject |
+| `AppSettingsEntity` | `key TEXT` | Key-value store for app preferences (e.g., onboarding completion) |
 
 ### Entity Relationships
 
@@ -130,23 +144,9 @@ FlashCardEntity    1──* QuizAnswerEntity
 
 ## Core Algorithms
 
-### TF-IDF Semantic Similarity Engine
+### Semantic Linking (Server-Side)
 
-The `SemanticAnalyzer` object (`core/domain/usecase/SemanticAnalyzer.kt`) computes note-to-note similarity entirely offline:
-
-1. **Tokenization** — Lowercases text, removes punctuation, filters stop words (100+ English words) and single-character tokens
-2. **TF-IDF Vectorization** — Computes term frequency-inverse document frequency for all documents: `TF-IDF(t,d) = TF(t,d) * (ln((N+1)/(DF(t)+1)) + 1)`
-3. **Cosine Similarity** — Measures vector similarity between note pairs: `cos(v1, v2) = (v1 . v2) / (||v1|| * ||v2||)`
-4. **Link Classification** — Assigns relationship types based on thresholds and context:
-
-| Condition | Link Type |
-|-----------|-----------|
-| Cross-subject, similarity >= 0.25 | `ANALOGY` |
-| Cross-subject, similarity >= 0.15 | `RELATED` |
-| Same subject, target week < source week | `PREREQUISITE` |
-| Same subject, otherwise | `RELATED` |
-
-Links below a similarity threshold of 0.15 are discarded.
+Semantic analysis (TF-IDF similarity, link classification) and flashcard generation are handled by the backend. The client fetches related notes and flashcards via REST API endpoints (`/notes/{id}/related`).
 
 ### SM-2 Spaced Repetition
 
@@ -176,12 +176,22 @@ Due cards (`next_review_at <= now`) are prioritized. If fewer due cards exist th
 
 ## User Flows
 
+### Authentication
+
+```
+App launch → AuthManager checks state → Unauthenticated?
+    → AuthScreen (login/register toggle)
+    → Submit → AuthApi.login/register → JWT token received
+    → AuthManager.login(token, userId) → State flips to Authenticated
+    → MainApp composable renders (dashboard, bottom nav, etc.)
+```
+
 ### Note Creation with Auto-Linking
 
 ```
-NoteCreateScreen → Save → CreateNoteUseCase (validate + persist)
-    → SemanticAnalyzer.computeLinks (TF-IDF against all existing notes)
-    → Insert SemanticLinkEntity rows for each match above threshold
+NoteCreateScreen → Save → NoteApi.createNote (POST /notes)
+    → Backend persists note + runs semantic analysis
+    → Related notes discoverable via GET /notes/{id}/related
 ```
 
 ### Study Session (Quiz → Results)
@@ -237,11 +247,11 @@ MindTag targets three platforms from a single Kotlin codebase:
 
 ## Testing
 
-The project includes **309 tests** spanning unit, integration, and end-to-end layers:
+The project includes unit, integration, and end-to-end tests:
 
-- **Unit tests** — Domain models, use cases, repository logic, SemanticAnalyzer (TF-IDF, cosine similarity, link classification), SM-2 algorithm correctness
+- **Unit tests** — Domain models, use cases, repository logic, SM-2 algorithm correctness
 - **Integration tests** — ViewModel state transitions under MVI contract, reactive data flow through repository → use case → ViewModel chains
-- **E2E tests** — Full user flows (note creation → auto-linking, quiz session → results) via ViewModel interaction sequences
+- **E2E tests** — Full user flows (quiz session → results) via ViewModel interaction sequences
 
 Test infrastructure: `kotlinx-coroutines-test`, `Turbine` (Flow testing), `Koin-test`
 
@@ -265,3 +275,5 @@ Detailed feature documentation is available in the [`/docs`](./docs/) directory:
 | [Profile](docs/feature-profile.md) | User statistics and settings shell |
 | [Onboarding](docs/feature-onboarding.md) | 4-page intro flow with bidirectional pager sync |
 | [Build & Platform](docs/build-and-platform.md) | Gradle config, version catalog, platform entry points |
+| [Backend Integration Plan](docs/plans/2026-02-11-backend-integration-plan.md) | Full backend integration design — auth, notes API, sync strategy |
+| [UX Gaps Audit](docs/plans/2026-02-08-ux-gaps-audit.md) | UX improvement roadmap — note editing, preferences, study hub enhancements |

@@ -643,10 +643,8 @@ private fun ResultsShimmerSkeleton() {
 
 @Composable
 private fun AiInsightBlock(insight: String) {
-    Box(modifier = Modifier.padding(top = MindTagSpacing.md)) {
-        Column {
-            // AI Insight gradient badge
-            Box(
+    Column(modifier = Modifier.padding(top = MindTagSpacing.md)) {
+        Box(
                 modifier = Modifier
                     .clip(MindTagShapes.full)
                     .background(
@@ -706,6 +704,5 @@ private fun AiInsightBlock(insight: String) {
                     lineHeight = 20.sp,
                 )
             }
-        }
     }
 }

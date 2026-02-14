@@ -86,7 +86,6 @@ fun HomeScreen(
             .background(MindTagColors.BackgroundDark)
             .verticalScroll(rememberScrollState()),
     ) {
-        // Header
         HeaderSection(
             userName = state.userName,
             streak = state.currentStreak,
@@ -94,7 +93,6 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(MindTagSpacing.xxxl))
 
-        // Due for Review
         DueForReviewSection(
             reviewCards = state.reviewCards,
             onCardClick = { noteId ->
@@ -104,7 +102,6 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(MindTagSpacing.xxl))
 
-        // Up Next
         UpNextSection(
             tasks = state.upNextTasks,
             reviewCards = state.reviewCards,
@@ -124,13 +121,11 @@ private fun HeaderSection(
             .fillMaxWidth()
             .padding(top = 40.dp, start = MindTagSpacing.screenHorizontalPadding, end = MindTagSpacing.screenHorizontalPadding),
     ) {
-        // Avatar row with settings
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Avatar placeholder
             Box(
                 modifier = Modifier
                     .size(MindTagSpacing.avatarSize)
@@ -157,7 +152,6 @@ private fun HeaderSection(
 
         Spacer(modifier = Modifier.height(MindTagSpacing.xl))
 
-        // Greeting
         val greeting = getGreeting()
         Text(
             text = "$greeting, $userName",
@@ -167,7 +161,6 @@ private fun HeaderSection(
 
         Spacer(modifier = Modifier.height(MindTagSpacing.xs))
 
-        // AI status
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.sm),
@@ -193,7 +186,6 @@ private fun DueForReviewSection(
     onCardClick: (Long) -> Unit,
 ) {
     Column {
-        // Section header
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -216,10 +208,8 @@ private fun DueForReviewSection(
         Spacer(modifier = Modifier.height(MindTagSpacing.lg))
 
         if (reviewCards.isEmpty()) {
-            // Empty state
             ReviewEmptyState()
         } else {
-            // Horizontal carousel
             LazyRow(
                 contentPadding = PaddingValues(horizontal = MindTagSpacing.screenHorizontalPadding),
                 horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.xl),
@@ -251,7 +241,7 @@ private fun ReviewEmptyState() {
                 modifier = Modifier
                     .size(64.dp)
                     .clip(MindTagShapes.full)
-                    .background(Color(0xFF135BEC).copy(alpha = 0.1f)),
+                    .background(MindTagColors.Primary.copy(alpha = 0.1f)),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
@@ -275,7 +265,7 @@ private fun ReviewEmptyState() {
             Text(
                 text = "No notes due for review right now. Great job!",
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFF92A4C9),
+                color = MindTagColors.TextSecondary,
             )
         }
     }
@@ -297,7 +287,6 @@ private fun ReviewCardItem(
             .clickable(onClick = onClick)
             .padding(MindTagSpacing.lg),
     ) {
-        // Subject image placeholder with subject tag
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -312,7 +301,6 @@ private fun ReviewCardItem(
                     ),
                 ),
         ) {
-            // Subject tag in top-right
             MindTagChip(
                 text = card.subjectName,
                 variant = MindTagChipVariant.SubjectTag,
@@ -320,7 +308,6 @@ private fun ReviewCardItem(
                     .align(Alignment.TopEnd)
                     .padding(MindTagSpacing.md),
             )
-            // Decorative circle (representing subject visual)
             Box(
                 modifier = Modifier
                     .size(80.dp)
@@ -332,7 +319,6 @@ private fun ReviewCardItem(
 
         Spacer(modifier = Modifier.height(MindTagSpacing.lg))
 
-        // Note title
         Text(
             text = card.noteTitle,
             style = MaterialTheme.typography.titleSmall,
@@ -343,7 +329,6 @@ private fun ReviewCardItem(
 
         Spacer(modifier = Modifier.height(MindTagSpacing.md))
 
-        // Progress bar + percent
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.md),
@@ -367,7 +352,6 @@ private fun ReviewCardItem(
 
         Spacer(modifier = Modifier.height(MindTagSpacing.lg))
 
-        // Review Now button
         MindTagButton(
             text = "Review Now",
             onClick = onClick,
@@ -387,7 +371,6 @@ private fun UpNextSection(
             .fillMaxWidth()
             .padding(horizontal = MindTagSpacing.screenHorizontalPadding),
     ) {
-        // Section header with divider
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.md),
@@ -407,12 +390,10 @@ private fun UpNextSection(
 
         Spacer(modifier = Modifier.height(MindTagSpacing.lg))
 
-        // Syllabus focus banner
         SyllabusFocusBanner(reviewCards = reviewCards)
 
         Spacer(modifier = Modifier.height(MindTagSpacing.xl))
 
-        // Task list
         tasks.forEachIndexed { index, task ->
             val isLocked = index == tasks.lastIndex && tasks.size >= 3
             TaskItem(task = task, isLocked = isLocked)
@@ -500,7 +481,6 @@ private fun TaskItem(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.lg),
     ) {
-        // Checkbox / lock
         Box(
             modifier = Modifier
                 .size(24.dp)
@@ -523,7 +503,6 @@ private fun TaskItem(
             }
         }
 
-        // Title + subtitle
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = task.title,
@@ -539,7 +518,6 @@ private fun TaskItem(
             )
         }
 
-        // Estimated time
         val timeEstimate = when (task.type) {
             TaskType.REVIEW -> "20 min"
             TaskType.QUIZ -> "10 min"
@@ -595,7 +573,6 @@ private fun HomeShimmerSkeleton() {
             .verticalScroll(rememberScrollState())
             .padding(top = 40.dp),
     ) {
-        // Header skeleton: avatar + text lines
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -615,7 +592,6 @@ private fun HomeShimmerSkeleton() {
 
         Spacer(modifier = Modifier.height(MindTagSpacing.xl))
 
-        // Greeting text lines
         Column(
             modifier = Modifier.padding(horizontal = MindTagSpacing.screenHorizontalPadding),
         ) {
@@ -634,7 +610,6 @@ private fun HomeShimmerSkeleton() {
 
         Spacer(modifier = Modifier.height(MindTagSpacing.xxxl))
 
-        // Section title shimmer
         ShimmerBox(
             modifier = Modifier
                 .padding(horizontal = MindTagSpacing.screenHorizontalPadding)
@@ -644,7 +619,6 @@ private fun HomeShimmerSkeleton() {
 
         Spacer(modifier = Modifier.height(MindTagSpacing.lg))
 
-        // Horizontal card shimmer row
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -662,7 +636,6 @@ private fun HomeShimmerSkeleton() {
 
         Spacer(modifier = Modifier.height(MindTagSpacing.xxl))
 
-        // Up Next task shimmer rows
         Column(
             modifier = Modifier.padding(horizontal = MindTagSpacing.screenHorizontalPadding),
             verticalArrangement = Arrangement.spacedBy(MindTagSpacing.lg),

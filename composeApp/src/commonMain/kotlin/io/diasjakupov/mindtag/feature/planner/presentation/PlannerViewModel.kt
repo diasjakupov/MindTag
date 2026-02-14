@@ -15,7 +15,7 @@ import io.diasjakupov.mindtag.feature.planner.presentation.PlannerContract.WeekD
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class PlannerViewModel(
@@ -32,7 +32,7 @@ class PlannerViewModel(
         db.plannerTaskEntityQueries.selectAll()
             .asFlow()
             .mapToList(Dispatchers.IO)
-            .map { entities ->
+            .onEach { entities ->
                 val weeks = entities
                     .groupBy { it.week_id }
                     .map { (weekId, tasks) ->

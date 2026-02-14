@@ -58,7 +58,6 @@ fun ProfileScreen(
     ) {
         Spacer(modifier = Modifier.height(MindTagSpacing.xxxl))
 
-        // Header
         Text(
             text = "Profile",
             style = MaterialTheme.typography.headlineMedium,
@@ -67,12 +66,10 @@ fun ProfileScreen(
 
         Spacer(modifier = Modifier.height(MindTagSpacing.xxxl))
 
-        // Avatar + name + email
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Avatar circle with initials
             Box(
                 modifier = Modifier
                     .size(80.dp)
@@ -117,7 +114,6 @@ fun ProfileScreen(
 
         Spacer(modifier = Modifier.height(MindTagSpacing.xxxl))
 
-        // Stats card
         MindTagCard(modifier = Modifier.fillMaxWidth()) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -132,7 +128,6 @@ fun ProfileScreen(
 
         Spacer(modifier = Modifier.height(MindTagSpacing.xxxl))
 
-        // Settings
         MindTagCard(
             modifier = Modifier.fillMaxWidth(),
             contentPadding = 0.dp,

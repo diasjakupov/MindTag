@@ -5,11 +5,7 @@ import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
 import io.diasjakupov.mindtag.core.util.Logger
 import io.diasjakupov.mindtag.data.local.MindTagDatabase
-import io.diasjakupov.mindtag.feature.study.domain.model.AnswerOption
-import io.diasjakupov.mindtag.feature.study.domain.model.CardType
 import io.diasjakupov.mindtag.feature.study.domain.model.ConfidenceRating
-import io.diasjakupov.mindtag.feature.study.domain.model.Difficulty
-import io.diasjakupov.mindtag.feature.study.domain.model.FlashCard
 import io.diasjakupov.mindtag.feature.study.domain.model.QuizAnswer
 import io.diasjakupov.mindtag.feature.study.domain.model.QuizAnswerDetail
 import io.diasjakupov.mindtag.feature.study.domain.model.SessionResult
@@ -21,16 +17,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
-import kotlinx.serialization.json.Json
 
 class QuizRepositoryImpl(
     private val db: MindTagDatabase,
 ) : QuizRepository {
 
     private val tag = "QuizRepo"
-    private val json = Json { ignoreUnknownKeys = true }
 
     override suspend fun submitAnswer(answer: QuizAnswer) {
         Logger.d(tag, "submitAnswer: cardId=${answer.cardId}, correct=${answer.isCorrect}")

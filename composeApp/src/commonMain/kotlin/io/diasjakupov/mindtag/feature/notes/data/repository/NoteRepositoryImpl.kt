@@ -58,8 +58,9 @@ class NoteRepositoryImpl(
 
     override suspend fun getRelatedNotes(noteId: Long): List<RelatedNote> {
         return when (val result = noteApi.getRelatedNotes(noteId)) {
-            is ApiResult.Success -> result.data.map { dto ->
-                RelatedNote(noteId = dto.noteId, title = dto.title)
+            is ApiResult.Success -> result.data.mapNotNull { dto ->
+                val id = dto.noteId.toLongOrNull() ?: return@mapNotNull null
+                RelatedNote(noteId = id, title = dto.title)
             }
             is ApiResult.Error -> {
                 Logger.e(tag, "getRelatedNotes: ${result.message}")
@@ -119,11 +120,9 @@ class NoteRepositoryImpl(
         }
     }
 
-    // --- Write-through cache ---
-
     private fun cacheNotes(dtos: List<NoteResponseDto>) {
+        val now = Clock.System.now().toEpochMilliseconds()
         db.transaction {
-            val now = Clock.System.now().toEpochMilliseconds()
             dtos.forEach { dto ->
                 val subjectId = dto.subject
                 val existingSubject = db.subjectEntityQueries.selectById(subjectId).executeAsOneOrNull()
@@ -150,7 +149,7 @@ class NoteRepositoryImpl(
                     week_number = null,
                     read_time_minutes = estimateReadTimeMinutes(dto.body).toLong(),
                     created_at = parseTimestamp(dto.createdAt),
-                    updated_at = parseTimestamp(dto.updatedAt),
+                    updated_at = dto.updatedAt?.let { parseTimestamp(it) } ?: parseTimestamp(dto.createdAt),
                 )
             }
         }
@@ -168,8 +167,8 @@ class NoteRepositoryImpl(
     private fun getNoteFromCache(id: Long): Note? =
         db.noteEntityQueries.selectById(id.toString()).executeAsOneOrNull()?.toDomain()
 
-    private fun getSubjectsFromCache(): List<Subject> {
-        return db.subjectEntityQueries.selectAll().executeAsList().map { entity ->
+    private fun getSubjectsFromCache(): List<Subject> =
+        db.subjectEntityQueries.selectAll().executeAsList().map { entity ->
             Subject(
                 id = entity.id,
                 name = entity.name,
@@ -177,9 +176,6 @@ class NoteRepositoryImpl(
                 iconName = entity.icon_name,
             )
         }
-    }
-
-    // --- Mappers ---
 
     private fun NoteResponseDto.toDomain() = Note(
         id = id,
@@ -191,7 +187,7 @@ class NoteRepositoryImpl(
         weekNumber = null,
         readTimeMinutes = estimateReadTimeMinutes(body),
         createdAt = parseTimestamp(createdAt),
-        updatedAt = parseTimestamp(updatedAt),
+        updatedAt = updatedAt?.let { parseTimestamp(it) } ?: parseTimestamp(createdAt),
     )
 
     private fun NoteEntity.toDomain() = Note(
@@ -207,12 +203,8 @@ class NoteRepositoryImpl(
         updatedAt = updated_at,
     )
 
-    // --- Helpers ---
-
-    private fun summarize(body: String): String {
-        val truncated = body.take(150)
-        return if (body.length > 150) "$truncated..." else truncated
-    }
+    private fun summarize(body: String): String =
+        if (body.length > 150) "${body.take(150)}..." else body
 
     private fun estimateReadTimeMinutes(body: String): Int =
         (body.split(" ").size / 200).coerceAtLeast(1)
@@ -223,6 +215,11 @@ class NoteRepositoryImpl(
     private fun parseTimestamp(iso: String): Long = try {
         Instant.parse(iso).toEpochMilliseconds()
     } catch (_: Exception) {
-        Clock.System.now().toEpochMilliseconds()
+        try {
+            // Backend sends LocalDateTime without timezone offset, assume UTC
+            Instant.parse("${iso}Z").toEpochMilliseconds()
+        } catch (_: Exception) {
+            Clock.System.now().toEpochMilliseconds()
+        }
     }
 }

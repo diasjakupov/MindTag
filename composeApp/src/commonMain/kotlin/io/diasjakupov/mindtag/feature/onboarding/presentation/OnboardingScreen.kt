@@ -115,7 +115,6 @@ fun OnboardingScreen(
             .fillMaxSize()
             .background(MindTagColors.BackgroundDark),
     ) {
-        // Top bar with Skip button
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -135,7 +134,6 @@ fun OnboardingScreen(
             }
         }
 
-        // Pager content
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
@@ -145,7 +143,6 @@ fun OnboardingScreen(
             OnboardingPageContent(page = pages[pageIndex])
         }
 
-        // Page indicators
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -171,7 +168,6 @@ fun OnboardingScreen(
             }
         }
 
-        // Bottom action area
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -180,19 +176,16 @@ fun OnboardingScreen(
                     vertical = MindTagSpacing.xxxl,
                 ),
         ) {
-            if (state.currentPage == state.totalPages - 1) {
-                MindTagButton(
-                    text = "Get Started",
-                    onClick = { viewModel.onIntent(OnboardingContract.Intent.GetStarted) },
-                    variant = MindTagButtonVariant.PrimaryLarge,
-                )
-            } else {
-                MindTagButton(
-                    text = "Next",
-                    onClick = { viewModel.onIntent(OnboardingContract.Intent.NextPage) },
-                    variant = MindTagButtonVariant.PrimaryLarge,
-                )
-            }
+            val isLastPage = state.currentPage == state.totalPages - 1
+            MindTagButton(
+                text = if (isLastPage) "Get Started" else "Next",
+                onClick = {
+                    val intent = if (isLastPage) OnboardingContract.Intent.GetStarted
+                        else OnboardingContract.Intent.NextPage
+                    viewModel.onIntent(intent)
+                },
+                variant = MindTagButtonVariant.PrimaryLarge,
+            )
         }
     }
 }
@@ -206,7 +199,6 @@ private fun OnboardingPageContent(page: OnboardingPage) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        // Icon circle
         Box(
             modifier = Modifier
                 .size(120.dp)
@@ -224,7 +216,6 @@ private fun OnboardingPageContent(page: OnboardingPage) {
 
         Spacer(modifier = Modifier.height(MindTagSpacing.xxxl))
 
-        // Title
         Text(
             text = page.title,
             style = MaterialTheme.typography.headlineMedium,
@@ -234,7 +225,6 @@ private fun OnboardingPageContent(page: OnboardingPage) {
 
         Spacer(modifier = Modifier.height(MindTagSpacing.xl))
 
-        // Description
         Text(
             text = page.description,
             style = MaterialTheme.typography.bodyLarge,

@@ -57,7 +57,6 @@ fun NoteCreateScreen(
             .fillMaxSize()
             .background(MindTagColors.BackgroundDark),
     ) {
-        // Top bar
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -92,7 +91,6 @@ fun NoteCreateScreen(
             }
         }
 
-        // Title field
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -117,9 +115,9 @@ fun NoteCreateScreen(
                     }
                 },
             )
-            if (state.titleError != null) {
+            state.titleError?.let { error ->
                 Text(
-                    text = state.titleError!!,
+                    text = error,
                     style = MaterialTheme.typography.labelMedium,
                     color = MindTagColors.Error,
                     modifier = Modifier.padding(top = MindTagSpacing.xs),
@@ -129,7 +127,6 @@ fun NoteCreateScreen(
 
         Spacer(modifier = Modifier.height(MindTagSpacing.xl))
 
-        // Subject name field with suggestion chips
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -160,7 +157,6 @@ fun NoteCreateScreen(
                 },
             )
 
-            // Existing subject suggestion chips
             if (state.subjects.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(MindTagSpacing.md))
                 Row(
@@ -201,7 +197,6 @@ fun NoteCreateScreen(
 
         Spacer(modifier = Modifier.height(MindTagSpacing.xl))
 
-        // Content field
         Column(
             modifier = Modifier.weight(1f),
         ) {
@@ -227,9 +222,9 @@ fun NoteCreateScreen(
                     }
                 },
             )
-            if (state.contentError != null) {
+            state.contentError?.let { error ->
                 Text(
-                    text = state.contentError!!,
+                    text = error,
                     style = MaterialTheme.typography.labelMedium,
                     color = MindTagColors.Error,
                     modifier = Modifier

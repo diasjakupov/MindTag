@@ -58,32 +58,24 @@ class NoteDetailViewModel(
         Logger.d(tag, "onIntent: $intent")
         when (intent) {
             is NoteDetailIntent.TapQuizMe -> startQuiz()
-            is NoteDetailIntent.TapRelatedNote -> {
-                sendEffect(NoteDetailEffect.NavigateToNote(intent.noteId))
-            }
-            is NoteDetailIntent.NavigateBack -> {
+            is NoteDetailIntent.TapRelatedNote -> sendEffect(NoteDetailEffect.NavigateToNote(intent.noteId))
+            is NoteDetailIntent.NavigateBack -> sendEffect(NoteDetailEffect.NavigateBack)
+            is NoteDetailIntent.TapEdit -> sendEffect(NoteDetailEffect.NavigateToEdit(noteId))
+            is NoteDetailIntent.TapDelete -> updateState { copy(showDeleteConfirmation = true) }
+            is NoteDetailIntent.ConfirmDelete -> deleteNote()
+            is NoteDetailIntent.DismissDeleteDialog -> updateState { copy(showDeleteConfirmation = false) }
+        }
+    }
+
+    private fun deleteNote() {
+        viewModelScope.launch {
+            try {
+                noteRepository.deleteNote(noteId)
+                Logger.d(tag, "deleteNote: success")
                 sendEffect(NoteDetailEffect.NavigateBack)
-            }
-            is NoteDetailIntent.TapEdit -> {
-                sendEffect(NoteDetailEffect.NavigateToEdit(noteId))
-            }
-            is NoteDetailIntent.TapDelete -> {
-                updateState { copy(showDeleteConfirmation = true) }
-            }
-            is NoteDetailIntent.ConfirmDelete -> {
-                viewModelScope.launch {
-                    try {
-                        noteRepository.deleteNote(noteId)
-                        Logger.d(tag, "deleteNote: success")
-                        sendEffect(NoteDetailEffect.NavigateBack)
-                    } catch (e: Exception) {
-                        Logger.e(tag, "deleteNote: error", e)
-                        sendEffect(NoteDetailEffect.ShowError("Failed to delete note"))
-                    }
-                }
-            }
-            is NoteDetailIntent.DismissDeleteDialog -> {
-                updateState { copy(showDeleteConfirmation = false) }
+            } catch (e: Exception) {
+                Logger.e(tag, "deleteNote: error", e)
+                sendEffect(NoteDetailEffect.ShowError("Failed to delete note"))
             }
         }
     }

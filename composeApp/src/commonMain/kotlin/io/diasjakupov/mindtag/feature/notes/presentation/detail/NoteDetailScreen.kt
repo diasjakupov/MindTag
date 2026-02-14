@@ -84,7 +84,6 @@ fun NoteDetailScreen(
             .fillMaxSize()
             .background(MindTagColors.BackgroundDark),
     ) {
-        // Top navigation bar
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -126,7 +125,6 @@ fun NoteDetailScreen(
             }
         }
 
-        // Toolbar actions: Listen + Quiz Me
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -134,7 +132,6 @@ fun NoteDetailScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Listen placeholder
             IconButton(onClick = { /* placeholder */ }) {
                 Icon(
                     imageVector = MindTagIcons.Headphones,
@@ -142,7 +139,6 @@ fun NoteDetailScreen(
                     tint = MindTagColors.TextSlate300,
                 )
             }
-            // Quiz Me pill button
             if (state.isCreatingQuiz) {
                 CircularProgressIndicator(
                     color = MindTagColors.Primary,
@@ -158,7 +154,6 @@ fun NoteDetailScreen(
             }
         }
 
-        // Metadata chips row
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -171,9 +166,6 @@ fun NoteDetailScreen(
                     text = state.subjectName,
                     variant = MindTagChipVariant.Metadata,
                 )
-            }
-            // Separator dot
-            if (state.subjectName.isNotEmpty()) {
                 Box(
                     modifier = Modifier
                         .size(4.dp)
@@ -188,7 +180,6 @@ fun NoteDetailScreen(
             )
         }
 
-        // Scrollable note content
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -205,7 +196,6 @@ fun NoteDetailScreen(
             Spacer(modifier = Modifier.height(MindTagSpacing.bottomContentPadding))
         }
 
-        // Related Notes section
         if (state.relatedNotes.isNotEmpty()) {
             RelatedNotesSection(
                 relatedNotes = state.relatedNotes,
@@ -251,7 +241,6 @@ private fun RelatedNotesSection(
             .background(MindTagColors.SurfaceDarkAlt2)
             .padding(top = MindTagSpacing.lg, bottom = MindTagSpacing.xxl),
     ) {
-        // Header
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -274,7 +263,6 @@ private fun RelatedNotesSection(
 
         Spacer(modifier = Modifier.height(MindTagSpacing.lg))
 
-        // Horizontal scroll of related note cards
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -299,7 +287,6 @@ private fun NoteDetailShimmerSkeleton() {
             .fillMaxSize()
             .background(MindTagColors.BackgroundDark),
     ) {
-        // Top bar shimmer
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -321,7 +308,6 @@ private fun NoteDetailShimmerSkeleton() {
             Spacer(modifier = Modifier.size(MindTagSpacing.iconButtonSize))
         }
 
-        // Toolbar row shimmer
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -339,7 +325,6 @@ private fun NoteDetailShimmerSkeleton() {
             )
         }
 
-        // Metadata chips row shimmer
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -356,7 +341,6 @@ private fun NoteDetailShimmerSkeleton() {
             )
         }
 
-        // Content lines shimmer
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -375,7 +359,6 @@ private fun NoteDetailShimmerSkeleton() {
             }
         }
 
-        // Related notes section shimmer
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -426,7 +409,6 @@ private fun RelatedNoteCard(
             .padding(MindTagSpacing.lg),
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
-        // Subject icon
         Box(
             modifier = Modifier
                 .size(32.dp)

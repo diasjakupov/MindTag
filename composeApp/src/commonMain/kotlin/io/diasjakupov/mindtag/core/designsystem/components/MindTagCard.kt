@@ -20,31 +20,29 @@ fun MindTagCard(
     onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val cardModifier = modifier
     val border = BorderStroke(1.dp, MindTagColors.BorderSubtle)
+    val innerContent: @Composable () -> Unit = {
+        Column(modifier = Modifier.padding(contentPadding)) {
+            content()
+        }
+    }
 
     if (onClick != null) {
         Surface(
             onClick = onClick,
-            modifier = cardModifier,
+            modifier = modifier,
             shape = MindTagShapes.lg,
             color = MindTagColors.CardDark,
             border = border,
-        ) {
-            Column(modifier = Modifier.padding(contentPadding)) {
-                content()
-            }
-        }
+            content = innerContent,
+        )
     } else {
         Surface(
-            modifier = cardModifier,
+            modifier = modifier,
             shape = MindTagShapes.lg,
             color = MindTagColors.CardDark,
             border = border,
-        ) {
-            Column(modifier = Modifier.padding(contentPadding)) {
-                content()
-            }
-        }
+            content = innerContent,
+        )
     }
 }

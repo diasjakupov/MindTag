@@ -196,11 +196,10 @@ class QuizViewModel(
     }
 }
 
-private fun FlashCard.toOptionUiList(): List<QuizOptionUi> {
-    return options.map { option ->
+private fun FlashCard.toOptionUiList(): List<QuizOptionUi> =
+    options.map { option ->
         QuizOptionUi(
             id = option.id,
             text = option.text,
         )
     }
-}

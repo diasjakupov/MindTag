@@ -56,7 +56,7 @@ class DashboardRepositoryImpl(
                 )
             }.sortedByDescending { it.dueCardCount }
 
-            val upNextTasks = buildUpNextTasks(subjects.map { it.name }, reviewCards)
+            val upNextTasks = buildUpNextTasks(reviewCards)
 
             DashboardData(
                 userName = "Alex",
@@ -70,12 +70,10 @@ class DashboardRepositoryImpl(
     }
 
     private fun buildUpNextTasks(
-        subjectNames: List<String>,
         reviewCards: List<ReviewCard>,
     ): List<UpNextTask> {
         val tasks = mutableListOf<UpNextTask>()
 
-        // First due review subject
         val topReview = reviewCards.firstOrNull { it.dueCardCount > 0 }
         if (topReview != null) {
             tasks.add(
@@ -88,7 +86,6 @@ class DashboardRepositoryImpl(
             )
         }
 
-        // Quiz task for second subject
         val quizSubject = reviewCards.getOrNull(1)
         if (quizSubject != null) {
             tasks.add(
@@ -101,8 +98,6 @@ class DashboardRepositoryImpl(
             )
         }
 
-        // Note task
-        val noteSubject = subjectNames.firstOrNull() ?: "General"
         tasks.add(
             UpNextTask(
                 id = "task-note-add",

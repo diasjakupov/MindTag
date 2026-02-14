@@ -329,8 +329,6 @@ private fun FilterChip(
     }
 }
 
-// --- List View ---
-
 @Composable
 private fun NoteListView(
     notes: List<LibraryContract.NoteListItem>,
@@ -414,8 +412,6 @@ private fun NoteListCard(
         }
     }
 }
-
-// --- Graph View ---
 
 @Composable
 private fun GraphView(
@@ -626,18 +622,13 @@ private fun DrawScope.drawNodeLabel(
     )
 }
 
-// --- Node Preview Card ---
-
 @Composable
 private fun NodePreviewCard(
     note: LibraryContract.NoteListItem,
     onViewNote: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val subjectColor = parseColor(note.subjectColorHex)
-
     MindTagCard(modifier = modifier.fillMaxWidth()) {
-        // Subject label
         Text(
             text = note.subjectName.uppercase(),
             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
@@ -694,8 +685,6 @@ private fun NodePreviewCard(
         }
     }
 }
-
-// --- Empty State ---
 
 @Composable
 private fun LibraryEmptyState(
@@ -758,14 +747,12 @@ private fun LibraryEmptyState(
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFF92A4C9),
+                color = MindTagColors.TextSecondary,
                 textAlign = TextAlign.Center,
             )
         }
     }
 }
-
-// --- Shimmer Skeleton ---
 
 @Composable
 private fun LibraryShimmerSkeleton() {
@@ -848,8 +835,6 @@ private fun LibraryShimmerSkeleton() {
         }
     }
 }
-
-// --- Utility ---
 
 private fun parseColor(hex: String): Color = try {
     Color(("FF" + hex.removePrefix("#")).toLong(16))

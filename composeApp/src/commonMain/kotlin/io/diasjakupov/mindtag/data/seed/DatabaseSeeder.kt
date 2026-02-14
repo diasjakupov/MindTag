@@ -5,8 +5,7 @@ import io.diasjakupov.mindtag.data.local.MindTagDatabase
 
 object DatabaseSeeder {
     fun seedIfEmpty(db: MindTagDatabase) {
-        val count = db.subjectEntityQueries.selectAll().executeAsList().size
-        if (count > 0) return
+        if (db.subjectEntityQueries.selectAll().executeAsList().isNotEmpty()) return
 
         db.transaction {
             if (DevConfig.ENABLE_SEED_DATA) {

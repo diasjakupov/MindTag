@@ -26,11 +26,11 @@ data class NoteResponseDto(
     val contentHash: String,
     val createdAt: String,
     @SerialName("updatedA")
-    val updatedAt: String,
+    val updatedAt: String? = null,
 )
 
 @Serializable
 data class RelatedNoteResponseDto(
-    val noteId: Long,
+    val noteId: String,
     val title: String,
 )

@@ -61,7 +61,7 @@ fun PlannerScreen() {
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             // Header
-            PlannerHeader(overallProgress = state.overallProgress)
+            PlannerHeader()
 
             // Segmented control
             SegmentedControl(
@@ -141,7 +141,7 @@ fun PlannerScreen() {
 }
 
 @Composable
-private fun PlannerHeader(overallProgress: Float) {
+private fun PlannerHeader() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -346,26 +346,13 @@ private fun TaskRow(
 ) {
     val subjectColor = parseHexColor(task.subjectColorHex)
 
-    val typeLabel = when (task.type) {
-        PlannerContract.PlannerTaskType.LECTURE -> "LECTURE"
-        PlannerContract.PlannerTaskType.READING -> "READING"
-        PlannerContract.PlannerTaskType.QUIZ -> "QUIZ"
-        PlannerContract.PlannerTaskType.ASSIGNMENT -> "ASSIGNMENT"
+    val (typeLabel, typeTextColor) = when (task.type) {
+        PlannerContract.PlannerTaskType.LECTURE -> "LECTURE" to MindTagColors.Info
+        PlannerContract.PlannerTaskType.READING -> "READING" to MindTagColors.AccentPurple
+        PlannerContract.PlannerTaskType.QUIZ -> "QUIZ" to MindTagColors.Warning
+        PlannerContract.PlannerTaskType.ASSIGNMENT -> "ASSIGNMENT" to MindTagColors.Success
     }
-
-    val typeBgColor = when (task.type) {
-        PlannerContract.PlannerTaskType.LECTURE -> MindTagColors.Info.copy(alpha = 0.15f)
-        PlannerContract.PlannerTaskType.READING -> MindTagColors.AccentPurple.copy(alpha = 0.15f)
-        PlannerContract.PlannerTaskType.QUIZ -> MindTagColors.Warning.copy(alpha = 0.15f)
-        PlannerContract.PlannerTaskType.ASSIGNMENT -> MindTagColors.Success.copy(alpha = 0.15f)
-    }
-
-    val typeTextColor = when (task.type) {
-        PlannerContract.PlannerTaskType.LECTURE -> MindTagColors.Info
-        PlannerContract.PlannerTaskType.READING -> MindTagColors.AccentPurple
-        PlannerContract.PlannerTaskType.QUIZ -> MindTagColors.Warning
-        PlannerContract.PlannerTaskType.ASSIGNMENT -> MindTagColors.Success
-    }
+    val typeBgColor = typeTextColor.copy(alpha = 0.15f)
 
     Row(
         modifier = Modifier

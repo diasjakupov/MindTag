@@ -60,17 +60,21 @@ suspend inline fun <reified T> safeApiCall(
 ): ApiResult<T> {
     return try {
         val response = block()
-        if (response.status.isSuccess()) {
-            ApiResult.Success(response.body<T>())
-        } else if (response.status.value == 401) {
-            authManager.logout()
-            ApiResult.Error("Session expired. Please log in again.", 401)
-        } else {
-            val errorBody = try { response.bodyAsText() } catch (_: Exception) { "" }
-            ApiResult.Error(
-                message = errorBody.ifBlank { "Server error (${response.status.value})" },
-                code = response.status.value,
-            )
+        when {
+            response.status.isSuccess() -> {
+                ApiResult.Success(response.body<T>())
+            }
+            response.status.value == 401 -> {
+                authManager.logout()
+                ApiResult.Error("Session expired. Please log in again.", 401)
+            }
+            else -> {
+                val errorBody = try { response.bodyAsText() } catch (_: Exception) { "" }
+                ApiResult.Error(
+                    message = errorBody.ifBlank { "Server error (${response.status.value})" },
+                    code = response.status.value,
+                )
+            }
         }
     } catch (e: Exception) {
         Logger.e("safeApiCall", "API call failed", e)

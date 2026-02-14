@@ -19,24 +19,16 @@ class OnboardingViewModel(
             Intent.NextPage -> {
                 val current = state.value.currentPage
                 if (current < state.value.totalPages - 1) {
-                    Logger.d(tag, "NextPage: ${current} -> ${current + 1}")
                     updateState { copy(currentPage = current + 1) }
                 }
             }
             Intent.PreviousPage -> {
                 val current = state.value.currentPage
                 if (current > 0) {
-                    Logger.d(tag, "PreviousPage: ${current} -> ${current - 1}")
                     updateState { copy(currentPage = current - 1) }
                 }
             }
-            Intent.Skip -> {
-                Logger.d(tag, "Skip onboarding")
-                appPreferences.setOnboardingCompleted()
-                sendEffect(Effect.NavigateToHome)
-            }
-            Intent.GetStarted -> {
-                Logger.d(tag, "GetStarted")
+            Intent.Skip, Intent.GetStarted -> {
                 appPreferences.setOnboardingCompleted()
                 sendEffect(Effect.NavigateToHome)
             }

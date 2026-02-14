@@ -9,8 +9,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.diasjakupov.mindtag.core.designsystem.MindTagColors
 import io.diasjakupov.mindtag.core.designsystem.MindTagShapes
@@ -87,9 +90,9 @@ enum class MindTagChipVariant {
 private data class ChipConfig(
     val bgColor: Color,
     val textColor: Color,
-    val shape: androidx.compose.ui.graphics.Shape,
-    val hPad: androidx.compose.ui.unit.Dp,
-    val vPad: androidx.compose.ui.unit.Dp,
-    val style: androidx.compose.ui.text.TextStyle,
+    val shape: Shape,
+    val hPad: Dp,
+    val vPad: Dp,
+    val style: TextStyle,
     val uppercase: Boolean,
 )
