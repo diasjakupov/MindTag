@@ -3,6 +3,7 @@ package io.diasjakupov.mindtag.feature.study.data.repository
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
+import io.diasjakupov.mindtag.core.domain.model.Subject
 import io.diasjakupov.mindtag.core.util.Logger
 import io.diasjakupov.mindtag.data.local.FlashCardEntity
 import io.diasjakupov.mindtag.data.local.MindTagDatabase
@@ -105,6 +106,21 @@ class StudyRepositoryImpl(
             Logger.d(tag, "getCardsForSession: fetched ${result.size} cards (requested=$count, subjectId=$subjectId)")
             result
         }
+    }
+
+    override fun getSubjects(): Flow<List<Subject>> =
+        db.subjectEntityQueries.selectAll()
+            .asFlow()
+            .mapToList(Dispatchers.IO)
+            .map { entities ->
+                entities.map { Subject(id = it.id, name = it.name, colorHex = it.color_hex, iconName = it.icon_name) }
+            }
+
+    override suspend fun getDueCardCount(): Int {
+        val now = Clock.System.now().toEpochMilliseconds()
+        return db.flashCardEntityQueries.selectDueCards(now)
+            .executeAsList()
+            .size
     }
 
     private fun FlashCardEntity.toDomain() = FlashCard(

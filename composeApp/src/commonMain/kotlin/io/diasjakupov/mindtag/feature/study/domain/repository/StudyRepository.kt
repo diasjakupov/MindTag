@@ -1,5 +1,6 @@
 package io.diasjakupov.mindtag.feature.study.domain.repository
 
+import io.diasjakupov.mindtag.core.domain.model.Subject
 import io.diasjakupov.mindtag.feature.study.domain.model.FlashCard
 import io.diasjakupov.mindtag.feature.study.domain.model.SessionType
 import io.diasjakupov.mindtag.feature.study.domain.model.StudySession
@@ -16,4 +17,6 @@ interface StudyRepository {
     fun getSession(sessionId: String): Flow<StudySession?>
     suspend fun completeSession(sessionId: String)
     fun getCardsForSession(subjectId: String?, count: Int): Flow<List<FlashCard>>
+    fun getSubjects(): Flow<List<Subject>>
+    suspend fun getDueCardCount(): Int
 }
