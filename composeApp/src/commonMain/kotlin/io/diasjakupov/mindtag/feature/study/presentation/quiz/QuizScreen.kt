@@ -33,9 +33,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.diasjakupov.mindtag.core.designsystem.MindTagColors
+import io.diasjakupov.mindtag.feature.study.domain.model.CardType
 import io.diasjakupov.mindtag.core.designsystem.MindTagIcons
 import io.diasjakupov.mindtag.core.designsystem.MindTagShapes
 import io.diasjakupov.mindtag.core.designsystem.MindTagSpacing
@@ -103,53 +105,67 @@ fun QuizScreen(
                     modifier = Modifier.padding(bottom = MindTagSpacing.xxxxl),
                 )
 
-                // Answer options
-                Column(verticalArrangement = Arrangement.spacedBy(MindTagSpacing.lg)) {
-                    state.currentOptions.forEach { option ->
-                        QuizOptionCard(
-                            option = option,
-                            isSelected = option.id == state.selectedOptionId,
-                            onClick = { viewModel.onIntent(QuizIntent.SelectOption(option.id)) },
+                // Answer area — branched by card type
+                when (state.cardType) {
+                    CardType.MULTIPLE_CHOICE, CardType.TRUE_FALSE -> {
+                        Column(verticalArrangement = Arrangement.spacedBy(MindTagSpacing.lg)) {
+                            state.currentOptions.forEach { option ->
+                                QuizOptionCard(
+                                    option = option,
+                                    isSelected = option.id == state.selectedOptionId,
+                                    onClick = { viewModel.onIntent(QuizIntent.SelectOption(option.id)) },
+                                )
+                            }
+                        }
+                    }
+                    CardType.FLASHCARD -> {
+                        FlashCardContent(
+                            answer = state.flashcardAnswer,
+                            isFlipped = state.isFlipped,
+                            onFlip = { viewModel.onIntent(QuizIntent.FlipCard) },
+                            onSelfAssess = { quality -> viewModel.onIntent(QuizIntent.SelfAssess(quality)) },
                         )
                     }
                 }
             }
         }
 
-        // Sticky bottom button with gradient fade
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth(),
-        ) {
-            // Gradient fade background
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(140.dp)
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                MindTagColors.BackgroundDark,
-                                MindTagColors.BackgroundDark,
-                            ),
-                        ),
-                    ),
-            )
-            // Button
+        // Sticky bottom button with gradient fade (hidden for flashcards)
+        if (state.cardType != CardType.FLASHCARD) {
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .padding(horizontal = MindTagSpacing.quizHorizontalPadding)
-                    .padding(bottom = MindTagSpacing.quizHorizontalPadding),
+                    .fillMaxWidth(),
             ) {
-                QuizNextButton(
-                    isLastQuestion = state.isLastQuestion,
-                    enabled = state.selectedOptionId != null,
-                    onClick = { viewModel.onIntent(QuizIntent.TapNext) },
+                // Gradient fade background
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(140.dp)
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    MindTagColors.BackgroundDark,
+                                    MindTagColors.BackgroundDark,
+                                ),
+                            ),
+                        ),
                 )
+                // Button
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .padding(horizontal = MindTagSpacing.quizHorizontalPadding)
+                        .padding(bottom = MindTagSpacing.quizHorizontalPadding),
+                ) {
+                    QuizNextButton(
+                        isLastQuestion = state.isLastQuestion,
+                        enabled = state.selectedOptionId != null,
+                        onClick = { viewModel.onIntent(QuizIntent.TapNext) },
+                    )
+                }
             }
         }
     }
@@ -431,6 +447,108 @@ private fun QuizShimmerSkeleton() {
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun FlashCardContent(
+    answer: String,
+    isFlipped: Boolean,
+    onFlip: () -> Unit,
+    onSelfAssess: (Int) -> Unit,
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        // Flip card
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .clip(MindTagShapes.lg)
+                .background(MindTagColors.CardDark)
+                .border(1.dp, MindTagColors.BorderMedium, MindTagShapes.lg)
+                .clickable(onClick = onFlip),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (isFlipped) {
+                Text(
+                    text = answer,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MindTagColors.Primary,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(MindTagSpacing.xxl),
+                )
+            } else {
+                Text(
+                    text = "Tap to reveal answer",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MindTagColors.TextTertiary,
+                )
+            }
+        }
+
+        // Self-assessment buttons (shown only when flipped)
+        if (isFlipped) {
+            Spacer(modifier = Modifier.height(MindTagSpacing.xxxl))
+
+            Text(
+                text = "Did you know it?",
+                style = MaterialTheme.typography.titleSmall,
+                color = MindTagColors.TextSecondary,
+            )
+
+            Spacer(modifier = Modifier.height(MindTagSpacing.xl))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.lg),
+            ) {
+                SelfAssessButton(
+                    text = "No",
+                    color = MindTagColors.Error,
+                    onClick = { onSelfAssess(0) },
+                    modifier = Modifier.weight(1f),
+                )
+                SelfAssessButton(
+                    text = "Kinda",
+                    color = MindTagColors.Warning,
+                    onClick = { onSelfAssess(1) },
+                    modifier = Modifier.weight(1f),
+                )
+                SelfAssessButton(
+                    text = "Yes",
+                    color = MindTagColors.Success,
+                    onClick = { onSelfAssess(2) },
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SelfAssessButton(
+    text: String,
+    color: Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .height(48.dp)
+            .clip(MindTagShapes.lg)
+            .background(color.copy(alpha = 0.15f))
+            .border(1.dp, color.copy(alpha = 0.4f), MindTagShapes.lg)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+            color = color,
+        )
     }
 }
 
