@@ -1,7 +1,8 @@
 package io.diasjakupov.mindtag.feature.study.presentation.quiz
 
+import io.diasjakupov.mindtag.feature.study.domain.model.CardType
+
 data class QuizState(
-    val sessionType: String = "QUICK_QUIZ",
     val currentQuestionIndex: Int = 0,
     val totalQuestions: Int = 0,
     val progressPercent: Float = 0f,
@@ -13,6 +14,9 @@ data class QuizState(
     val timeRemainingFormatted: String = "",
     val isLoading: Boolean = true,
     val isLastQuestion: Boolean = false,
+    val cardType: CardType = CardType.MULTIPLE_CHOICE,
+    val isFlipped: Boolean = false,
+    val flashcardAnswer: String = "",
 )
 
 data class QuizOptionUi(
@@ -25,6 +29,8 @@ sealed interface QuizIntent {
     data object TapNext : QuizIntent
     data object TapExit : QuizIntent
     data object TimerTick : QuizIntent
+    data object FlipCard : QuizIntent
+    data class SelfAssess(val quality: Int) : QuizIntent
 }
 
 sealed interface QuizEffect {
