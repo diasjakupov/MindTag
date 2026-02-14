@@ -12,10 +12,6 @@ import io.diasjakupov.mindtag.feature.auth.domain.AuthRepository
 import io.diasjakupov.mindtag.feature.auth.domain.LoginUseCase
 import io.diasjakupov.mindtag.feature.auth.domain.RegisterUseCase
 import io.diasjakupov.mindtag.feature.auth.presentation.AuthViewModel
-import io.diasjakupov.mindtag.feature.home.data.repository.DashboardRepositoryImpl
-import io.diasjakupov.mindtag.feature.home.domain.repository.DashboardRepository
-import io.diasjakupov.mindtag.feature.home.domain.usecase.GetDashboardUseCase
-import io.diasjakupov.mindtag.feature.home.presentation.HomeViewModel
 import io.diasjakupov.mindtag.feature.notes.data.api.NoteApi
 import io.diasjakupov.mindtag.feature.notes.data.repository.NoteRepositoryImpl
 import io.diasjakupov.mindtag.feature.notes.domain.repository.NoteRepository
@@ -33,12 +29,9 @@ import io.diasjakupov.mindtag.feature.study.domain.repository.StudyRepository
 import io.diasjakupov.mindtag.feature.study.domain.usecase.GetResultsUseCase
 import io.diasjakupov.mindtag.feature.study.domain.usecase.StartQuizUseCase
 import io.diasjakupov.mindtag.feature.study.domain.usecase.SubmitAnswerUseCase
-import io.diasjakupov.mindtag.feature.planner.presentation.PlannerViewModel
 import io.diasjakupov.mindtag.feature.study.presentation.hub.StudyHubViewModel
 import io.diasjakupov.mindtag.feature.study.presentation.quiz.QuizViewModel
 import io.diasjakupov.mindtag.feature.study.presentation.results.ResultsViewModel
-import io.diasjakupov.mindtag.feature.onboarding.presentation.OnboardingViewModel
-import io.diasjakupov.mindtag.feature.profile.presentation.ProfileViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -70,7 +63,6 @@ val repositoryModule = module {
     single<NoteRepository> { NoteRepositoryImpl(get(), get()) }
     single<StudyRepository> { StudyRepositoryImpl(get()) }
     single<QuizRepository> { QuizRepositoryImpl(get()) }
-    single<DashboardRepository> { DashboardRepositoryImpl(get()) }
 }
 
 val useCaseModule = module {
@@ -81,20 +73,15 @@ val useCaseModule = module {
     factory { StartQuizUseCase(get()) }
     factory { SubmitAnswerUseCase(get(), get()) }
     factory { GetResultsUseCase(get()) }
-    factory { GetDashboardUseCase(get()) }
 }
 
 val viewModelModule = module {
     viewModel { LibraryViewModel(get()) }
-    viewModel { HomeViewModel(get()) }
     viewModel { (noteId: Long?) -> NoteCreateViewModel(get(), get(), get(), noteId) }
     viewModel { (noteId: Long) -> NoteDetailViewModel(noteId, get(), get(), get(), get()) }
     viewModel { StudyHubViewModel(get(), get()) }
     viewModel { (sessionId: String) -> QuizViewModel(sessionId, get(), get()) }
     viewModel { (sessionId: String) -> ResultsViewModel(sessionId, get()) }
-    viewModel { PlannerViewModel(get()) }
-    viewModel { OnboardingViewModel(get()) }
-    viewModel { ProfileViewModel(get()) }
     viewModel { AuthViewModel(get(), get()) }
 }
 
