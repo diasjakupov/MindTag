@@ -79,6 +79,21 @@ fun NoteDetailScreen(
 
     val note = state.note ?: return
 
+    NoteDetailScreenContent(
+        state = state,
+        onIntent = viewModel::onIntent,
+        onNavigateBack = onNavigateBack,
+    )
+}
+
+@Composable
+fun NoteDetailScreenContent(
+    state: NoteDetailState,
+    onIntent: (NoteDetailIntent) -> Unit,
+    onNavigateBack: () -> Unit,
+) {
+    val note = state.note ?: return
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -108,14 +123,14 @@ fun NoteDetailScreen(
                 textAlign = TextAlign.Center,
             )
             Row {
-                IconButton(onClick = { viewModel.onIntent(NoteDetailIntent.TapEdit) }) {
+                IconButton(onClick = { onIntent(NoteDetailIntent.TapEdit) }) {
                     Icon(
                         imageVector = MindTagIcons.Edit,
                         contentDescription = "Edit",
                         tint = MindTagColors.TextSlate300,
                     )
                 }
-                IconButton(onClick = { viewModel.onIntent(NoteDetailIntent.TapDelete) }) {
+                IconButton(onClick = { onIntent(NoteDetailIntent.TapDelete) }) {
                     Icon(
                         imageVector = MindTagIcons.Delete,
                         contentDescription = "Delete",
@@ -148,7 +163,7 @@ fun NoteDetailScreen(
             } else {
                 MindTagButton(
                     text = "Quiz Me",
-                    onClick = { viewModel.onIntent(NoteDetailIntent.TapQuizMe) },
+                    onClick = { onIntent(NoteDetailIntent.TapQuizMe) },
                     variant = MindTagButtonVariant.Pill,
                 )
             }
@@ -199,14 +214,14 @@ fun NoteDetailScreen(
         if (state.relatedNotes.isNotEmpty()) {
             RelatedNotesSection(
                 relatedNotes = state.relatedNotes,
-                onNoteTap = { viewModel.onIntent(NoteDetailIntent.TapRelatedNote(it)) },
+                onNoteTap = { onIntent(NoteDetailIntent.TapRelatedNote(it)) },
             )
         }
     }
 
     if (state.showDeleteConfirmation) {
         AlertDialog(
-            onDismissRequest = { viewModel.onIntent(NoteDetailIntent.DismissDeleteDialog) },
+            onDismissRequest = { onIntent(NoteDetailIntent.DismissDeleteDialog) },
             title = { Text("Delete Note", color = Color.White) },
             text = {
                 Text(
@@ -215,12 +230,12 @@ fun NoteDetailScreen(
                 )
             },
             confirmButton = {
-                TextButton(onClick = { viewModel.onIntent(NoteDetailIntent.ConfirmDelete) }) {
+                TextButton(onClick = { onIntent(NoteDetailIntent.ConfirmDelete) }) {
                     Text("Delete", color = MindTagColors.Error)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.onIntent(NoteDetailIntent.DismissDeleteDialog) }) {
+                TextButton(onClick = { onIntent(NoteDetailIntent.DismissDeleteDialog) }) {
                     Text("Cancel", color = MindTagColors.TextSecondary)
                 }
             },

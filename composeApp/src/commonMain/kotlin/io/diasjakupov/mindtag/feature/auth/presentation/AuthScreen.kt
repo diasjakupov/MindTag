@@ -66,6 +66,14 @@ fun AuthScreen(
         }
     }
 
+    AuthScreenContent(state = state, onIntent = viewModel::onIntent)
+}
+
+@Composable
+fun AuthScreenContent(
+    state: AuthState,
+    onIntent: (AuthIntent) -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -78,10 +86,10 @@ fun AuthScreen(
 
         AuthFormSection(
             state = state,
-            onEmailChange = { viewModel.onIntent(AuthIntent.UpdateEmail(it)) },
-            onPasswordChange = { viewModel.onIntent(AuthIntent.UpdatePassword(it)) },
-            onSubmit = { viewModel.onIntent(AuthIntent.Submit) },
-            onToggleMode = { viewModel.onIntent(AuthIntent.ToggleMode) },
+            onEmailChange = { onIntent(AuthIntent.UpdateEmail(it)) },
+            onPasswordChange = { onIntent(AuthIntent.UpdatePassword(it)) },
+            onSubmit = { onIntent(AuthIntent.Submit) },
+            onToggleMode = { onIntent(AuthIntent.ToggleMode) },
         )
     }
 }

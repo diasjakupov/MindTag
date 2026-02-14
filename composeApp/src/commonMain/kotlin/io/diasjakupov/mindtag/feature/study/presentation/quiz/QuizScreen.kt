@@ -69,6 +69,14 @@ fun QuizScreen(
         return
     }
 
+    QuizScreenContent(state = state, onIntent = viewModel::onIntent)
+}
+
+@Composable
+fun QuizScreenContent(
+    state: QuizState,
+    onIntent: (QuizIntent) -> Unit,
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -79,7 +87,7 @@ fun QuizScreen(
             QuizTopBar(
                 timeFormatted = state.timeRemainingFormatted,
                 showTimer = state.timeRemainingSeconds != null,
-                onExit = { viewModel.onIntent(QuizIntent.TapExit) },
+                onExit = { onIntent(QuizIntent.TapExit) },
             )
 
             // Progress section
@@ -113,7 +121,7 @@ fun QuizScreen(
                                 QuizOptionCard(
                                     option = option,
                                     isSelected = option.id == state.selectedOptionId,
-                                    onClick = { viewModel.onIntent(QuizIntent.SelectOption(option.id)) },
+                                    onClick = { onIntent(QuizIntent.SelectOption(option.id)) },
                                 )
                             }
                         }
@@ -122,8 +130,8 @@ fun QuizScreen(
                         FlashCardContent(
                             answer = state.flashcardAnswer,
                             isFlipped = state.isFlipped,
-                            onFlip = { viewModel.onIntent(QuizIntent.FlipCard) },
-                            onSelfAssess = { quality -> viewModel.onIntent(QuizIntent.SelfAssess(quality)) },
+                            onFlip = { onIntent(QuizIntent.FlipCard) },
+                            onSelfAssess = { quality -> onIntent(QuizIntent.SelfAssess(quality)) },
                         )
                     }
                 }
@@ -163,7 +171,7 @@ fun QuizScreen(
                     QuizNextButton(
                         isLastQuestion = state.isLastQuestion,
                         enabled = state.selectedOptionId != null,
-                        onClick = { viewModel.onIntent(QuizIntent.TapNext) },
+                        onClick = { onIntent(QuizIntent.TapNext) },
                     )
                 }
             }

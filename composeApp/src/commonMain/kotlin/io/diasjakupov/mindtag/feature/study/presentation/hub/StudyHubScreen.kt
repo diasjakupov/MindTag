@@ -57,6 +57,14 @@ fun StudyHubScreen(
         }
     }
 
+    StudyHubScreenContent(state = state, onIntent = viewModel::onIntent)
+}
+
+@Composable
+fun StudyHubScreenContent(
+    state: StudyHubState,
+    onIntent: (StudyHubIntent) -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -115,7 +123,7 @@ fun StudyHubScreen(
                     .fillMaxWidth()
                     .clip(MindTagShapes.md)
                     .background(MindTagColors.ErrorBg)
-                    .clickable { viewModel.onIntent(StudyHubIntent.DismissError) }
+                    .clickable { onIntent(StudyHubIntent.DismissError) }
                     .padding(MindTagSpacing.lg),
             ) {
                 Row(
@@ -154,7 +162,7 @@ fun StudyHubScreen(
             SubjectChips(
                 subjects = state.subjects,
                 selectedSubjectId = state.selectedSubjectId,
-                onSelect = { viewModel.onIntent(StudyHubIntent.SelectSubject(it)) },
+                onSelect = { onIntent(StudyHubIntent.SelectSubject(it)) },
             )
         }
 
@@ -176,7 +184,7 @@ fun StudyHubScreen(
             CountChips(
                 counts = listOf(5, 10, 15, 20),
                 selected = state.questionCount,
-                onSelect = { viewModel.onIntent(StudyHubIntent.SelectQuestionCount(it)) },
+                onSelect = { onIntent(StudyHubIntent.SelectQuestionCount(it)) },
             )
         }
 
@@ -199,7 +207,7 @@ fun StudyHubScreen(
                 )
                 Switch(
                     checked = state.timerEnabled,
-                    onCheckedChange = { viewModel.onIntent(StudyHubIntent.ToggleTimer(it)) },
+                    onCheckedChange = { onIntent(StudyHubIntent.ToggleTimer(it)) },
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = Color.White,
                         checkedTrackColor = MindTagColors.Primary,
@@ -215,7 +223,7 @@ fun StudyHubScreen(
                 CountChips(
                     counts = listOf(5, 10, 15, 30),
                     selected = state.timerMinutes,
-                    onSelect = { viewModel.onIntent(StudyHubIntent.SelectTimerDuration(it)) },
+                    onSelect = { onIntent(StudyHubIntent.SelectTimerDuration(it)) },
                     suffix = "min",
                 )
             }
@@ -240,7 +248,7 @@ fun StudyHubScreen(
         } else {
             MindTagButton(
                 text = "Start Quiz",
-                onClick = { viewModel.onIntent(StudyHubIntent.StartQuiz) },
+                onClick = { onIntent(StudyHubIntent.StartQuiz) },
                 variant = MindTagButtonVariant.PrimaryMedium,
             )
         }

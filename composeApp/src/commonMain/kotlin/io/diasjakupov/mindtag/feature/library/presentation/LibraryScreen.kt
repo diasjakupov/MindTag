@@ -95,6 +95,14 @@ fun LibraryScreen(
         return
     }
 
+    LibraryScreenContent(state = state, onIntent = viewModel::onIntent)
+}
+
+@Composable
+fun LibraryScreenContent(
+    state: LibraryContract.State,
+    onIntent: (LibraryContract.Intent) -> Unit,
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -107,7 +115,7 @@ fun LibraryScreen(
             // Search bar
             MindTagSearchBar(
                 query = state.searchQuery,
-                onQueryChange = { viewModel.onIntent(LibraryContract.Intent.Search(it)) },
+                onQueryChange = { onIntent(LibraryContract.Intent.Search(it)) },
                 modifier = Modifier.padding(horizontal = MindTagSpacing.screenHorizontalPadding),
                 placeholder = "Search by meaning or concept...",
             )
@@ -117,7 +125,7 @@ fun LibraryScreen(
             // Segmented control
             SegmentedControl(
                 currentMode = state.viewMode,
-                onModeSelected = { viewModel.onIntent(LibraryContract.Intent.SwitchView(it)) },
+                onModeSelected = { onIntent(LibraryContract.Intent.SwitchView(it)) },
                 modifier = Modifier.padding(horizontal = MindTagSpacing.screenHorizontalPadding),
             )
 
@@ -127,7 +135,7 @@ fun LibraryScreen(
             SubjectFilterRow(
                 subjects = state.subjects,
                 selectedSubjectId = state.selectedSubjectId,
-                onSubjectSelected = { viewModel.onIntent(LibraryContract.Intent.SelectSubjectFilter(it)) },
+                onSubjectSelected = { onIntent(LibraryContract.Intent.SelectSubjectFilter(it)) },
             )
 
             Spacer(modifier = Modifier.height(MindTagSpacing.md))
@@ -144,7 +152,7 @@ fun LibraryScreen(
                     } else {
                         NoteListView(
                             notes = state.notes,
-                            onNoteTap = { viewModel.onIntent(LibraryContract.Intent.TapNote(it)) },
+                            onNoteTap = { onIntent(LibraryContract.Intent.TapNote(it)) },
                             modifier = Modifier.weight(1f),
                         )
                     }
@@ -156,7 +164,7 @@ fun LibraryScreen(
                             nodes = state.graphNodes,
                             edges = state.graphEdges,
                             selectedNodeId = state.selectedNodeId,
-                            onNodeTap = { viewModel.onIntent(LibraryContract.Intent.TapGraphNode(it)) },
+                            onNodeTap = { onIntent(LibraryContract.Intent.TapGraphNode(it)) },
                             modifier = Modifier.fillMaxSize(),
                         )
                         // Selected node preview
@@ -166,7 +174,7 @@ fun LibraryScreen(
                         if (selectedNote != null) {
                             NodePreviewCard(
                                 note = selectedNote,
-                                onViewNote = { viewModel.onIntent(LibraryContract.Intent.TapNote(selectedNote.id)) },
+                                onViewNote = { onIntent(LibraryContract.Intent.TapNote(selectedNote.id)) },
                                 modifier = Modifier
                                     .align(Alignment.BottomCenter)
                                     .padding(MindTagSpacing.screenHorizontalPadding)
@@ -180,7 +188,7 @@ fun LibraryScreen(
 
         // FAB
         FloatingActionButton(
-            onClick = { viewModel.onIntent(LibraryContract.Intent.TapCreateNote) },
+            onClick = { onIntent(LibraryContract.Intent.TapCreateNote) },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(end = MindTagSpacing.screenHorizontalPadding, bottom = MindTagSpacing.xl),

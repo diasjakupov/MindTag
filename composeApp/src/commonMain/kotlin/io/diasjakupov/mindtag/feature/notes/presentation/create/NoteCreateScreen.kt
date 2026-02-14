@@ -52,6 +52,19 @@ fun NoteCreateScreen(
         }
     }
 
+    NoteCreateScreenContent(
+        state = state,
+        onIntent = viewModel::onIntent,
+        onNavigateBack = onNavigateBack,
+    )
+}
+
+@Composable
+fun NoteCreateScreenContent(
+    state: NoteCreateState,
+    onIntent: (NoteCreateIntent) -> Unit,
+    onNavigateBack: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -80,7 +93,7 @@ fun NoteCreateScreen(
                 overflow = TextOverflow.Ellipsis,
             )
             IconButton(
-                onClick = { viewModel.onIntent(NoteCreateIntent.Save) },
+                onClick = { onIntent(NoteCreateIntent.Save) },
                 enabled = !state.isSaving,
             ) {
                 Icon(
@@ -98,7 +111,7 @@ fun NoteCreateScreen(
         ) {
             BasicTextField(
                 value = state.title,
-                onValueChange = { viewModel.onIntent(NoteCreateIntent.UpdateTitle(it)) },
+                onValueChange = { onIntent(NoteCreateIntent.UpdateTitle(it)) },
                 textStyle = MaterialTheme.typography.headlineSmall.copy(color = Color.White),
                 cursorBrush = SolidColor(MindTagColors.Primary),
                 modifier = Modifier.fillMaxWidth(),
@@ -134,7 +147,7 @@ fun NoteCreateScreen(
         ) {
             BasicTextField(
                 value = state.subjectName,
-                onValueChange = { viewModel.onIntent(NoteCreateIntent.UpdateSubjectName(it)) },
+                onValueChange = { onIntent(NoteCreateIntent.UpdateSubjectName(it)) },
                 textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.White),
                 cursorBrush = SolidColor(MindTagColors.Primary),
                 singleLine = true,
@@ -180,7 +193,7 @@ fun NoteCreateScreen(
                                     if (isSelected) chipColor.copy(alpha = 0.2f)
                                     else MindTagColors.SearchBarBg,
                                 )
-                                .clickable { viewModel.onIntent(NoteCreateIntent.SelectSubject(subject.name)) }
+                                .clickable { onIntent(NoteCreateIntent.SelectSubject(subject.name)) }
                                 .padding(horizontal = MindTagSpacing.lg, vertical = MindTagSpacing.sm),
                         ) {
                             Text(
@@ -202,7 +215,7 @@ fun NoteCreateScreen(
         ) {
             BasicTextField(
                 value = state.content,
-                onValueChange = { viewModel.onIntent(NoteCreateIntent.UpdateContent(it)) },
+                onValueChange = { onIntent(NoteCreateIntent.UpdateContent(it)) },
                 textStyle = MaterialTheme.typography.bodyLarge.copy(color = MindTagColors.TextSlate300),
                 cursorBrush = SolidColor(MindTagColors.Primary),
                 modifier = Modifier

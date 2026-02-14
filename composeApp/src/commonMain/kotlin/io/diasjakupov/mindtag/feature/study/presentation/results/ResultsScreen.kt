@@ -73,6 +73,14 @@ fun ResultsScreen(
         return
     }
 
+    ResultsScreenContent(state = state, onIntent = viewModel::onIntent)
+}
+
+@Composable
+fun ResultsScreenContent(
+    state: ResultsState,
+    onIntent: (ResultsIntent) -> Unit,
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -86,7 +94,7 @@ fun ResultsScreen(
         ) {
             // Top bar
             ResultsTopBar(
-                onClose = { viewModel.onIntent(ResultsIntent.TapClose) },
+                onClose = { onIntent(ResultsIntent.TapClose) },
             )
 
             // Score ring
@@ -105,7 +113,7 @@ fun ResultsScreen(
             DetailedAnalysisSection(
                 answers = state.answers,
                 expandedAnswerId = state.expandedAnswerId,
-                onToggle = { viewModel.onIntent(ResultsIntent.ToggleAnswer(it)) },
+                onToggle = { onIntent(ResultsIntent.ToggleAnswer(it)) },
             )
         }
 
@@ -132,7 +140,7 @@ fun ResultsScreen(
                     .height(56.dp)
                     .clip(MindTagShapes.lg)
                     .background(MindTagColors.Primary)
-                    .clickable { viewModel.onIntent(ResultsIntent.TapReviewNotes) },
+                    .clickable { onIntent(ResultsIntent.TapReviewNotes) },
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
