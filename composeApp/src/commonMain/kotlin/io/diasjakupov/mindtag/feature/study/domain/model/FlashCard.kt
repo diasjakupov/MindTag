@@ -18,7 +18,7 @@ data class FlashCard(
     val nextReviewAt: Long?,
 )
 
-enum class CardType { FACT_CHECK, SYNTHESIS, MULTIPLE_CHOICE }
+enum class CardType { MULTIPLE_CHOICE, TRUE_FALSE, FLASHCARD }
 
 enum class Difficulty { EASY, MEDIUM, HARD }
 

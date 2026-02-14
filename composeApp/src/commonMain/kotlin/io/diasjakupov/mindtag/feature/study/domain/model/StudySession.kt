@@ -11,6 +11,6 @@ data class StudySession(
     val status: SessionStatus,
 )
 
-enum class SessionType { QUICK_QUIZ, EXAM_MODE }
+enum class SessionType { QUIZ }
 
 enum class SessionStatus { IN_PROGRESS, COMPLETED, ABANDONED }
