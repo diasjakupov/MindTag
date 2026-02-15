@@ -8,12 +8,12 @@ import io.diasjakupov.mindtag.feature.library.presentation.LibraryContract.Effec
 import io.diasjakupov.mindtag.feature.library.presentation.LibraryContract.Intent
 import io.diasjakupov.mindtag.feature.library.presentation.LibraryContract.State
 import io.diasjakupov.mindtag.feature.notes.domain.model.Note
-import io.diasjakupov.mindtag.feature.notes.domain.model.PaginatedNotes
 import io.diasjakupov.mindtag.feature.notes.domain.repository.NoteRepository
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -26,10 +26,15 @@ class LibraryViewModel(
 
     override val tag = "LibraryVM"
 
+    private companion object {
+        const val PAGE_SIZE = 20
+    }
+
     private var allNotes: List<Note> = emptyList()
     private var allSubjects: List<Subject> = emptyList()
 
     private val searchQueryFlow = MutableStateFlow("")
+    private var searchJob: Job? = null
 
     init {
         loadInitialData()
@@ -80,12 +85,13 @@ class LibraryViewModel(
     }
 
     private fun performSearch(query: String, subjectId: String?) {
-        viewModelScope.launch {
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
             updateState { copy(isLoading = true) }
             try {
                 when {
                     query.isNotBlank() -> {
-                        val result = noteRepository.searchNotes(query, page = 0)
+                        val result = noteRepository.searchNotes(query, page = 0, size = PAGE_SIZE)
                         updateState {
                             copy(
                                 notes = result.notes.map { it.toListItem(allSubjects) },
@@ -96,7 +102,7 @@ class LibraryViewModel(
                         }
                     }
                     subjectId != null -> {
-                        val result = noteRepository.listNotesBySubject(subjectId, page = 0)
+                        val result = noteRepository.listNotesBySubject(subjectId, page = 0, size = PAGE_SIZE)
                         updateState {
                             copy(
                                 notes = result.notes.map { it.toListItem(allSubjects) },
@@ -186,10 +192,10 @@ class LibraryViewModel(
                 val nextPage = currentState.currentPage + 1
                 val result = when {
                     currentState.searchQuery.isNotBlank() -> {
-                        noteRepository.searchNotes(currentState.searchQuery, page = nextPage)
+                        noteRepository.searchNotes(currentState.searchQuery, page = nextPage, size = PAGE_SIZE)
                     }
                     currentState.selectedSubjectId != null -> {
-                        noteRepository.listNotesBySubject(currentState.selectedSubjectId, page = nextPage)
+                        noteRepository.listNotesBySubject(currentState.selectedSubjectId, page = nextPage, size = PAGE_SIZE)
                     }
                     else -> {
                         updateState { copy(isLoadingMore = false) }
@@ -199,7 +205,7 @@ class LibraryViewModel(
                 val newItems = result.notes.map { it.toListItem(allSubjects) }
                 updateState {
                     copy(
-                        notes = notes + newItems,
+                        notes = (notes + newItems).distinctBy { it.id },
                         isLoadingMore = false,
                         hasMorePages = result.hasMore,
                         currentPage = nextPage,
