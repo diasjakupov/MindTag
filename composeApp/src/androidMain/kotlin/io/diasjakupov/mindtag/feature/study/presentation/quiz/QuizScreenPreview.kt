@@ -27,9 +27,9 @@ private fun QuizScreenPreview() {
                 timeRemainingFormatted = "9:00",
                 isLoading = false,
                 isLastQuestion = false,
-                cardType = CardType.MULTIPLE_CHOICE,
-                isFlipped = false,
-                flashcardAnswer = "",
+                cardType = CardType.FLASHCARD,
+                isFlipped = true,
+                flashcardAnswer = "Lorem impsum",
             ),
             onIntent = {},
         )
