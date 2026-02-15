@@ -20,6 +20,8 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import io.diasjakupov.mindtag.core.designsystem.MindTagTheme
 import io.diasjakupov.mindtag.core.navigation.MindTagBottomBar
 import io.diasjakupov.mindtag.core.navigation.Route
@@ -134,6 +136,10 @@ private fun MainApp() {
             backStack = nav.backStack,
             onBack = { nav.removeLast() },
             modifier = Modifier.padding(innerPadding),
+            entryDecorators = listOf(
+                rememberSaveableStateHolderNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator(),
+            ),
             transitionSpec = {
                 fadeIn(tween(200)) togetherWith fadeOut(tween(200))
             },
