@@ -12,6 +12,9 @@ object LibraryContract {
         val graphEdges: List<GraphEdge> = emptyList(),
         val selectedNodeId: Long? = null,
         val isLoading: Boolean = true,
+        val isLoadingMore: Boolean = false,
+        val hasMorePages: Boolean = false,
+        val currentPage: Int = 0,
     )
 
     enum class ViewMode { LIST, GRAPH }
@@ -57,6 +60,7 @@ object LibraryContract {
         data class TapGraphNode(val noteId: Long) : Intent
         data object TapCreateNote : Intent
         data object Refresh : Intent
+        data object LoadMore : Intent
     }
 
     sealed interface Effect {

@@ -19,11 +19,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.NoteAdd
 import androidx.compose.material.icons.outlined.FilterList
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -152,7 +155,10 @@ fun LibraryScreenContent(
                     } else {
                         NoteListView(
                             notes = state.notes,
+                            isLoadingMore = state.isLoadingMore,
+                            hasMorePages = state.hasMorePages,
                             onNoteTap = { onIntent(LibraryContract.Intent.TapNote(it)) },
+                            onLoadMore = { onIntent(LibraryContract.Intent.LoadMore) },
                             modifier = Modifier.weight(1f),
                         )
                     }
@@ -340,15 +346,51 @@ private fun FilterChip(
 @Composable
 private fun NoteListView(
     notes: List<LibraryContract.NoteListItem>,
+    isLoadingMore: Boolean,
+    hasMorePages: Boolean,
     onNoteTap: (Long) -> Unit,
+    onLoadMore: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val listState = rememberLazyListState()
+
+    val shouldLoadMore = remember {
+        derivedStateOf {
+            val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            val totalItems = listState.layoutInfo.totalItemsCount
+            hasMorePages && !isLoadingMore && lastVisibleIndex >= totalItems - 3
+        }
+    }
+
+    LaunchedEffect(shouldLoadMore.value) {
+        if (shouldLoadMore.value) {
+            onLoadMore()
+        }
+    }
+
     LazyColumn(
+        state = listState,
         modifier = modifier.padding(horizontal = MindTagSpacing.screenHorizontalPadding),
         verticalArrangement = Arrangement.spacedBy(MindTagSpacing.lg),
     ) {
         items(notes, key = { it.id }) { note ->
             NoteListCard(note = note, onClick = { onNoteTap(note.id) })
+        }
+        if (isLoadingMore) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = MindTagSpacing.lg),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = MindTagColors.Primary,
+                        strokeWidth = 2.dp,
+                    )
+                }
+            }
         }
         item { Spacer(modifier = Modifier.height(MindTagSpacing.bottomContentPadding)) }
     }

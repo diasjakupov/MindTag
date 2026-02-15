@@ -8,12 +8,18 @@ import io.diasjakupov.mindtag.feature.library.presentation.LibraryContract.Effec
 import io.diasjakupov.mindtag.feature.library.presentation.LibraryContract.Intent
 import io.diasjakupov.mindtag.feature.library.presentation.LibraryContract.State
 import io.diasjakupov.mindtag.feature.notes.domain.model.Note
+import io.diasjakupov.mindtag.feature.notes.domain.model.PaginatedNotes
 import io.diasjakupov.mindtag.feature.notes.domain.repository.NoteRepository
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
+@OptIn(FlowPreview::class)
 class LibraryViewModel(
     private val noteRepository: NoteRepository,
 ) : MviViewModel<State, Intent, Effect>(State()) {
@@ -23,12 +29,15 @@ class LibraryViewModel(
     private var allNotes: List<Note> = emptyList()
     private var allSubjects: List<Subject> = emptyList()
 
+    private val searchQueryFlow = MutableStateFlow("")
+
     init {
-        loadData()
+        loadInitialData()
+        observeSearchQuery()
     }
 
-    private fun loadData() {
-        Logger.d(tag, "loadData: start")
+    private fun loadInitialData() {
+        Logger.d(tag, "loadInitialData: start")
         viewModelScope.launch {
             try {
                 val notes = noteRepository.getNotes()
@@ -36,22 +45,81 @@ class LibraryViewModel(
                 allNotes = notes
                 allSubjects = subjects
 
-                Logger.d(tag, "loadData: success — notes=${notes.size}, subjects=${subjects.size}")
+                Logger.d(tag, "loadInitialData: success — notes=${notes.size}, subjects=${subjects.size}")
 
-                val filteredNotes = filterNotes(notes, subjects, state.value.searchQuery, state.value.selectedSubjectId)
+                val listItems = notes.map { it.toListItem(allSubjects) }
                 val graphNodes = buildGraphNodes(notes, subjects)
 
                 updateState {
                     copy(
-                        notes = filteredNotes,
+                        notes = listItems,
                         subjects = buildSubjectFilters(subjects, selectedSubjectId),
                         graphNodes = graphNodes,
                         graphEdges = emptyList(),
                         isLoading = false,
+                        hasMorePages = false,
+                        currentPage = 0,
                     )
                 }
             } catch (e: Exception) {
-                Logger.e(tag, "loadData: error", e)
+                Logger.e(tag, "loadInitialData: error", e)
+                updateState { copy(isLoading = false) }
+            }
+        }
+    }
+
+    private fun observeSearchQuery() {
+        viewModelScope.launch {
+            searchQueryFlow
+                .debounce(400)
+                .distinctUntilChanged()
+                .collect { query ->
+                    performSearch(query, state.value.selectedSubjectId)
+                }
+        }
+    }
+
+    private fun performSearch(query: String, subjectId: String?) {
+        viewModelScope.launch {
+            updateState { copy(isLoading = true) }
+            try {
+                when {
+                    query.isNotBlank() -> {
+                        val result = noteRepository.searchNotes(query, page = 0)
+                        updateState {
+                            copy(
+                                notes = result.notes.map { it.toListItem(allSubjects) },
+                                isLoading = false,
+                                hasMorePages = result.hasMore,
+                                currentPage = 0,
+                            )
+                        }
+                    }
+                    subjectId != null -> {
+                        val result = noteRepository.listNotesBySubject(subjectId, page = 0)
+                        updateState {
+                            copy(
+                                notes = result.notes.map { it.toListItem(allSubjects) },
+                                isLoading = false,
+                                hasMorePages = result.hasMore,
+                                currentPage = 0,
+                            )
+                        }
+                    }
+                    else -> {
+                        val listItems = allNotes.map { it.toListItem(allSubjects) }
+                        updateState {
+                            copy(
+                                notes = listItems,
+                                isLoading = false,
+                                hasMorePages = false,
+                                currentPage = 0,
+                            )
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Logger.e(tag, "performSearch: error", e)
                 updateState { copy(isLoading = false) }
             }
         }
@@ -65,19 +133,20 @@ class LibraryViewModel(
             }
 
             is Intent.Search -> {
-                val filtered = filterNotes(allNotes, allSubjects, intent.query, state.value.selectedSubjectId)
-                updateState { copy(searchQuery = intent.query, notes = filtered) }
+                updateState { copy(searchQuery = intent.query) }
+                searchQueryFlow.value = intent.query
             }
 
             is Intent.SelectSubjectFilter -> {
                 val newSubjectId = if (intent.subjectId == state.value.selectedSubjectId) null else intent.subjectId
-                val filtered = filterNotes(allNotes, allSubjects, state.value.searchQuery, newSubjectId)
                 updateState {
                     copy(
                         selectedSubjectId = newSubjectId,
-                        notes = filtered,
                         subjects = buildSubjectFilters(allSubjects, newSubjectId),
                     )
+                }
+                if (state.value.searchQuery.isBlank()) {
+                    performSearch("", newSubjectId)
                 }
             }
 
@@ -98,35 +167,62 @@ class LibraryViewModel(
 
             is Intent.Refresh -> {
                 updateState { copy(isLoading = true) }
-                loadData()
+                loadInitialData()
+            }
+
+            is Intent.LoadMore -> {
+                loadMore()
             }
         }
     }
 
-    private fun filterNotes(
-        notes: List<Note>,
-        subjects: List<Subject>,
-        query: String,
-        subjectId: String?,
-    ): List<LibraryContract.NoteListItem> {
-        val subjectMap = subjects.associateBy { it.id }
-        return notes
-            .filter { note ->
-                (subjectId == null || note.subjectId == subjectId) &&
-                    (query.isBlank() || note.title.contains(query, ignoreCase = true))
+    private fun loadMore() {
+        val currentState = state.value
+        if (!currentState.hasMorePages || currentState.isLoadingMore) return
+
+        viewModelScope.launch {
+            updateState { copy(isLoadingMore = true) }
+            try {
+                val nextPage = currentState.currentPage + 1
+                val result = when {
+                    currentState.searchQuery.isNotBlank() -> {
+                        noteRepository.searchNotes(currentState.searchQuery, page = nextPage)
+                    }
+                    currentState.selectedSubjectId != null -> {
+                        noteRepository.listNotesBySubject(currentState.selectedSubjectId, page = nextPage)
+                    }
+                    else -> {
+                        updateState { copy(isLoadingMore = false) }
+                        return@launch
+                    }
+                }
+                val newItems = result.notes.map { it.toListItem(allSubjects) }
+                updateState {
+                    copy(
+                        notes = notes + newItems,
+                        isLoadingMore = false,
+                        hasMorePages = result.hasMore,
+                        currentPage = nextPage,
+                    )
+                }
+            } catch (e: Exception) {
+                Logger.e(tag, "loadMore: error", e)
+                updateState { copy(isLoadingMore = false) }
             }
-            .map { note ->
-                val subject = subjectMap[note.subjectId]
-                LibraryContract.NoteListItem(
-                    id = note.id,
-                    title = note.title,
-                    summary = note.summary,
-                    subjectName = note.subjectName.ifEmpty { subject?.name ?: "" },
-                    subjectColorHex = subject?.colorHex ?: "#135bec",
-                    weekNumber = note.weekNumber,
-                    readTimeMinutes = note.readTimeMinutes,
-                )
-            }
+        }
+    }
+
+    private fun Note.toListItem(subjects: List<Subject>): LibraryContract.NoteListItem {
+        val subject = subjects.find { it.id == subjectId }
+        return LibraryContract.NoteListItem(
+            id = id,
+            title = title,
+            summary = summary,
+            subjectName = subjectName.ifEmpty { subject?.name ?: "" },
+            subjectColorHex = subject?.colorHex ?: "#135bec",
+            weekNumber = weekNumber,
+            readTimeMinutes = readTimeMinutes,
+        )
     }
 
     private fun buildSubjectFilters(
