@@ -13,6 +13,7 @@ import io.diasjakupov.mindtag.feature.auth.domain.LoginUseCase
 import io.diasjakupov.mindtag.feature.auth.domain.RegisterUseCase
 import io.diasjakupov.mindtag.feature.auth.presentation.AuthViewModel
 import io.diasjakupov.mindtag.feature.notes.data.api.NoteApi
+import io.diasjakupov.mindtag.feature.notes.data.api.SearchApi
 import io.diasjakupov.mindtag.feature.notes.data.repository.NoteRepositoryImpl
 import io.diasjakupov.mindtag.feature.notes.domain.repository.NoteRepository
 import io.diasjakupov.mindtag.feature.notes.domain.usecase.CreateNoteUseCase
@@ -51,6 +52,7 @@ val networkModule = module {
     single { HttpClientFactory.create(get()) }
     single { AuthApi(get(), get()) }
     single { NoteApi(get(), get()) }
+    single { SearchApi(get(), get()) }
 }
 
 val authModule = module {
@@ -60,7 +62,7 @@ val authModule = module {
 }
 
 val repositoryModule = module {
-    single<NoteRepository> { NoteRepositoryImpl(get(), get()) }
+    single<NoteRepository> { NoteRepositoryImpl(get(), get(), get()) }
     single<StudyRepository> { StudyRepositoryImpl(get()) }
     single<QuizRepository> { QuizRepositoryImpl(get()) }
 }

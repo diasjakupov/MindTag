@@ -2,6 +2,7 @@ package io.diasjakupov.mindtag.test
 
 import io.diasjakupov.mindtag.core.domain.model.Subject
 import io.diasjakupov.mindtag.feature.notes.domain.model.Note
+import io.diasjakupov.mindtag.feature.notes.domain.model.PaginatedNotes
 import io.diasjakupov.mindtag.feature.notes.domain.model.RelatedNote
 import io.diasjakupov.mindtag.feature.notes.domain.repository.NoteRepository
 import kotlinx.coroutines.flow.Flow
@@ -75,5 +76,25 @@ class FakeNoteRepository : NoteRepository {
 
     override suspend fun deleteNote(id: String) {
         notesFlow.update { notes -> notes.filter { it.id != id } }
+    }
+
+    override suspend fun searchNotes(query: String, page: Int, size: Int): PaginatedNotes {
+        val filtered = notesFlow.value.filter { it.title.contains(query, ignoreCase = true) }
+        return PaginatedNotes(
+            notes = filtered,
+            total = filtered.size.toLong(),
+            page = page,
+            hasMore = false,
+        )
+    }
+
+    override suspend fun listNotesBySubject(subject: String, page: Int, size: Int): PaginatedNotes {
+        val filtered = notesFlow.value.filter { it.subjectId == subject }
+        return PaginatedNotes(
+            notes = filtered,
+            total = filtered.size.toLong(),
+            page = page,
+            hasMore = false,
+        )
     }
 }
