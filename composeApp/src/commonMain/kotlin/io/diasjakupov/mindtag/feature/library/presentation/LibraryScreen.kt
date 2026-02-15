@@ -353,12 +353,14 @@ private fun NoteListView(
     modifier: Modifier = Modifier,
 ) {
     val listState = rememberLazyListState()
+    val currentHasMore by rememberUpdatedState(hasMorePages)
+    val currentIsLoadingMore by rememberUpdatedState(isLoadingMore)
 
     val shouldLoadMore = remember {
         derivedStateOf {
             val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
             val totalItems = listState.layoutInfo.totalItemsCount
-            hasMorePages && !isLoadingMore && lastVisibleIndex >= totalItems - 3
+            currentHasMore && !currentIsLoadingMore && lastVisibleIndex >= totalItems - 3
         }
     }
 

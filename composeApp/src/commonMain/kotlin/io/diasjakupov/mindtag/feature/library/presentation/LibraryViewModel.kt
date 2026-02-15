@@ -17,6 +17,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 
 @OptIn(FlowPreview::class)
@@ -76,6 +77,7 @@ class LibraryViewModel(
     private fun observeSearchQuery() {
         viewModelScope.launch {
             searchQueryFlow
+                .drop(1)
                 .debounce(400)
                 .distinctUntilChanged()
                 .collect { query ->
