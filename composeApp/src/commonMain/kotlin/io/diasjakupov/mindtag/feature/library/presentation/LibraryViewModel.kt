@@ -274,7 +274,7 @@ class LibraryViewModel(
 
         val nodes = mutableListOf<LibraryContract.GraphNode>()
         val canvasCenter = 400f
-        val clusterDistance = 220f
+        val clusterDistance = 240f
 
         subjectGroups.entries.forEachIndexed { groupIndex, (subjectId, groupNotes) ->
             val subject = subjectMap[subjectId]
@@ -285,23 +285,29 @@ class LibraryViewModel(
             val clusterCenterY = canvasCenter + sin(adjustedAngle) * clusterDistance
 
             groupNotes.forEachIndexed { noteIndex, note ->
+                // Seeded jitter to break mechanical look
+                val jitterSeedX = (note.id * 7 + noteIndex * 13) % 100
+                val jitterSeedY = (note.id * 11 + noteIndex * 17) % 100
+                val jitterX = ((jitterSeedX % 17) - 8).toFloat()
+                val jitterY = ((jitterSeedY % 17) - 8).toFloat()
+
                 val (x, y, radius) = if (noteIndex == 0) {
-                    Triple(clusterCenterX, clusterCenterY, 44f)
+                    Triple(clusterCenterX, clusterCenterY, 52f)
                 } else {
                     val orbitCount = (groupNotes.size - 1).coerceAtLeast(1)
                     val orbitAngle = ((noteIndex - 1).toFloat() / orbitCount) * 2f * PI.toFloat()
-                    val orbitRadius = 80f + (noteIndex / 5) * 40f
+                    val orbitRadius = 90f + (noteIndex / 4) * 45f
                     Triple(
-                        clusterCenterX + cos(orbitAngle) * orbitRadius,
-                        clusterCenterY + sin(orbitAngle) * orbitRadius,
-                        34f,
+                        clusterCenterX + cos(orbitAngle) * orbitRadius + jitterX,
+                        clusterCenterY + sin(orbitAngle) * orbitRadius + jitterY,
+                        40f,
                     )
                 }
 
                 nodes.add(
                     LibraryContract.GraphNode(
                         noteId = note.id,
-                        label = note.title.take(18),
+                        label = note.title.take(20),
                         subjectColorHex = subject?.colorHex ?: "#135bec",
                         x = x,
                         y = y,

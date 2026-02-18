@@ -10,7 +10,7 @@ private fun LibraryScreenPreview() {
     MindTagTheme {
         LibraryScreenContent(
             state = LibraryContract.State(
-                viewMode = LibraryContract.ViewMode.LIST,
+                viewMode = LibraryContract.ViewMode.GRAPH,
                 isLoading = false,
                 notes = listOf(
                     LibraryContract.NoteListItem(

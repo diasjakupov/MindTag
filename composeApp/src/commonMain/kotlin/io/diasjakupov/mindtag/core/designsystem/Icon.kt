@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
@@ -64,6 +65,7 @@ object MindTagIcons {
     val Share = Icons.Filled.Share
     val MoreHoriz = Icons.Filled.MoreHoriz
     val MoreVert = Icons.Filled.MoreVert
+    val Remove = Icons.Filled.Remove
 
     // Content-specific
     val Schedule = Icons.Outlined.Schedule
