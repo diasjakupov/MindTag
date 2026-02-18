@@ -92,6 +92,17 @@ class LibraryViewModel(
             updateState { copy(isLoading = true) }
             try {
                 when {
+                    query.isNotBlank() && state.value.searchMode == LibraryContract.SearchMode.SEMANTIC -> {
+                        val notes = noteRepository.semanticSearch(query)
+                        updateState {
+                            copy(
+                                notes = notes.map { it.toListItem(allSubjects) },
+                                isLoading = false,
+                                hasMorePages = false,
+                                currentPage = 0,
+                            )
+                        }
+                    }
                     query.isNotBlank() -> {
                         val result = noteRepository.searchNotes(query, page = 0, size = PAGE_SIZE)
                         updateState {
@@ -143,6 +154,14 @@ class LibraryViewModel(
             is Intent.Search -> {
                 updateState { copy(searchQuery = intent.query) }
                 searchQueryFlow.value = intent.query
+            }
+
+            is Intent.ToggleSearchMode -> {
+                updateState { copy(searchMode = intent.mode) }
+                val query = state.value.searchQuery
+                if (query.isNotBlank()) {
+                    performSearch(query, state.value.selectedSubjectId)
+                }
             }
 
             is Intent.SelectSubjectFilter -> {

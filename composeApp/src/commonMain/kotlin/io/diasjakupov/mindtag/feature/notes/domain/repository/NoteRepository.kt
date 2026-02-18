@@ -15,4 +15,5 @@ interface NoteRepository {
     suspend fun deleteNote(id: Long)
     suspend fun searchNotes(query: String, page: Int = 0, size: Int = 20): PaginatedNotes
     suspend fun listNotesBySubject(subject: String, page: Int = 0, size: Int = 20): PaginatedNotes
+    suspend fun semanticSearch(query: String): List<Note>
 }

@@ -127,7 +127,20 @@ fun LibraryScreenContent(
                 query = state.searchQuery,
                 onQueryChange = { onIntent(LibraryContract.Intent.Search(it)) },
                 modifier = Modifier.padding(horizontal = MindTagSpacing.screenHorizontalPadding),
-                placeholder = "Search by meaning or concept...",
+                placeholder = if (state.searchMode == LibraryContract.SearchMode.SEMANTIC) {
+                    "Describe what you're looking for..."
+                } else {
+                    "Search notes..."
+                },
+            )
+
+            Spacer(modifier = Modifier.height(MindTagSpacing.md))
+
+            // Search mode toggle
+            SearchModeToggle(
+                currentMode = state.searchMode,
+                onModeSelected = { onIntent(LibraryContract.Intent.ToggleSearchMode(it)) },
+                modifier = Modifier.padding(horizontal = MindTagSpacing.screenHorizontalPadding),
             )
 
             Spacer(modifier = Modifier.height(MindTagSpacing.lg))
@@ -274,6 +287,52 @@ private fun SegmentedControl(
                     text = mode.name.lowercase().replaceFirstChar { it.uppercase() },
                     style = MaterialTheme.typography.labelLarge,
                     color = if (isSelected) Color.White else MindTagColors.TextSecondary,
+                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SearchModeToggle(
+    currentMode: LibraryContract.SearchMode,
+    onModeSelected: (LibraryContract.SearchMode) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.md),
+    ) {
+        LibraryContract.SearchMode.entries.forEach { mode ->
+            val isSelected = mode == currentMode
+            val label = when (mode) {
+                LibraryContract.SearchMode.TEXT -> "Keyword"
+                LibraryContract.SearchMode.SEMANTIC -> "AI Search"
+            }
+            Row(
+                modifier = Modifier
+                    .height(30.dp)
+                    .clip(MindTagShapes.full)
+                    .background(
+                        if (isSelected) MindTagColors.Primary.copy(alpha = 0.15f)
+                        else MindTagColors.SearchBarBg,
+                    )
+                    .clickable { onModeSelected(mode) }
+                    .padding(horizontal = MindTagSpacing.lg),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.sm),
+            ) {
+                Icon(
+                    imageVector = if (mode == LibraryContract.SearchMode.SEMANTIC) MindTagIcons.AutoAwesome else MindTagIcons.Search,
+                    contentDescription = null,
+                    tint = if (isSelected) MindTagColors.Primary else MindTagColors.TextSecondary,
+                    modifier = Modifier.size(14.dp),
+                )
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (isSelected) MindTagColors.Primary else MindTagColors.TextSecondary,
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                 )
             }

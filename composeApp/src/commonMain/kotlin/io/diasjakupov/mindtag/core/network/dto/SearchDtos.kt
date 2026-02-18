@@ -16,3 +16,13 @@ data class SearchResponseDto(
     val size: Int,
     val results: List<SearchResultDto>,
 )
+
+@Serializable
+data class SemanticSearchResultDto(
+    val noteId: Long,
+    val userId: Long,
+    val title: String,
+    val body: String,
+    val updatedAt: String? = null,
+    val contentHash: String? = null,
+)

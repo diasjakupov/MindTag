@@ -8,6 +8,7 @@ object LibraryContract {
         val subjects: List<SubjectFilter> = emptyList(),
         val selectedSubjectId: String? = null,
         val searchQuery: String = "",
+        val searchMode: SearchMode = SearchMode.TEXT,
         val graphNodes: List<GraphNode> = emptyList(),
         val graphEdges: List<GraphEdge> = emptyList(),
         val selectedNodeId: Long? = null,
@@ -18,6 +19,7 @@ object LibraryContract {
     )
 
     enum class ViewMode { LIST, GRAPH }
+    enum class SearchMode { TEXT, SEMANTIC }
 
     data class NoteListItem(
         val id: Long,
@@ -55,6 +57,7 @@ object LibraryContract {
     sealed interface Intent {
         data class SwitchView(val mode: ViewMode) : Intent
         data class Search(val query: String) : Intent
+        data class ToggleSearchMode(val mode: SearchMode) : Intent
         data class SelectSubjectFilter(val subjectId: String?) : Intent
         data class TapNote(val noteId: Long) : Intent
         data class TapGraphNode(val noteId: Long) : Intent

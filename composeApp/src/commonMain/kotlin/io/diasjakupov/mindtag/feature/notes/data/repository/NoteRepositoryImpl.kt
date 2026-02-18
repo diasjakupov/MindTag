@@ -4,6 +4,7 @@ import io.diasjakupov.mindtag.core.domain.model.Subject
 import io.diasjakupov.mindtag.core.network.ApiResult
 import io.diasjakupov.mindtag.core.network.dto.NoteResponseDto
 import io.diasjakupov.mindtag.core.network.dto.SearchResponseDto
+import io.diasjakupov.mindtag.core.network.dto.SemanticSearchResultDto
 import io.diasjakupov.mindtag.core.util.Logger
 import io.diasjakupov.mindtag.data.local.MindTagDatabase
 import io.diasjakupov.mindtag.data.local.NoteEntity
@@ -148,14 +149,28 @@ class NoteRepositoryImpl(
         }
     }
 
+    override suspend fun semanticSearch(query: String): List<Note> {
+        return when (val result = searchApi.searchSemantic(query)) {
+            is ApiResult.Success -> result.data.map { it.toDomain() }
+            is ApiResult.Error -> {
+                Logger.e(tag, "semanticSearch: ${result.message}, falling back to cache")
+                getNotesFromCache(null).filter {
+                    it.title.contains(query, ignoreCase = true) ||
+                        it.content.contains(query, ignoreCase = true)
+                }
+            }
+        }
+    }
+
     // SearchResultDto only provides noteId, title, snippet.
     // Subject data and other fields are unavailable — search results display with
     // default color and empty subject label. Tapping navigates to the full note detail.
     // TODO: enrich backend /search response to include subject, or cross-reference local cache.
     private fun SearchResponseDto.toPaginatedNotes(page: Int, size: Int): PaginatedNotes {
-        val notes = results.map { dto ->
+        val notes = results.mapNotNull { dto ->
+            val id = dto.noteId.toLongOrNull() ?: return@mapNotNull null
             Note(
-                id = dto.noteId.toLongOrNull() ?: 0L,
+                id = id,
                 title = dto.title,
                 content = dto.snippet,
                 summary = dto.snippet,
@@ -217,7 +232,7 @@ class NoteRepositoryImpl(
         } else {
             db.noteEntityQueries.selectAll().executeAsList()
         }
-        return entities.map { it.toDomain() }
+        return entities.mapNotNull { it.toDomain() }
     }
 
     private fun getNoteFromCache(id: Long): Note? =
@@ -246,18 +261,34 @@ class NoteRepositoryImpl(
         updatedAt = updatedAt?.let { parseTimestamp(it) } ?: parseTimestamp(createdAt),
     )
 
-    private fun NoteEntity.toDomain() = Note(
-        id = id.toLongOrNull() ?: 0L,
+    private fun SemanticSearchResultDto.toDomain() = Note(
+        id = noteId,
         title = title,
-        content = content,
-        summary = summary,
-        subjectId = subject_id,
-        subjectName = subject_id,
-        weekNumber = week_number?.toInt(),
-        readTimeMinutes = read_time_minutes.toInt(),
-        createdAt = created_at,
-        updatedAt = updated_at,
+        content = body,
+        summary = summarize(body),
+        subjectId = "",
+        subjectName = "",
+        weekNumber = null,
+        readTimeMinutes = estimateReadTimeMinutes(body),
+        createdAt = updatedAt?.let { parseTimestamp(it) } ?: 0L,
+        updatedAt = updatedAt?.let { parseTimestamp(it) } ?: 0L,
     )
+
+    private fun NoteEntity.toDomain(): Note? {
+        val noteId = id.toLongOrNull() ?: return null
+        return Note(
+            id = noteId,
+            title = title,
+            content = content,
+            summary = summary,
+            subjectId = subject_id,
+            subjectName = subject_id,
+            weekNumber = week_number?.toInt(),
+            readTimeMinutes = read_time_minutes.toInt(),
+            createdAt = created_at,
+            updatedAt = updated_at,
+        )
+    }
 
     private fun summarize(body: String): String =
         if (body.length > 150) "${body.take(150)}..." else body
