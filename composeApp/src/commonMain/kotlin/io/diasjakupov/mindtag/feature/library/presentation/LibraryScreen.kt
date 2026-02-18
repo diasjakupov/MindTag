@@ -18,6 +18,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -62,7 +67,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.diasjakupov.mindtag.core.designsystem.LocalWindowSizeClass
 import io.diasjakupov.mindtag.core.designsystem.MindTagColors
+import io.diasjakupov.mindtag.core.designsystem.WindowSizeClass
 import io.diasjakupov.mindtag.core.designsystem.MindTagIcons
 import io.diasjakupov.mindtag.core.designsystem.MindTagShapes
 import io.diasjakupov.mindtag.core.designsystem.MindTagSpacing
@@ -352,49 +359,87 @@ private fun NoteListView(
     onLoadMore: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val listState = rememberLazyListState()
+    val windowSizeClass = LocalWindowSizeClass.current
     val currentHasMore by rememberUpdatedState(hasMorePages)
     val currentIsLoadingMore by rememberUpdatedState(isLoadingMore)
 
-    val shouldLoadMore = remember {
-        derivedStateOf {
-            val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            val totalItems = listState.layoutInfo.totalItemsCount
-            currentHasMore && !currentIsLoadingMore && lastVisibleIndex >= totalItems - 3
-        }
-    }
-
-    LaunchedEffect(shouldLoadMore.value) {
-        if (shouldLoadMore.value) {
-            onLoadMore()
-        }
-    }
-
-    LazyColumn(
-        state = listState,
-        modifier = modifier.padding(horizontal = MindTagSpacing.screenHorizontalPadding),
-        verticalArrangement = Arrangement.spacedBy(MindTagSpacing.lg),
-    ) {
-        items(notes, key = { it.id }) { note ->
-            NoteListCard(note = note, onClick = { onNoteTap(note.id) })
-        }
-        if (isLoadingMore) {
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = MindTagSpacing.lg),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = MindTagColors.Primary,
-                        strokeWidth = 2.dp,
-                    )
-                }
+    if (windowSizeClass == WindowSizeClass.Compact) {
+        val listState = rememberLazyListState()
+        val shouldLoadMore = remember {
+            derivedStateOf {
+                val lastVisibleIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+                val totalItems = listState.layoutInfo.totalItemsCount
+                currentHasMore && !currentIsLoadingMore && lastVisibleIndex >= totalItems - 3
             }
         }
-        item { Spacer(modifier = Modifier.height(MindTagSpacing.bottomContentPadding)) }
+        LaunchedEffect(shouldLoadMore.value) {
+            if (shouldLoadMore.value) onLoadMore()
+        }
+        LazyColumn(
+            state = listState,
+            modifier = modifier.padding(horizontal = MindTagSpacing.screenHorizontalPadding),
+            verticalArrangement = Arrangement.spacedBy(MindTagSpacing.lg),
+        ) {
+            items(notes, key = { it.id }) { note ->
+                NoteListCard(note = note, onClick = { onNoteTap(note.id) })
+            }
+            if (isLoadingMore) {
+                item {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = MindTagSpacing.lg),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = MindTagColors.Primary,
+                            strokeWidth = 2.dp,
+                        )
+                    }
+                }
+            }
+            item { Spacer(modifier = Modifier.height(MindTagSpacing.bottomContentPadding)) }
+        }
+    } else {
+        val columns = if (windowSizeClass == WindowSizeClass.Medium) 2 else 3
+        val gridState = rememberLazyGridState()
+        val shouldLoadMore = remember {
+            derivedStateOf {
+                val lastVisibleIndex = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+                val totalItems = gridState.layoutInfo.totalItemsCount
+                currentHasMore && !currentIsLoadingMore && lastVisibleIndex >= totalItems - 3
+            }
+        }
+        LaunchedEffect(shouldLoadMore.value) {
+            if (shouldLoadMore.value) onLoadMore()
+        }
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(columns),
+            state = gridState,
+            modifier = modifier.padding(horizontal = MindTagSpacing.screenHorizontalPadding),
+            verticalArrangement = Arrangement.spacedBy(MindTagSpacing.lg),
+            horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.lg),
+        ) {
+            items(notes, key = { it.id }) { note ->
+                NoteListCard(note = note, onClick = { onNoteTap(note.id) })
+            }
+            if (isLoadingMore) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = MindTagSpacing.lg),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = MindTagColors.Primary,
+                            strokeWidth = 2.dp,
+                        )
+                    }
+                }
+            }
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Spacer(modifier = Modifier.height(MindTagSpacing.bottomContentPadding))
+            }
+        }
     }
 }
 
@@ -476,7 +521,12 @@ private fun GraphView(
     val textMeasurer = rememberTextMeasurer()
     val nodeMap = nodes.associateBy { it.noteId }
 
-    val virtualSize = 800f
+    val windowSizeClass = LocalWindowSizeClass.current
+    val virtualSize = when (windowSizeClass) {
+        WindowSizeClass.Compact -> 800f
+        WindowSizeClass.Medium -> 1200f
+        WindowSizeClass.Expanded -> 1600f
+    }
 
     var scale by remember { mutableFloatStateOf(1f) }
     var offsetX by remember { mutableFloatStateOf(0f) }
