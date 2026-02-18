@@ -111,7 +111,7 @@ fun App() {
         BoxWithConstraints {
             val windowSizeClass = when {
                 maxWidth < 600.dp -> WindowSizeClass.Compact
-                maxWidth <= 840.dp -> WindowSizeClass.Medium
+                maxWidth < 840.dp -> WindowSizeClass.Medium
                 else -> WindowSizeClass.Expanded
             }
 
@@ -224,7 +224,7 @@ private fun MainApp() {
                     onTabSelected = { nav.selectTab(it) },
                 )
             }
-            Scaffold { innerPadding ->
+            Scaffold(modifier = Modifier.weight(1f)) { innerPadding ->
                 navContent(Modifier.padding(innerPadding))
             }
         }
