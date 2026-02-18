@@ -6,8 +6,16 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.unit.dp
+import io.diasjakupov.mindtag.core.designsystem.LocalWindowSizeClass
+import io.diasjakupov.mindtag.core.designsystem.WindowSizeClass
+import io.diasjakupov.mindtag.core.navigation.MindTagNavigationRail
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.getValue
@@ -101,15 +109,25 @@ private class TopLevelBackStack(startKey: Route) {
 @Composable
 fun App() {
     MindTagTheme {
-        val authManager: AuthManager = koinInject()
-        val authState by authManager.state.collectAsState()
-
-        when (authState) {
-            is AuthState.Unauthenticated -> {
-                AuthScreen(onNavigateToHome = { /* handled by auth state change */ })
+        BoxWithConstraints {
+            val windowSizeClass = when {
+                maxWidth < 600.dp -> WindowSizeClass.Compact
+                maxWidth <= 840.dp -> WindowSizeClass.Medium
+                else -> WindowSizeClass.Expanded
             }
-            is AuthState.Authenticated -> {
-                MainApp()
+
+            CompositionLocalProvider(LocalWindowSizeClass provides windowSizeClass) {
+                val authManager: AuthManager = koinInject()
+                val authState by authManager.state.collectAsState()
+
+                when (authState) {
+                    is AuthState.Unauthenticated -> {
+                        AuthScreen(onNavigateToHome = { /* handled by auth state change */ })
+                    }
+                    is AuthState.Authenticated -> {
+                        MainApp()
+                    }
+                }
             }
         }
     }
@@ -118,24 +136,17 @@ fun App() {
 @Composable
 private fun MainApp() {
     val nav = remember { TopLevelBackStack(Route.Library) }
+    val windowSizeClass = LocalWindowSizeClass.current
 
     val currentEntry = nav.backStack.lastOrNull()
-    val showBottomBar = currentEntry is Route && currentEntry in topLevelRoutes
+    val showNav = currentEntry is Route && currentEntry in topLevelRoutes
+    val isCompact = windowSizeClass == WindowSizeClass.Compact
 
-    Scaffold(
-        bottomBar = {
-            if (showBottomBar) {
-                MindTagBottomBar(
-                    currentRoute = nav.topLevelKey,
-                    onTabSelected = { nav.selectTab(it) },
-                )
-            }
-        },
-    ) { innerPadding ->
+    val navContent: @Composable (Modifier) -> Unit = { modifier ->
         NavDisplay(
             backStack = nav.backStack,
             onBack = { nav.removeLast() },
-            modifier = Modifier.padding(innerPadding),
+            modifier = modifier,
             entryDecorators = listOf(
                 rememberSaveableStateHolderNavEntryDecorator(),
                 rememberViewModelStoreNavEntryDecorator(),
@@ -191,5 +202,32 @@ private fun MainApp() {
                 }
             },
         )
+    }
+
+    if (isCompact) {
+        Scaffold(
+            bottomBar = {
+                if (showNav) {
+                    MindTagBottomBar(
+                        currentRoute = nav.topLevelKey,
+                        onTabSelected = { nav.selectTab(it) },
+                    )
+                }
+            },
+        ) { innerPadding ->
+            navContent(Modifier.padding(innerPadding))
+        }
+    } else {
+        Row(modifier = Modifier.fillMaxSize()) {
+            if (showNav) {
+                MindTagNavigationRail(
+                    currentRoute = nav.topLevelKey,
+                    onTabSelected = { nav.selectTab(it) },
+                )
+            }
+            Scaffold { innerPadding ->
+                navContent(Modifier.padding(innerPadding))
+            }
+        }
     }
 }

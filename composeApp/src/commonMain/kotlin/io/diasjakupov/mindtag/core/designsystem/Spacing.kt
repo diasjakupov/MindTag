@@ -22,4 +22,8 @@ object MindTagSpacing {
     val fabSize = 56.dp
     val avatarSize = 40.dp
     val iconButtonSize = 40.dp
+
+    // Adaptive layout
+    val contentMaxWidthMedium = 700.dp
+    val formMaxWidthMedium = 600.dp
 }
