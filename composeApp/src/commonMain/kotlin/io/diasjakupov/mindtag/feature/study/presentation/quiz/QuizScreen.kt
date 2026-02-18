@@ -36,7 +36,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.widthIn
+import io.diasjakupov.mindtag.core.designsystem.LocalWindowSizeClass
 import io.diasjakupov.mindtag.core.designsystem.MindTagColors
+import io.diasjakupov.mindtag.core.designsystem.WindowSizeClass
 import io.diasjakupov.mindtag.feature.study.domain.model.CardType
 import io.diasjakupov.mindtag.core.designsystem.MindTagIcons
 import io.diasjakupov.mindtag.core.designsystem.MindTagShapes
@@ -77,6 +80,8 @@ fun QuizScreenContent(
     state: QuizState,
     onIntent: (QuizIntent) -> Unit,
 ) {
+    val isCompact = LocalWindowSizeClass.current == WindowSizeClass.Compact
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -90,62 +95,70 @@ fun QuizScreenContent(
                 onExit = { onIntent(QuizIntent.TapExit) },
             )
 
-            // Progress section
+            // Progress section — stays full-width
             QuizProgressSection(
                 currentIndex = state.currentQuestionIndex,
                 totalQuestions = state.totalQuestions,
                 progressPercent = state.progressPercent,
             )
 
-            // Question + answers scrollable area
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = MindTagSpacing.quizHorizontalPadding)
-                    .padding(top = MindTagSpacing.md, bottom = 140.dp),
+            // Question + answers scrollable area — centered on medium/expanded
+            Box(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                contentAlignment = if (isCompact) Alignment.TopStart else Alignment.TopCenter,
             ) {
-                // Question text
-                Text(
-                    text = state.currentQuestion,
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = Color.White,
-                    modifier = Modifier.padding(bottom = MindTagSpacing.xxxxl),
-                )
+                Column(
+                    modifier = Modifier
+                        .then(
+                            if (isCompact) Modifier.fillMaxWidth()
+                            else Modifier.widthIn(max = MindTagSpacing.contentMaxWidthMedium)
+                        )
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = MindTagSpacing.quizHorizontalPadding)
+                        .padding(top = MindTagSpacing.md, bottom = 140.dp),
+                ) {
+                    Text(
+                        text = state.currentQuestion,
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = Color.White,
+                        modifier = Modifier.padding(bottom = MindTagSpacing.xxxxl),
+                    )
 
-                // Answer area — branched by card type
-                when (state.cardType) {
-                    CardType.MULTIPLE_CHOICE, CardType.TRUE_FALSE -> {
-                        Column(verticalArrangement = Arrangement.spacedBy(MindTagSpacing.lg)) {
-                            state.currentOptions.forEach { option ->
-                                QuizOptionCard(
-                                    option = option,
-                                    isSelected = option.id == state.selectedOptionId,
-                                    onClick = { onIntent(QuizIntent.SelectOption(option.id)) },
-                                )
+                    when (state.cardType) {
+                        CardType.MULTIPLE_CHOICE, CardType.TRUE_FALSE -> {
+                            Column(verticalArrangement = Arrangement.spacedBy(MindTagSpacing.lg)) {
+                                state.currentOptions.forEach { option ->
+                                    QuizOptionCard(
+                                        option = option,
+                                        isSelected = option.id == state.selectedOptionId,
+                                        onClick = { onIntent(QuizIntent.SelectOption(option.id)) },
+                                    )
+                                }
                             }
                         }
-                    }
-                    CardType.FLASHCARD -> {
-                        FlashCardContent(
-                            answer = state.flashcardAnswer,
-                            isFlipped = state.isFlipped,
-                            onFlip = { onIntent(QuizIntent.FlipCard) },
-                            onSelfAssess = { quality -> onIntent(QuizIntent.SelfAssess(quality)) },
-                        )
+                        CardType.FLASHCARD -> {
+                            FlashCardContent(
+                                answer = state.flashcardAnswer,
+                                isFlipped = state.isFlipped,
+                                onFlip = { onIntent(QuizIntent.FlipCard) },
+                                onSelfAssess = { quality -> onIntent(QuizIntent.SelfAssess(quality)) },
+                            )
+                        }
                     }
                 }
             }
         }
 
-        // Sticky bottom button with gradient fade (hidden for flashcards)
+        // Sticky bottom button — centered on medium/expanded
         if (state.cardType != CardType.FLASHCARD) {
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .fillMaxWidth(),
+                    .then(
+                        if (isCompact) Modifier.fillMaxWidth()
+                        else Modifier.widthIn(max = MindTagSpacing.contentMaxWidthMedium)
+                    ),
             ) {
-                // Gradient fade background
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -160,7 +173,6 @@ fun QuizScreenContent(
                             ),
                         ),
                 )
-                // Button
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)

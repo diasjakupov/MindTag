@@ -42,7 +42,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.widthIn
+import io.diasjakupov.mindtag.core.designsystem.LocalWindowSizeClass
 import io.diasjakupov.mindtag.core.designsystem.MindTagColors
+import io.diasjakupov.mindtag.core.designsystem.WindowSizeClass
 import io.diasjakupov.mindtag.core.designsystem.MindTagIcons
 import io.diasjakupov.mindtag.core.designsystem.MindTagShapes
 import io.diasjakupov.mindtag.core.designsystem.MindTagSpacing
@@ -81,47 +84,57 @@ fun ResultsScreenContent(
     state: ResultsState,
     onIntent: (ResultsIntent) -> Unit,
 ) {
+    val isCompact = LocalWindowSizeClass.current == WindowSizeClass.Compact
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MindTagColors.BackgroundDark),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(bottom = 100.dp),
+        // Scrollable content — centered on medium/expanded
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = if (isCompact) Alignment.TopStart else Alignment.TopCenter,
         ) {
-            // Top bar
-            ResultsTopBar(
-                onClose = { onIntent(ResultsIntent.TapClose) },
-            )
+            Column(
+                modifier = Modifier
+                    .then(
+                        if (isCompact) Modifier.fillMaxWidth()
+                        else Modifier.widthIn(max = MindTagSpacing.contentMaxWidthMedium)
+                    )
+                    .verticalScroll(rememberScrollState())
+                    .padding(bottom = 100.dp),
+            ) {
+                ResultsTopBar(
+                    onClose = { onIntent(ResultsIntent.TapClose) },
+                )
 
-            // Score ring
-            ScoreRingSection(
-                scorePercent = state.scorePercent,
-                feedbackMessage = state.feedbackMessage,
-                feedbackSubtext = state.feedbackSubtext,
-            )
+                ScoreRingSection(
+                    scorePercent = state.scorePercent,
+                    feedbackMessage = state.feedbackMessage,
+                    feedbackSubtext = state.feedbackSubtext,
+                )
 
-            // Time stat
-            TimeStatCard(timeSpent = state.timeSpent)
+                TimeStatCard(timeSpent = state.timeSpent)
 
-            Spacer(modifier = Modifier.height(MindTagSpacing.xxxxl))
+                Spacer(modifier = Modifier.height(MindTagSpacing.xxxxl))
 
-            // Detailed Analysis section
-            DetailedAnalysisSection(
-                answers = state.answers,
-                expandedAnswerId = state.expandedAnswerId,
-                onToggle = { onIntent(ResultsIntent.ToggleAnswer(it)) },
-            )
+                DetailedAnalysisSection(
+                    answers = state.answers,
+                    expandedAnswerId = state.expandedAnswerId,
+                    onToggle = { onIntent(ResultsIntent.ToggleAnswer(it)) },
+                )
+            }
         }
 
-        // Sticky footer button
+        // Sticky footer button — centered on medium/expanded
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .fillMaxWidth()
+                .then(
+                    if (isCompact) Modifier.fillMaxWidth()
+                    else Modifier.widthIn(max = MindTagSpacing.contentMaxWidthMedium)
+                )
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(

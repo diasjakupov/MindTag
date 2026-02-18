@@ -33,7 +33,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.widthIn
+import io.diasjakupov.mindtag.core.designsystem.LocalWindowSizeClass
 import io.diasjakupov.mindtag.core.designsystem.MindTagColors
+import io.diasjakupov.mindtag.core.designsystem.WindowSizeClass
 import io.diasjakupov.mindtag.core.designsystem.MindTagIcons
 import io.diasjakupov.mindtag.core.designsystem.MindTagShapes
 import io.diasjakupov.mindtag.core.designsystem.MindTagSpacing
@@ -65,10 +68,20 @@ fun StudyHubScreenContent(
     state: StudyHubState,
     onIntent: (StudyHubIntent) -> Unit,
 ) {
-    Column(
+    val isCompact = LocalWindowSizeClass.current == WindowSizeClass.Compact
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MindTagColors.BackgroundDark)
+            .background(MindTagColors.BackgroundDark),
+        contentAlignment = if (isCompact) Alignment.TopStart else Alignment.TopCenter,
+    ) {
+    Column(
+        modifier = Modifier
+            .then(
+                if (isCompact) Modifier.fillMaxWidth()
+                else Modifier.widthIn(max = MindTagSpacing.formMaxWidthMedium)
+            )
             .verticalScroll(rememberScrollState())
             .padding(horizontal = MindTagSpacing.screenHorizontalPadding),
     ) {
@@ -254,6 +267,7 @@ fun StudyHubScreenContent(
         }
 
         Spacer(modifier = Modifier.height(MindTagSpacing.bottomContentPadding))
+    }
     }
 }
 
