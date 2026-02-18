@@ -9,13 +9,9 @@ import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.sp
-
-private val ActiveColor = Color(0xFF135BEC)
-private val InactiveColor = Color(0xFF92A4C9)
-private val RailBackground = Color(0xF0111722)
+import io.diasjakupov.mindtag.core.designsystem.MindTagColors
 
 private data class RailTab(
     val route: Route,
@@ -34,7 +30,7 @@ fun MindTagNavigationRail(
     onTabSelected: (Route) -> Unit,
 ) {
     NavigationRail(
-        containerColor = RailBackground,
+        containerColor = MindTagColors.BottomNavBg,
     ) {
         tabs.forEach { tab ->
             val selected = currentRoute == tab.route
@@ -54,11 +50,11 @@ fun MindTagNavigationRail(
                     )
                 },
                 colors = NavigationRailItemDefaults.colors(
-                    selectedIconColor = ActiveColor,
-                    selectedTextColor = ActiveColor,
-                    unselectedIconColor = InactiveColor,
-                    unselectedTextColor = InactiveColor,
-                    indicatorColor = ActiveColor.copy(alpha = 0.12f),
+                    selectedIconColor = MindTagColors.Primary,
+                    selectedTextColor = MindTagColors.Primary,
+                    unselectedIconColor = MindTagColors.TextSecondary,
+                    unselectedTextColor = MindTagColors.TextSecondary,
+                    indicatorColor = MindTagColors.Primary.copy(alpha = 0.12f),
                 ),
             )
         }

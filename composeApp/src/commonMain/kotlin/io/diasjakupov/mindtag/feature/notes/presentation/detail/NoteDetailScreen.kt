@@ -202,7 +202,6 @@ fun NoteDetailScreenContent(
             // Compact & Medium: single-column
             val contentModifier = if (windowSizeClass == WindowSizeClass.Medium) {
                 Modifier.widthIn(max = MindTagSpacing.contentMaxWidthMedium)
-                    .align(Alignment.CenterHorizontally)
             } else {
                 Modifier
             }

@@ -528,10 +528,10 @@ private fun GraphView(
         WindowSizeClass.Expanded -> 1600f
     }
 
-    var scale by remember { mutableFloatStateOf(1f) }
-    var offsetX by remember { mutableFloatStateOf(0f) }
-    var offsetY by remember { mutableFloatStateOf(0f) }
-    var initialized by remember { mutableStateOf(false) }
+    var scale by remember(virtualSize) { mutableFloatStateOf(1f) }
+    var offsetX by remember(virtualSize) { mutableFloatStateOf(0f) }
+    var offsetY by remember(virtualSize) { mutableFloatStateOf(0f) }
+    var initialized by remember(virtualSize) { mutableStateOf(false) }
 
     val transformableState = rememberTransformableState { zoomChange, panChange, _ ->
         scale = (scale * zoomChange).coerceIn(0.5f, 2.5f)

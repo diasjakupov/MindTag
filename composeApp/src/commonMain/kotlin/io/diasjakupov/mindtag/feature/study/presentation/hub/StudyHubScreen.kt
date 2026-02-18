@@ -76,198 +76,198 @@ fun StudyHubScreenContent(
             .background(MindTagColors.BackgroundDark),
         contentAlignment = if (isCompact) Alignment.TopStart else Alignment.TopCenter,
     ) {
-    Column(
-        modifier = Modifier
-            .then(
-                if (isCompact) Modifier.fillMaxWidth()
-                else Modifier.widthIn(max = MindTagSpacing.formMaxWidthMedium)
-            )
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = MindTagSpacing.screenHorizontalPadding),
-    ) {
-        // Top bar
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(MindTagSpacing.topAppBarHeight),
-            verticalAlignment = Alignment.CenterVertically,
+                .then(
+                    if (isCompact) Modifier.fillMaxWidth()
+                    else Modifier.widthIn(max = MindTagSpacing.formMaxWidthMedium)
+                )
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = MindTagSpacing.screenHorizontalPadding),
         ) {
-            Text(
-                text = "Study",
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                color = Color.White,
-            )
-        }
-
-        // Cards due badge
-        if (state.cardsDueCount > 0) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(MindTagShapes.md)
-                    .background(MindTagColors.Primary.copy(alpha = 0.1f))
-                    .border(1.dp, MindTagColors.Primary.copy(alpha = 0.2f), MindTagShapes.md)
-                    .padding(MindTagSpacing.lg),
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.md),
-                ) {
-                    Icon(
-                        imageVector = MindTagIcons.MoreHoriz,
-                        contentDescription = null,
-                        tint = MindTagColors.Primary,
-                        modifier = Modifier.size(18.dp),
-                    )
-                    Text(
-                        text = "${state.cardsDueCount} cards due for review",
-                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                        color = MindTagColors.Primary,
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(MindTagSpacing.xl))
-        }
-
-        // Error banner
-        if (state.errorMessage != null) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(MindTagShapes.md)
-                    .background(MindTagColors.ErrorBg)
-                    .clickable { onIntent(StudyHubIntent.DismissError) }
-                    .padding(MindTagSpacing.lg),
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.md),
-                ) {
-                    Icon(
-                        imageVector = MindTagIcons.Close,
-                        contentDescription = "Dismiss",
-                        tint = MindTagColors.Error,
-                        modifier = Modifier.size(18.dp),
-                    )
-                    Text(
-                        text = state.errorMessage!!,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MindTagColors.Error,
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(MindTagSpacing.xl))
-        }
-
-        // Subject filter
-        MindTagCard(
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = MindTagSpacing.xxl,
-        ) {
-            Text(
-                text = "Subject",
-                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                color = Color.White,
-            )
-
-            Spacer(modifier = Modifier.height(MindTagSpacing.lg))
-
-            SubjectChips(
-                subjects = state.subjects,
-                selectedSubjectId = state.selectedSubjectId,
-                onSelect = { onIntent(StudyHubIntent.SelectSubject(it)) },
-            )
-        }
-
-        Spacer(modifier = Modifier.height(MindTagSpacing.xl))
-
-        // Question count
-        MindTagCard(
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = MindTagSpacing.xxl,
-        ) {
-            Text(
-                text = "Questions",
-                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                color = Color.White,
-            )
-
-            Spacer(modifier = Modifier.height(MindTagSpacing.lg))
-
-            CountChips(
-                counts = listOf(5, 10, 15, 20),
-                selected = state.questionCount,
-                onSelect = { onIntent(StudyHubIntent.SelectQuestionCount(it)) },
-            )
-        }
-
-        Spacer(modifier = Modifier.height(MindTagSpacing.xl))
-
-        // Timer toggle
-        MindTagCard(
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = MindTagSpacing.xxl,
-        ) {
+            // Top bar
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(MindTagSpacing.topAppBarHeight),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Timer",
+                    text = "Study",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = Color.White,
+                )
+            }
+
+            // Cards due badge
+            if (state.cardsDueCount > 0) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(MindTagShapes.md)
+                        .background(MindTagColors.Primary.copy(alpha = 0.1f))
+                        .border(1.dp, MindTagColors.Primary.copy(alpha = 0.2f), MindTagShapes.md)
+                        .padding(MindTagSpacing.lg),
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.md),
+                    ) {
+                        Icon(
+                            imageVector = MindTagIcons.MoreHoriz,
+                            contentDescription = null,
+                            tint = MindTagColors.Primary,
+                            modifier = Modifier.size(18.dp),
+                        )
+                        Text(
+                            text = "${state.cardsDueCount} cards due for review",
+                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                            color = MindTagColors.Primary,
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(MindTagSpacing.xl))
+            }
+
+            // Error banner
+            if (state.errorMessage != null) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(MindTagShapes.md)
+                        .background(MindTagColors.ErrorBg)
+                        .clickable { onIntent(StudyHubIntent.DismissError) }
+                        .padding(MindTagSpacing.lg),
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.md),
+                    ) {
+                        Icon(
+                            imageVector = MindTagIcons.Close,
+                            contentDescription = "Dismiss",
+                            tint = MindTagColors.Error,
+                            modifier = Modifier.size(18.dp),
+                        )
+                        Text(
+                            text = state.errorMessage!!,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MindTagColors.Error,
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(MindTagSpacing.xl))
+            }
+
+            // Subject filter
+            MindTagCard(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = MindTagSpacing.xxl,
+            ) {
+                Text(
+                    text = "Subject",
                     style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                     color = Color.White,
                 )
-                Switch(
-                    checked = state.timerEnabled,
-                    onCheckedChange = { onIntent(StudyHubIntent.ToggleTimer(it)) },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
-                        checkedTrackColor = MindTagColors.Primary,
-                        uncheckedThumbColor = MindTagColors.TextSecondary,
-                        uncheckedTrackColor = MindTagColors.SurfaceDarkAlt,
-                    ),
+
+                Spacer(modifier = Modifier.height(MindTagSpacing.lg))
+
+                SubjectChips(
+                    subjects = state.subjects,
+                    selectedSubjectId = state.selectedSubjectId,
+                    onSelect = { onIntent(StudyHubIntent.SelectSubject(it)) },
                 )
             }
 
-            if (state.timerEnabled) {
+            Spacer(modifier = Modifier.height(MindTagSpacing.xl))
+
+            // Question count
+            MindTagCard(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = MindTagSpacing.xxl,
+            ) {
+                Text(
+                    text = "Questions",
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                    color = Color.White,
+                )
+
                 Spacer(modifier = Modifier.height(MindTagSpacing.lg))
 
                 CountChips(
-                    counts = listOf(5, 10, 15, 30),
-                    selected = state.timerMinutes,
-                    onSelect = { onIntent(StudyHubIntent.SelectTimerDuration(it)) },
-                    suffix = "min",
+                    counts = listOf(5, 10, 15, 20),
+                    selected = state.questionCount,
+                    onSelect = { onIntent(StudyHubIntent.SelectQuestionCount(it)) },
                 )
             }
-        }
 
-        Spacer(modifier = Modifier.height(MindTagSpacing.xxxl))
+            Spacer(modifier = Modifier.height(MindTagSpacing.xl))
 
-        // Start button
-        if (state.isCreatingSession) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                contentAlignment = Alignment.Center,
+            // Timer toggle
+            MindTagCard(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = MindTagSpacing.xxl,
             ) {
-                CircularProgressIndicator(
-                    color = MindTagColors.Primary,
-                    modifier = Modifier.size(24.dp),
-                    strokeWidth = 2.dp,
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "Timer",
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                        color = Color.White,
+                    )
+                    Switch(
+                        checked = state.timerEnabled,
+                        onCheckedChange = { onIntent(StudyHubIntent.ToggleTimer(it)) },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color.White,
+                            checkedTrackColor = MindTagColors.Primary,
+                            uncheckedThumbColor = MindTagColors.TextSecondary,
+                            uncheckedTrackColor = MindTagColors.SurfaceDarkAlt,
+                        ),
+                    )
+                }
+
+                if (state.timerEnabled) {
+                    Spacer(modifier = Modifier.height(MindTagSpacing.lg))
+
+                    CountChips(
+                        counts = listOf(5, 10, 15, 30),
+                        selected = state.timerMinutes,
+                        onSelect = { onIntent(StudyHubIntent.SelectTimerDuration(it)) },
+                        suffix = "min",
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(MindTagSpacing.xxxl))
+
+            // Start button
+            if (state.isCreatingSession) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator(
+                        color = MindTagColors.Primary,
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
+                    )
+                }
+            } else {
+                MindTagButton(
+                    text = "Start Quiz",
+                    onClick = { onIntent(StudyHubIntent.StartQuiz) },
+                    variant = MindTagButtonVariant.PrimaryMedium,
                 )
             }
-        } else {
-            MindTagButton(
-                text = "Start Quiz",
-                onClick = { onIntent(StudyHubIntent.StartQuiz) },
-                variant = MindTagButtonVariant.PrimaryMedium,
-            )
-        }
 
-        Spacer(modifier = Modifier.height(MindTagSpacing.bottomContentPadding))
-    }
+            Spacer(modifier = Modifier.height(MindTagSpacing.bottomContentPadding))
+        }
     }
 }
 

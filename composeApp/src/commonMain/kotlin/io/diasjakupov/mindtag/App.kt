@@ -42,7 +42,6 @@ import io.diasjakupov.mindtag.feature.notes.presentation.detail.NoteDetailScreen
 import io.diasjakupov.mindtag.feature.study.presentation.hub.StudyHubScreen
 import io.diasjakupov.mindtag.feature.study.presentation.quiz.QuizScreen
 import io.diasjakupov.mindtag.feature.study.presentation.results.ResultsScreen
-import androidx.compose.runtime.getValue
 import org.koin.compose.koinInject
 
 private val topLevelRoutes: Set<Route> = setOf(
