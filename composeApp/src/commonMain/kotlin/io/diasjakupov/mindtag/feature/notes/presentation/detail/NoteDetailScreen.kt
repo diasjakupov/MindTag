@@ -167,20 +167,26 @@ fun NoteDetailScreenContent(
                     )
                     Spacer(modifier = Modifier.height(MindTagSpacing.bottomContentPadding))
                 }
-                // Right pane: related notes sidebar
-                if (state.relatedNotes.isNotEmpty()) {
-                    Column(
-                        modifier = Modifier
-                            .weight(0.35f)
-                            .verticalScroll(rememberScrollState())
-                            .padding(top = MindTagSpacing.xl, end = MindTagSpacing.screenHorizontalPadding),
-                    ) {
+                // Right pane: always present to prevent layout jump
+                Column(
+                    modifier = Modifier
+                        .weight(0.35f)
+                        .verticalScroll(rememberScrollState())
+                        .padding(top = MindTagSpacing.xl, end = MindTagSpacing.screenHorizontalPadding),
+                ) {
+                    Text(
+                        text = "RELATED NOTES",
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                        color = MindTagColors.TextTertiary,
+                    )
+                    Spacer(modifier = Modifier.height(MindTagSpacing.lg))
+                    if (state.relatedNotes.isEmpty()) {
                         Text(
-                            text = "RELATED NOTES",
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                            color = MindTagColors.TextTertiary,
+                            text = "No related notes yet",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MindTagColors.TextSecondary,
                         )
-                        Spacer(modifier = Modifier.height(MindTagSpacing.lg))
+                    } else {
                         state.relatedNotes.forEach { related ->
                             RelatedNoteCard(
                                 relatedNote = related,

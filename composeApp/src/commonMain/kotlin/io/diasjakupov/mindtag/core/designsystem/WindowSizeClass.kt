@@ -1,7 +1,7 @@
 package io.diasjakupov.mindtag.core.designsystem
 
-import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.staticCompositionLocalOf
 
 enum class WindowSizeClass { Compact, Medium, Expanded }
 
-val LocalWindowSizeClass = compositionLocalOf { WindowSizeClass.Compact }
+val LocalWindowSizeClass = staticCompositionLocalOf { WindowSizeClass.Compact }
