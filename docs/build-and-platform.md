@@ -2,245 +2,500 @@
 
 ## Version Catalog (`gradle/libs.versions.toml`)
 
-### Core Versions
+### Versions
 
-| Dependency | Version | Purpose |
-|-----------|---------|---------|
-| Kotlin | 2.3.0 | Language |
-| Compose Multiplatform | 1.10.0 | Shared UI framework |
-| AGP | 8.11.2 | Android build tooling |
-| SQLDelight | 2.0.2 | Cross-platform database |
-| Koin | 4.0.2 | Dependency injection |
-| kotlinx-coroutines | 1.10.2 | Async programming |
-| kotlinx-serialization | 1.8.0 | JSON serialization |
-| kotlinx-datetime | 0.6.2 | Date/time handling |
-| Material 3 | 1.10.0-alpha05 | Design system |
-| Nav3 UI | 1.0.0-alpha05 | Multiplatform navigation |
-| AndroidX Lifecycle | 2.9.6 | ViewModel + Runtime |
-| Compose Hot Reload | 1.0.0 | Live reload for development |
+| Key | Version | Purpose |
+|-----|---------|---------|
+| `kotlin` | 2.3.0 | Kotlin language |
+| `composeMultiplatform` | 1.10.0 | Compose Multiplatform UI framework |
+| `agp` | 8.11.2 | Android Gradle Plugin |
+| `sqldelight` | 2.0.2 | Cross-platform SQLite database |
+| `koin` | 4.0.2 | Dependency injection |
+| `ktor` | 3.1.1 | HTTP client |
+| `kotlinx-coroutines` | 1.10.2 | Coroutines |
+| `kotlinx-serialization` | 1.8.0 | JSON serialization |
+| `kotlinx-datetime` | 0.6.2 | Date/time handling |
+| `material3` | 1.10.0-alpha05 | Material 3 design system |
+| `multiplatform-nav3-ui` | 1.0.0-alpha05 | Navigation 3 UI |
+| `androidx-lifecycle-nav3` | 2.10.0-alpha08 | Lifecycle ViewModel Navigation 3 |
+| `androidx-lifecycle` | 2.9.6 | ViewModel + Runtime Compose |
+| `composeHotReload` | 1.0.0 | Compose Hot Reload |
+| `androidx-activity` | 1.12.2 | Activity Compose |
+| `androidx-appcompat` | 1.7.1 | AppCompat |
+| `androidx-core` | 1.17.0 | AndroidX Core KTX |
+| `junit` | 4.13.2 | JUnit 4 |
+| `androidx-espresso` | 3.7.0 | Espresso testing |
+| `androidx-testExt` | 1.3.0 | AndroidX Test Extensions |
+| `turbine` | 1.2.0 | Flow testing |
 
 ### Android SDK
 
 | Setting | Value |
 |---------|-------|
-| compileSdk | 36 |
-| targetSdk | 36 |
-| minSdk | 30 |
-| JVM target | 11 |
+| `android-compileSdk` | 36 |
+| `android-targetSdk` | 36 |
+| `android-minSdk` | 30 |
+
+### Libraries
+
+**Compose:**
+- `compose-runtime` = `org.jetbrains.compose.runtime:runtime` (composeMultiplatform)
+- `compose-foundation` = `org.jetbrains.compose.foundation:foundation` (composeMultiplatform)
+- `compose-material3` = `org.jetbrains.compose.material3:material3` (material3 version)
+- `compose-ui` = `org.jetbrains.compose.ui:ui` (composeMultiplatform)
+- `compose-components-resources` = `org.jetbrains.compose.components:components-resources` (composeMultiplatform)
+- `compose-uiToolingPreview` = `org.jetbrains.compose.ui:ui-tooling-preview` (composeMultiplatform)
+- `compose-uiTooling` = `org.jetbrains.compose.ui:ui-tooling` (composeMultiplatform)
+
+**AndroidX:**
+- `androidx-activity-compose` = `androidx.activity:activity-compose` (1.12.2)
+- `androidx-lifecycle-viewmodelCompose` = `org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose` (2.9.6)
+- `androidx-lifecycle-runtimeCompose` = `org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose` (2.9.6)
+- `androidx-core-ktx` = `androidx.core:core-ktx` (1.17.0)
+- `androidx-appcompat` = `androidx.appcompat:appcompat` (1.7.1)
+
+**Navigation:**
+- `jetbrains-navigation3-ui` = `org.jetbrains.androidx.navigation3:navigation3-ui` (1.0.0-alpha05)
+- `jetbrains-lifecycle-viewmodelNavigation3` = `org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-navigation3` (2.10.0-alpha08)
+
+**SQLDelight:**
+- `sqldelight-runtime` = `app.cash.sqldelight:runtime` (2.0.2)
+- `sqldelight-coroutines` = `app.cash.sqldelight:coroutines-extensions` (2.0.2)
+- `sqldelight-android` = `app.cash.sqldelight:android-driver` (2.0.2)
+- `sqldelight-native` = `app.cash.sqldelight:native-driver` (2.0.2)
+- `sqldelight-jvm` = `app.cash.sqldelight:sqlite-driver` (2.0.2)
+
+**Koin:**
+- `koin-core` = `io.insert-koin:koin-core` (4.0.2)
+- `koin-compose` = `io.insert-koin:koin-compose` (4.0.2)
+- `koin-compose-viewmodel` = `io.insert-koin:koin-compose-viewmodel` (4.0.2)
+- `koin-test` = `io.insert-koin:koin-test` (4.0.2)
+
+**Ktor:**
+- `ktor-client-core` = `io.ktor:ktor-client-core` (3.1.1)
+- `ktor-client-content-negotiation` = `io.ktor:ktor-client-content-negotiation` (3.1.1)
+- `ktor-serialization-kotlinx-json` = `io.ktor:ktor-serialization-kotlinx-json` (3.1.1)
+- `ktor-client-okhttp` = `io.ktor:ktor-client-okhttp` (3.1.1)
+- `ktor-client-darwin` = `io.ktor:ktor-client-darwin` (3.1.1)
+- `ktor-client-logging` = `io.ktor:ktor-client-logging` (3.1.1)
+
+**Serialization / DateTime:**
+- `kotlinx-serialization-json` = `org.jetbrains.kotlinx:kotlinx-serialization-json` (1.8.0)
+- `kotlinx-datetime` = `org.jetbrains.kotlinx:kotlinx-datetime` (0.6.2)
+- `kotlinx-coroutinesSwing` = `org.jetbrains.kotlinx:kotlinx-coroutines-swing` (1.10.2)
+
+**Testing:**
+- `kotlin-test` = `org.jetbrains.kotlin:kotlin-test` (2.3.0)
+- `kotlin-testJunit` = `org.jetbrains.kotlin:kotlin-test-junit` (2.3.0)
+- `kotlinx-coroutines-test` = `org.jetbrains.kotlinx:kotlinx-coroutines-test` (1.10.2)
+- `turbine` = `app.cash.turbine:turbine` (1.2.0)
+
+### Plugins
+
+| Alias | Plugin ID | Version |
+|-------|-----------|---------|
+| `kotlinMultiplatform` | `org.jetbrains.kotlin.multiplatform` | 2.3.0 |
+| `androidApplication` | `com.android.application` | 8.11.2 |
+| `androidLibrary` | `com.android.library` | 8.11.2 |
+| `composeMultiplatform` | `org.jetbrains.compose` | 1.10.0 |
+| `composeCompiler` | `org.jetbrains.kotlin.plugin.compose` | 2.3.0 |
+| `composeHotReload` | `org.jetbrains.compose.hot-reload` | 1.0.0 |
+| `sqldelight` | `app.cash.sqldelight` | 2.0.2 |
+| `kotlinx-serialization` | `org.jetbrains.kotlin.plugin.serialization` | 2.3.0 |
+
+---
 
 ## Module Configuration (`composeApp/build.gradle.kts`)
 
 ### Plugins Applied
 
-`kotlinMultiplatform`, `androidApplication`, `composeMultiplatform`, `composeCompiler`, `composeHotReload`, `sqldelight`, `kotlinx-serialization`
+```kotlin
+plugins {
+    alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.composeMultiplatform)
+    alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.composeHotReload)
+    alias(libs.plugins.sqldelight)
+    alias(libs.plugins.kotlinx.serialization)
+}
+```
 
 ### Platform Targets
 
-| Target | Details |
-|--------|---------|
-| Android | JVM 11, standard Android app |
-| iOS | `iosArm64` + `iosSimulatorArm64`, static framework "ComposeApp" |
-| Desktop (JVM) | `jvm()` target |
+| Target | Configuration |
+|--------|---------------|
+| `androidTarget` | JVM target: `JvmTarget.JVM_11` |
+| `iosArm64()` | Static framework, `baseName = "ComposeApp"` |
+| `iosSimulatorArm64()` | Static framework, `baseName = "ComposeApp"` |
+| `jvm()` | Default JVM target |
 
 ### Source Set Dependencies
 
-**commonMain:**
-- Compose: runtime, foundation, material3, UI, tooling preview
-- Compose Resources (multiplatform assets)
-- Material Icons Extended
-- AndroidX Lifecycle (ViewModel + Runtime Compose)
-- Navigation 3 UI + Lifecycle ViewModel Nav3
-- SQLDelight runtime + coroutines extensions
-- Koin (core + compose + viewmodel)
-- kotlinx-serialization JSON
-- kotlinx-datetime
+**`commonMain`:**
+```kotlin
+implementation(libs.compose.runtime)
+implementation(libs.compose.foundation)
+implementation(libs.compose.material3)
+implementation(libs.compose.ui)
+implementation(libs.compose.components.resources)
+implementation(libs.compose.uiToolingPreview)
+implementation(libs.androidx.lifecycle.viewmodelCompose)
+implementation(libs.androidx.lifecycle.runtimeCompose)
+implementation(libs.sqldelight.runtime)
+implementation(libs.sqldelight.coroutines)
+implementation(libs.koin.core)
+implementation(libs.koin.compose)
+implementation(libs.koin.compose.viewmodel)
+implementation(libs.kotlinx.serialization.json)
+implementation(libs.kotlinx.datetime)
+implementation(libs.jetbrains.navigation3.ui)
+implementation(libs.jetbrains.lifecycle.viewmodelNavigation3)
+implementation(compose.materialIconsExtended)
+implementation(libs.ktor.client.core)
+implementation(libs.ktor.client.content.negotiation)
+implementation(libs.ktor.serialization.kotlinx.json)
+implementation(libs.ktor.client.logging)
+```
 
-**androidMain:** Activity Compose, SQLDelight Android driver, UI tooling preview
+**`androidMain`:**
+```kotlin
+implementation(libs.compose.uiToolingPreview)
+implementation(libs.androidx.activity.compose)
+implementation(libs.sqldelight.android)
+implementation(libs.ktor.client.okhttp)
+```
 
-**iosMain:** SQLDelight native driver
+**`iosMain`:**
+```kotlin
+implementation(libs.sqldelight.native)
+implementation(libs.ktor.client.darwin)
+```
 
-**jvmMain:** Compose Desktop current OS, kotlinx-coroutines Swing, SQLDelight JDBC SQLite driver
+**`jvmMain`:**
+```kotlin
+implementation(compose.desktop.currentOs)
+implementation(libs.kotlinx.coroutinesSwing)
+implementation(libs.sqldelight.jvm)
+implementation(libs.ktor.client.okhttp)
+```
+
+**`commonTest`:**
+```kotlin
+implementation(libs.kotlin.test)
+implementation(libs.kotlinx.coroutines.test)
+implementation(libs.turbine)
+implementation(libs.koin.test)
+```
+
+**`jvmTest`:**
+```kotlin
+implementation(libs.sqldelight.jvm)
+implementation(libs.kotlinx.datetime)
+implementation(libs.kotlinx.serialization.json)
+```
+
+**Debug dependencies (Android):**
+```kotlin
+debugImplementation(libs.compose.uiTooling)
+```
+
+### Android Configuration
+
+```kotlin
+android {
+    namespace = "io.diasjakupov.mindtag"
+    compileSdk = 36
+
+    defaultConfig {
+        applicationId = "io.diasjakupov.mindtag"
+        minSdk = 30
+        targetSdk = 36
+        versionCode = 1
+        versionName = "1.0"
+    }
+
+    packaging {
+        resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" }
+    }
+
+    buildTypes {
+        getByName("release") { isMinifyEnabled = false }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
+}
+```
+
+### Android Manifest
+
+```xml
+<uses-permission android:name="android.permission.INTERNET" />
+
+<application
+    android:allowBackup="true"
+    android:icon="@mipmap/ic_launcher"
+    android:label="@string/app_name"
+    android:networkSecurityConfig="@xml/network_security_config"
+    android:roundIcon="@mipmap/ic_launcher_round"
+    android:supportsRtl="true"
+    android:theme="@android:style/Theme.Material.Light.NoActionBar">
+    <activity android:exported="true" android:name=".MainActivity">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+    </activity>
+</application>
+```
 
 ### SQLDelight Configuration
 
 ```kotlin
-database name: "MindTagDatabase"
-packageName: "io.diasjakupov.mindtag.data.local"
+sqldelight {
+    databases {
+        create("MindTagDatabase") {
+            packageName.set("io.diasjakupov.mindtag.data.local")
+        }
+    }
+}
 ```
+
+Schema files in: `composeApp/src/commonMain/sqldelight/io/diasjakupov/mindtag/data/local/`
+
+### Resolution Strategy
+
+```kotlin
+configurations.all {
+    resolutionStrategy {
+        force("org.jetbrains.kotlinx:kotlinx-datetime:0.6.2")
+        force("org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.6.2")
+    }
+}
+```
+
+Forces `kotlinx-datetime` to 0.6.2 to resolve transitive version conflicts.
 
 ### Desktop Distribution
 
-- Main class: `io.diasjakupov.mindtag.MainKt`
-- Formats: DMG (macOS), MSI (Windows), DEB (Linux)
-- Version: 1.0.0
+```kotlin
+compose.desktop {
+    application {
+        mainClass = "io.diasjakupov.mindtag.MainKt"
+        nativeDistributions {
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            packageName = "io.diasjakupov.mindtag"
+            packageVersion = "1.0.0"
+        }
+    }
+}
+```
 
-## Gradle Settings
+| Format | Platform |
+|--------|----------|
+| DMG | macOS |
+| MSI | Windows |
+| DEB | Linux |
 
-**gradle.properties:**
-- Kotlin daemon JVM: 3072MB
-- Gradle JVM: 4096MB, UTF-8
-- Configuration cache: enabled
-- Build caching: enabled
-- `nonTransitiveRClass`: true
-- `useAndroidX`: true
+---
 
-**settings.gradle.kts:**
-- Project name: "Mindtag"
-- `TYPESAFE_PROJECT_ACCESSORS` enabled
-- Repositories: Google Maven (filtered), Maven Central, Gradle Plugin Portal
-- JVM toolchain: `foojay-resolver-convention` 1.0.0
-- Single module: `:composeApp`
+## Root Build File (`build.gradle.kts`)
+
+```kotlin
+plugins {
+    alias(libs.plugins.androidApplication) apply false
+    alias(libs.plugins.androidLibrary) apply false
+    alias(libs.plugins.composeHotReload) apply false
+    alias(libs.plugins.composeMultiplatform) apply false
+    alias(libs.plugins.composeCompiler) apply false
+    alias(libs.plugins.kotlinMultiplatform) apply false
+}
+```
+
+All plugins declared but not applied at root level (applied in `:composeApp` subproject).
+
+---
+
+## Gradle Settings (`settings.gradle.kts`)
+
+```kotlin
+rootProject.name = "Mindtag"
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+```
+
+**Plugin Management repositories:** Google Maven (filtered to `androidx`, `com.android`, `com.google` groups), Maven Central, Gradle Plugin Portal
+
+**Dependency Resolution repositories:** Google Maven (same filter), Maven Central
+
+**JVM Toolchain:** `foojay-resolver-convention` 1.0.0
+
+**Modules:** Single module `:composeApp`
+
+---
+
+## Gradle Properties (`gradle.properties`)
+
+```properties
+kotlin.code.style=official
+kotlin.daemon.jvmargs=-Xmx3072M
+
+org.gradle.jvmargs=-Xmx4096M -Dfile.encoding=UTF-8
+org.gradle.configuration-cache=true
+org.gradle.caching=true
+
+android.nonTransitiveRClass=true
+android.useAndroidX=true
+```
+
+---
 
 ## Platform Entry Points
 
 ### Android (`androidMain`)
 
-**MainActivity.kt:**
+**File:** `composeApp/src/androidMain/kotlin/io/diasjakupov/mindtag/MainActivity.kt`
+
 ```kotlin
 class MainActivity : ComponentActivity() {
-    override fun onCreate(...) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
-        initKoin(module { single { DatabaseDriverFactory(this@MainActivity) } })
-        setContent { App() }
+        super.onCreate(savedInstanceState)
+
+        initKoin(module {
+            single { DatabaseDriverFactory(this@MainActivity) }
+            single { TokenStorage(this@MainActivity) }
+        })
+
+        setContent {
+            App()
+        }
     }
 }
 ```
-Driver: `AndroidSqliteDriver(MindTagDatabase.Schema, context, "mindtag.db")`
+
+**Database driver:** `AndroidSqliteDriver(MindTagDatabase.Schema, context, "mindtag.db")`
+
+**Token storage:** `SharedPreferences("mindtag_auth")` via `Context`
+
+**Platform-specific files:**
+- `DatabaseDriverFactory.android.kt` -- `actual class DatabaseDriverFactory(private val context: Context)`
+- `TokenStorage.android.kt` -- `actual class TokenStorage(context: Context)` using `SharedPreferences`
+- `Logger.android.kt` -- `actual object Logger` using `android.util.Log`
+- `Platform.android.kt` -- platform identifier
+- Preview files for each screen in `feature/*/presentation/`
 
 ### iOS (`iosMain`)
 
-**MainViewController.kt:**
+**File:** `composeApp/src/iosMain/kotlin/io/diasjakupov/mindtag/MainViewController.kt`
+
 ```kotlin
-fun MainViewController(): UIViewController {
-    initKoin(module { single { DatabaseDriverFactory() } })
+fun MainViewController(): platform.UIKit.UIViewController {
+    initKoin(module {
+        single { DatabaseDriverFactory() }
+        single { TokenStorage() }
+    })
     return ComposeUIViewController { App() }
 }
 ```
-Driver: `NativeSqliteDriver(MindTagDatabase.Schema, "mindtag.db")`
 
-### Desktop (`jvmMain`)
+**Database driver:** `NativeSqliteDriver(MindTagDatabase.Schema, "mindtag.db")`
 
-**main.kt:**
+**Token storage:** `NSUserDefaults.standardUserDefaults` with keys `mindtag_access_token`, `mindtag_user_id`
+
+**Platform-specific files:**
+- `DatabaseDriverFactory.ios.kt` -- `actual class DatabaseDriverFactory` (no constructor params)
+- `TokenStorage.ios.kt` -- `actual class TokenStorage` using `NSUserDefaults`
+- `Logger.ios.kt` -- `actual object Logger` using `println`
+- `Platform.ios.kt` -- platform identifier
+
+Built via Xcode from `iosApp/` directory.
+
+### Desktop / JVM (`jvmMain`)
+
+**File:** `composeApp/src/jvmMain/kotlin/io/diasjakupov/mindtag/main.kt`
+
 ```kotlin
 fun main() {
-    initKoin(module { single { DatabaseDriverFactory() } })
-    application { Window(title = "Mindtag") { App() } }
+    initKoin(module {
+        single { DatabaseDriverFactory() }
+        single { TokenStorage() }
+    })
+    application {
+        Window(
+            onCloseRequest = ::exitApplication,
+            title = "Mindtag",
+            icon = painterResource("icon.png"),
+        ) {
+            App()
+        }
+    }
 }
 ```
-Driver: `JdbcSqliteDriver("jdbc:sqlite:mindtag.db")` with explicit `Schema.create(driver)`
 
-## Database Schema (SQLDelight)
+**Database driver:** `JdbcSqliteDriver("jdbc:sqlite:mindtag.db")` with explicit schema creation on first run (`if (!dbFile.exists()) MindTagDatabase.Schema.create(driver)`)
 
-All `.sq` files in: `composeApp/src/commonMain/sqldelight/io/diasjakupov/mindtag/data/local/`
+**Token storage:** `java.util.prefs.Preferences.userNodeForPackage(TokenStorage::class.java)`
 
-### Tables
+**Platform-specific files:**
+- `DatabaseDriverFactory.jvm.kt` -- `actual class DatabaseDriverFactory` (checks for existing `mindtag.db` file)
+- `TokenStorage.jvm.kt` -- `actual class TokenStorage` using Java Preferences API
+- `Logger.jvm.kt` -- `actual object Logger` using `println`
+- `Platform.jvm.kt` -- platform identifier
 
-#### SubjectEntity
-| Column | Type | Notes |
-|--------|------|-------|
-| id | TEXT PK | |
-| name | TEXT | |
-| color_hex | TEXT | |
-| icon_name | TEXT | |
-| progress | REAL | Default 0.0 |
-| total_notes | INTEGER | Default 0 |
-| reviewed_notes | INTEGER | Default 0 |
-| created_at | INTEGER | Epoch ms |
-| updated_at | INTEGER | Epoch ms |
+Window icon: `icon.png` loaded via `painterResource` from JVM resources.
 
-#### NoteEntity
-| Column | Type | Notes |
-|--------|------|-------|
-| id | TEXT PK | |
-| title | TEXT | |
-| content | TEXT | |
-| summary | TEXT | Auto-generated |
-| subject_id | TEXT FK | -> SubjectEntity |
-| week_number | INTEGER? | Nullable |
-| read_time_minutes | INTEGER | Default 1 |
-| created_at | INTEGER | |
-| updated_at | INTEGER | |
+---
 
-Indexes: `idx_note_subject_id`, `idx_note_updated_at`
+## expect/actual Summary
 
-#### FlashCardEntity
-| Column | Type | Notes |
-|--------|------|-------|
-| id | TEXT PK | |
-| question | TEXT | |
-| type | TEXT | FACT_CHECK, SYNTHESIS, MULTIPLE_CHOICE |
-| difficulty | TEXT | EASY, MEDIUM, HARD |
-| subject_id | TEXT FK | -> SubjectEntity |
-| correct_answer | TEXT | |
-| options_json | TEXT? | JSON for MCQ options |
-| source_note_ids_json | TEXT? | JSON array of note IDs |
-| ai_explanation | TEXT? | |
-| ease_factor | REAL | SM-2, default 2.5 |
-| interval_days | INTEGER | SM-2, default 0 |
-| repetitions | INTEGER | SM-2, default 0 |
-| next_review_at | INTEGER? | SM-2, epoch ms |
-| created_at | INTEGER | |
+| Declaration | commonMain | androidMain | iosMain | jvmMain |
+|-------------|------------|-------------|---------|---------|
+| `DatabaseDriverFactory` | `expect class` | `AndroidSqliteDriver` | `NativeSqliteDriver` | `JdbcSqliteDriver` |
+| `TokenStorage` | `expect class` | `SharedPreferences` | `NSUserDefaults` | `java.util.prefs.Preferences` |
+| `Logger` | `expect object` | `android.util.Log` | `println` | `println` |
 
-Indexes: `idx_card_subject_id`, `idx_card_next_review`
-
-#### StudySessionEntity
-| Column | Type | Notes |
-|--------|------|-------|
-| id | TEXT PK | |
-| subject_id | TEXT? FK | Nullable = all subjects |
-| session_type | TEXT | QUICK_QUIZ, EXAM_MODE |
-| started_at | INTEGER | |
-| finished_at | INTEGER? | |
-| total_questions | INTEGER | Default 0 |
-| time_limit_seconds | INTEGER? | |
-| status | TEXT | Default 'IN_PROGRESS' |
-
-#### QuizAnswerEntity
-| Column | Type | Notes |
-|--------|------|-------|
-| id | TEXT PK | |
-| session_id | TEXT FK | -> StudySessionEntity |
-| card_id | TEXT FK | -> FlashCardEntity |
-| user_answer | TEXT | |
-| is_correct | INTEGER | Boolean, default 0 |
-| confidence_rating | TEXT? | EASY, HARD |
-| time_spent_seconds | INTEGER | Default 0 |
-| answered_at | INTEGER | |
-
-Index: `idx_answer_session_id`
-
-#### UserProgressEntity
-| Column | Type | Notes |
-|--------|------|-------|
-| subject_id | TEXT PK FK | -> SubjectEntity |
-| mastery_percent | REAL | Default 0.0 |
-| notes_reviewed | INTEGER | Default 0 |
-| total_notes | INTEGER | Default 0 |
-| avg_quiz_score | REAL | Default 0.0 |
-| current_streak | INTEGER | Default 0 |
-| total_xp | INTEGER | Default 0 |
-| last_studied_at | INTEGER? | |
-
-#### SemanticLinkEntity (Knowledge Graph)
-| Column | Type | Notes |
-|--------|------|-------|
-| id | TEXT PK | |
-| source_note_id | TEXT FK | -> NoteEntity |
-| target_note_id | TEXT FK | -> NoteEntity |
-| similarity_score | REAL | 0.0-1.0 |
-| link_type | TEXT | PREREQUISITE, RELATED, ANALOGY |
-| strength | REAL | Default 1.0 |
-| created_at | INTEGER | |
-
-Indexes: `idx_link_source`, `idx_link_target`, `idx_link_pair` (UNIQUE on source+target)
-
-Key query: `selectRelatedNotes` - bidirectional JOIN with NoteEntity + SubjectEntity, ordered by similarity DESC, with LIMIT.
-
-### Total: 7 tables, 8 indexes
+---
 
 ## Compose Resources
 
-`composeApp/src/commonMain/composeResources/`
+**Location:** `composeApp/src/commonMain/composeResources/`
 
-- **Fonts** (`font/`): lexend_light.ttf, lexend_regular.ttf, lexend_medium.ttf, lexend_semibold.ttf, lexend_bold.ttf
-- **Drawables** (`drawable/`): compose-multiplatform.xml (default)
+**Fonts** (`font/`):
+- `lexend_light.ttf`
+- `lexend_regular.ttf`
+- `lexend_medium.ttf`
+- `lexend_semibold.ttf`
+- `lexend_bold.ttf`
+
+**Drawables** (`drawable/`):
+- `compose-multiplatform.xml` (default vector drawable)
+
+---
+
+## Build Commands
+
+```shell
+# Android debug APK
+./gradlew :composeApp:assembleDebug
+
+# Desktop (JVM) run
+./gradlew :composeApp:run
+
+# All tests (common + all platforms)
+./gradlew :composeApp:allTests
+
+# Common tests only (runs on JVM)
+./gradlew :composeApp:jvmTest
+
+# Full build check
+./gradlew build
+```
+
+iOS is built via Xcode from `iosApp/`.

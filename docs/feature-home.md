@@ -1,139 +1,36 @@
 # Feature: Home Dashboard
 
-## Overview
+## Status: REMOVED
 
-The Home screen is the app's main landing page. It displays a personalized greeting, review card carousel, and an up-next task list. Data is reactive via SQLDelight flows.
+This feature was removed from the codebase in commit `92d94d6` ("refactor: delete home, planner, profile, onboarding features for MVP") on 2026-02-14.
 
-## Architecture
+The Home Dashboard is not part of the current MVP. The app's main entry point after authentication is the Library screen (`Route.Library`), not a dedicated Home dashboard.
 
-```
-SQLDelight (4 tables) -> DashboardRepositoryImpl -> GetDashboardUseCase -> HomeViewModel -> HomeScreen
-```
+## What Was Removed
 
-## Domain Layer
+The following files were deleted:
 
-### Models
-
-**DashboardData**
-```kotlin
-data class DashboardData(
-    val userName: String,
-    val totalNotesCount: Int,
-    val totalReviewsDue: Int,
-    val currentStreak: Int,
-    val reviewCards: List<ReviewCard>,
-    val upNextTasks: List<UpNextTask>,
-)
-```
-
-**ReviewCard**
-```kotlin
-data class ReviewCard(
-    val noteId: String,
-    val noteTitle: String,
-    val subjectName: String,
-    val subjectColorHex: String,
-    val subjectIconName: String,
-    val progressPercent: Float,
-    val dueCardCount: Int,
-    val weekNumber: Int?,
-)
-```
-
-**UpNextTask**
-```kotlin
-data class UpNextTask(
-    val id: String,
-    val title: String,
-    val subtitle: String,
-    val type: TaskType, // REVIEW, QUIZ, NOTE
-)
-```
-
-### Repository
-
-```kotlin
-interface DashboardRepository {
-    fun getDashboardData(): Flow<DashboardData>
-}
-```
-
-### Use Case
-
-```kotlin
-class GetDashboardUseCase(private val repository: DashboardRepository) {
-    operator fun invoke(): Flow<DashboardData> = repository.getDashboardData()
-}
-```
-
-## Data Layer
-
-**DashboardRepositoryImpl** combines 4 SQLDelight flows:
-1. `subjectEntityQueries.selectAll()` - All subjects
-2. `noteEntityQueries.selectAll()` - All notes
-3. `userProgressEntityQueries.selectAll()` - Progress per subject
-4. `flashCardEntityQueries.selectDueCards(now)` - Cards due for review
-
-**Business logic:**
-- Maps each subject to a `ReviewCard` with latest note title, due card count, mastery progress
-- Sorts review cards by `dueCardCount` descending (most urgent first)
-- Streak = max streak across all subjects
-- Generates up to 3 `UpNextTask` items (REVIEW, QUIZ, NOTE types)
-- **Hardcoded:** `userName = "Alex"` (TODO: user profile integration)
-
-## Presentation Layer
-
-### MVI Contract (`HomeContract`)
-
-**State:**
-```kotlin
-data class State(
-    val userName: String = "",
-    val totalNotesCount: Int = 0,
-    val currentStreak: Int = 0,
-    val reviewCards: List<ReviewCard> = emptyList(),
-    val upNextTasks: List<UpNextTask> = emptyList(),
-    val isLoading: Boolean = true,
-)
-```
-
-**Intents:**
-| Intent | Behavior |
-|--------|----------|
-| `TapReviewCard(noteId)` | Emits `NavigateToNote(noteId)` effect |
-| `TapTask(taskId)` | No-op (TODO) |
-| `Refresh` | Sets `isLoading=true`, reloads dashboard |
-
-**Effects:**
-| Effect | Result |
-|--------|--------|
-| `NavigateToNote(noteId)` | Navigate to NoteDetailScreen |
-| `NavigateToQuiz(sessionId)` | Navigate to QuizScreen (future) |
-
-### Screen Sections
-
-1. **HeaderSection** - Time-based greeting ("Good morning/afternoon/evening, {name}"), avatar circle, settings icon, "AI Plan Updated" static chip
-2. **DueForReviewSection** - Horizontal `LazyRow` of `ReviewCardItem` (260dp wide), or `ReviewEmptyState` ("All caught up!")
-3. **UpNextSection** - `SyllabusFocusBanner` (current week focus) + up to 3 `TaskItem` rows with time estimates (Review=20min, Quiz=10min, Note=15min). Third task is locked.
-
-### ReviewCardItem Visual
-- Subject color gradient background
-- Subject tag chip (top-right corner)
-- Progress bar with color coding: >=70% green, 40-69% yellow, <40% red
-- "Review Now" button
-
-### Loading State
-Full `HomeShimmerSkeleton` with shimmer boxes matching the actual layout structure.
-
-## File Paths
-
-| Layer | File |
-|-------|------|
+| Layer | Former Path |
+|-------|-------------|
+| Data | `feature/home/data/repository/DashboardRepositoryImpl.kt` |
 | Domain Model | `feature/home/domain/model/DashboardData.kt` |
 | Domain Model | `feature/home/domain/model/ReviewCard.kt` |
-| Domain Contract | `feature/home/domain/repository/DashboardRepository.kt` |
-| Use Case | `feature/home/domain/usecase/GetDashboardUseCase.kt` |
-| Data | `feature/home/data/repository/DashboardRepositoryImpl.kt` |
+| Domain Repository | `feature/home/domain/repository/DashboardRepository.kt` |
+| Domain Use Case | `feature/home/domain/usecase/GetDashboardUseCase.kt` |
 | MVI Contract | `feature/home/presentation/HomeContract.kt` |
 | ViewModel | `feature/home/presentation/HomeViewModel.kt` |
 | Screen | `feature/home/presentation/HomeScreen.kt` |
+
+## Current Navigation
+
+The app no longer has a Home route. After authentication (`AuthState.Authenticated`), the app launches into `MainApp()` with `Route.Library` as the start destination. The bottom navigation bar contains two top-level routes: `Route.Library` and `Route.Study`.
+
+## Restoration
+
+To restore this feature, the deleted code can be recovered from git history using:
+
+```shell
+git show 92d94d6~1:composeApp/src/commonMain/kotlin/io/diasjakupov/mindtag/feature/home/<file>
+```
+
+A `Route.Home` would need to be added back to `Route.kt`, the navigation entry registered in `App.kt`, and the bottom bar updated in `NavConfig.kt` / `MindTagBottomBar.kt`.
