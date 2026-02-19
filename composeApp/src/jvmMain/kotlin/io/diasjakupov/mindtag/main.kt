@@ -1,5 +1,6 @@
 package io.diasjakupov.mindtag
 
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import io.diasjakupov.mindtag.core.database.DatabaseDriverFactory
@@ -16,6 +17,7 @@ fun main() {
         Window(
             onCloseRequest = ::exitApplication,
             title = "Mindtag",
+            icon = painterResource("icon.png"),
         ) {
             App()
         }
