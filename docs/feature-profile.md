@@ -1,83 +1,33 @@
 # Feature: Profile
 
-## Overview
+## Status: REMOVED
 
-The Profile screen displays user information, study statistics, and settings links. Currently a static UI shell with hardcoded data; awaiting authentication and user service integration.
+This feature was removed from the codebase in commit `92d94d6` ("refactor: delete home, planner, profile, onboarding features for MVP") on 2026-02-14.
 
-## Implementation Status
+The Profile screen is not part of the current MVP. There is no `Route.Profile` in the navigation graph, and no profile-related code exists in the project.
 
-**Shell only.** All state values are hardcoded defaults. The ViewModel's `onIntent()` is a no-op. No repository or domain layer.
+## What Was Removed
 
-## MVI Contract (`ProfileContract`)
+The following files were deleted:
 
-### State
-
-```kotlin
-data class State(
-    val userName: String = "Alex Johnson",
-    val email: String = "alex.johnson@university.edu",
-    val totalNotes: Int = 15,
-    val totalStudySessions: Int = 8,
-    val currentStreak: Int = 7,
-    val totalXp: Int = 4030,
-    val memberSince: String = "January 2026",
-)
-```
-
-### Intents
-
-| Intent | Status |
-|--------|--------|
-| `TapEditProfile` | No-op |
-| `TapNotifications` | No-op |
-| `TapAppearance` | No-op |
-| `TapAbout` | No-op |
-| `TapLogout` | No-op |
-
-### Effects
-
-None defined (empty sealed interface).
-
-## Screen Components
-
-### Layout
-
-```
-Column (verticalScroll)
-+-- Header: "Profile"
-+-- Avatar Circle (initials from first two name parts)
-+-- User Info: name, email, "Member since {date}"
-+-- Stats Card (4 items)
-+-- Settings Card (5 rows)
-```
-
-### Stats Card
-
-| Stat | Value Source | Color |
-|------|-------------|-------|
-| Total Notes | `state.totalNotes` | Default |
-| Total Sessions | `state.totalStudySessions` | Default |
-| Current Streak | `state.currentStreak` | Orange (Warning) |
-| Total XP | `formatNumber(state.totalXp)` | Default |
-
-`formatNumber()` converts 1000+ to "k" notation (e.g., 4030 -> "4k").
-
-### Settings Rows
-
-| Setting | Icon | Special |
-|---------|------|---------|
-| Edit Profile | Person | Chevron right |
-| Notifications | Notifications | Chevron right |
-| Appearance | Palette | Chevron right |
-| About MindTag | Info | Chevron right |
-| Log Out | Logout | Red tint, no chevron |
-
-Dividers separate each row. All rows fire their respective intent on tap.
-
-## File Paths
-
-| Layer | File |
-|-------|------|
+| Layer | Former Path |
+|-------|-------------|
 | MVI Contract | `feature/profile/presentation/ProfileContract.kt` |
 | ViewModel | `feature/profile/presentation/ProfileViewModel.kt` |
 | Screen | `feature/profile/presentation/ProfileScreen.kt` |
+
+The Profile had no domain or data layer -- it was a static UI shell with all state values hardcoded in the ViewModel defaults.
+
+## Current Navigation
+
+The app does not include a Profile tab. The bottom navigation bar contains two top-level routes: `Route.Library` and `Route.Study`.
+
+## Restoration
+
+To restore this feature, the deleted code can be recovered from git history using:
+
+```shell
+git show 92d94d6~1:composeApp/src/commonMain/kotlin/io/diasjakupov/mindtag/feature/profile/<file>
+```
+
+A `Route.Profile` would need to be added back to `Route.kt`, the navigation entry registered in `App.kt`, and the bottom bar updated in `NavConfig.kt` / `MindTagBottomBar.kt`.
