@@ -12,4 +12,9 @@ sealed interface Route : NavKey {
     @Serializable data class Quiz(val sessionId: String) : Route
     @Serializable data class QuizResults(val sessionId: String) : Route
     @Serializable data object Auth : Route
+
+    // Backend quiz routes
+    @Serializable data class BackendQuizList(val noteId: Long? = null) : Route
+    @Serializable data class BackendQuizAttempt(val quizId: Long, val attemptId: Long) : Route
+    @Serializable data class BackendQuizResults(val quizId: Long, val attemptId: Long) : Route
 }
