@@ -58,6 +58,7 @@ fun NoteDetailScreen(
     onNavigateBack: () -> Unit,
     onNavigateToNote: (Long) -> Unit,
     onNavigateToQuiz: (String) -> Unit,
+    onNavigateToBackendQuiz: (quizId: Long, attemptId: Long) -> Unit = { _, _ -> },
     onNavigateToEdit: (Long) -> Unit = {},
 ) {
     val viewModel: NoteDetailViewModel = koinViewModel(parameters = { parametersOf(noteId) })
@@ -69,6 +70,7 @@ fun NoteDetailScreen(
                 is NoteDetailEffect.NavigateBack -> onNavigateBack()
                 is NoteDetailEffect.NavigateToNote -> onNavigateToNote(effect.noteId)
                 is NoteDetailEffect.NavigateToQuiz -> onNavigateToQuiz(effect.sessionId)
+                is NoteDetailEffect.NavigateToBackendQuiz -> onNavigateToBackendQuiz(effect.quizId, effect.attemptId)
                 is NoteDetailEffect.NavigateToEdit -> onNavigateToEdit(effect.noteId)
                 is NoteDetailEffect.ShowError -> { /* TODO: snackbar */ }
             }

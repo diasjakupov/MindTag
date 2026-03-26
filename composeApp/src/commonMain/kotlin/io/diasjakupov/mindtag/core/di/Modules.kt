@@ -22,6 +22,8 @@ import io.diasjakupov.mindtag.feature.notes.domain.usecase.GetNotesUseCase
 import io.diasjakupov.mindtag.feature.notes.domain.usecase.GetSubjectsUseCase
 import io.diasjakupov.mindtag.feature.library.presentation.LibraryViewModel
 import io.diasjakupov.mindtag.feature.notes.presentation.create.NoteCreateViewModel
+import io.diasjakupov.mindtag.feature.backendquiz.data.repository.BackendQuizRepositoryImpl
+import io.diasjakupov.mindtag.feature.backendquiz.domain.repository.BackendQuizRepository
 import io.diasjakupov.mindtag.feature.notes.presentation.detail.NoteDetailViewModel
 import io.diasjakupov.mindtag.feature.study.data.repository.QuizRepositoryImpl
 import io.diasjakupov.mindtag.feature.study.data.repository.StudyRepositoryImpl

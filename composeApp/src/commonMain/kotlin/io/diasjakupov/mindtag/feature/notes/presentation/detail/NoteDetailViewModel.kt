@@ -2,13 +2,12 @@ package io.diasjakupov.mindtag.feature.notes.presentation.detail
 
 import androidx.lifecycle.viewModelScope
 import io.diasjakupov.mindtag.core.mvi.MviViewModel
+import io.diasjakupov.mindtag.core.network.ApiResult
 import io.diasjakupov.mindtag.core.util.Logger
+import io.diasjakupov.mindtag.feature.backendquiz.domain.repository.BackendQuizRepository
 import io.diasjakupov.mindtag.feature.notes.domain.repository.NoteRepository
 import io.diasjakupov.mindtag.feature.notes.domain.usecase.GetNoteWithConnectionsUseCase
 import io.diasjakupov.mindtag.feature.notes.domain.usecase.GetSubjectsUseCase
-import io.diasjakupov.mindtag.feature.study.domain.model.SessionType
-import io.diasjakupov.mindtag.feature.study.domain.usecase.StartQuizUseCase
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 class NoteDetailViewModel(
@@ -16,7 +15,7 @@ class NoteDetailViewModel(
     private val getNoteWithConnectionsUseCase: GetNoteWithConnectionsUseCase,
     private val getSubjectsUseCase: GetSubjectsUseCase,
     private val noteRepository: NoteRepository,
-    private val startQuizUseCase: StartQuizUseCase,
+    private val backendQuizRepository: BackendQuizRepository,
 ) : MviViewModel<NoteDetailState, NoteDetailIntent, NoteDetailEffect>(NoteDetailState()) {
 
     override val tag = "NoteDetailVM"
@@ -81,33 +80,47 @@ class NoteDetailViewModel(
     }
 
     private fun startQuiz() {
-        val subjectId = state.value.note?.subjectId ?: return
         if (state.value.isCreatingQuiz) return
-        Logger.d(tag, "startQuiz: subjectId=$subjectId")
-        updateState { copy(isCreatingQuiz = true) }
+        Logger.d(tag, "startQuiz: noteId=$noteId")
+        updateState { copy(isCreatingQuiz = true, quizGenerationStatus = "Generating quiz...") }
 
         viewModelScope.launch {
-            try {
-                val quizData = startQuizUseCase(
-                    type = SessionType.QUIZ,
-                    subjectId = subjectId,
-                    questionCount = 10,
-                )
-                val cards = quizData.cards.firstOrNull()
-                if (cards.isNullOrEmpty()) {
-                    Logger.d(tag, "startQuiz: no flashcards for subject")
-                    updateState { copy(isCreatingQuiz = false) }
-                    sendEffect(NoteDetailEffect.ShowError("No quiz questions available for this subject yet"))
-                    return@launch
-                }
-                Logger.d(tag, "startQuiz: success — sessionId=${quizData.session.id}")
-                updateState { copy(isCreatingQuiz = false) }
-                sendEffect(NoteDetailEffect.NavigateToQuiz(quizData.session.id))
-            } catch (e: Exception) {
-                Logger.e(tag, "startQuiz: error", e)
-                updateState { copy(isCreatingQuiz = false) }
-                sendEffect(NoteDetailEffect.ShowError("Failed to start quiz"))
+            // Step 1: Generate quiz
+            val generateResult = backendQuizRepository.generateQuiz(noteId)
+            if (generateResult is ApiResult.Error) {
+                Logger.e(tag, "startQuiz: generateQuiz failed — ${generateResult.message}")
+                updateState { copy(isCreatingQuiz = false, quizGenerationStatus = "") }
+                sendEffect(NoteDetailEffect.ShowError(generateResult.message))
+                return@launch
             }
+            val quizSummary = (generateResult as ApiResult.Success).data
+            val quizId = quizSummary.id
+            Logger.d(tag, "startQuiz: quiz generated — quizId=$quizId")
+
+            // Step 2: Poll until ready
+            updateState { copy(quizGenerationStatus = "Waiting for AI...") }
+            val pollResult = backendQuizRepository.pollUntilReady(quizId)
+            if (pollResult is ApiResult.Error) {
+                Logger.e(tag, "startQuiz: pollUntilReady failed — ${pollResult.message}")
+                updateState { copy(isCreatingQuiz = false, quizGenerationStatus = "") }
+                sendEffect(NoteDetailEffect.ShowError(pollResult.message))
+                return@launch
+            }
+            Logger.d(tag, "startQuiz: quiz is READY — quizId=$quizId")
+
+            // Step 3: Start attempt
+            updateState { copy(quizGenerationStatus = "Starting quiz...") }
+            val attemptResult = backendQuizRepository.startAttempt(quizId)
+            if (attemptResult is ApiResult.Error) {
+                Logger.e(tag, "startQuiz: startAttempt failed — ${attemptResult.message}")
+                updateState { copy(isCreatingQuiz = false, quizGenerationStatus = "") }
+                sendEffect(NoteDetailEffect.ShowError(attemptResult.message))
+                return@launch
+            }
+            val attempt = (attemptResult as ApiResult.Success).data
+            Logger.d(tag, "startQuiz: attempt started — attemptId=${attempt.attemptId}")
+            updateState { copy(isCreatingQuiz = false, quizGenerationStatus = "") }
+            sendEffect(NoteDetailEffect.NavigateToBackendQuiz(quizId = quizId, attemptId = attempt.attemptId))
         }
     }
 }

@@ -11,6 +11,7 @@ data class NoteDetailState(
     val isLoading: Boolean = true,
     val isCreatingQuiz: Boolean = false,
     val showDeleteConfirmation: Boolean = false,
+    val quizGenerationStatus: String = "", // "Generating quiz...", "Waiting for AI...", "Starting quiz...", ""
 )
 
 sealed interface NoteDetailIntent {
@@ -25,6 +26,7 @@ sealed interface NoteDetailIntent {
 
 sealed interface NoteDetailEffect {
     data class NavigateToQuiz(val sessionId: String) : NoteDetailEffect
+    data class NavigateToBackendQuiz(val quizId: Long, val attemptId: Long) : NoteDetailEffect
     data class NavigateToNote(val noteId: Long) : NoteDetailEffect
     data object NavigateBack : NoteDetailEffect
     data class NavigateToEdit(val noteId: Long) : NoteDetailEffect
