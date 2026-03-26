@@ -22,6 +22,7 @@ import io.diasjakupov.mindtag.feature.notes.domain.usecase.GetNotesUseCase
 import io.diasjakupov.mindtag.feature.notes.domain.usecase.GetSubjectsUseCase
 import io.diasjakupov.mindtag.feature.library.presentation.LibraryViewModel
 import io.diasjakupov.mindtag.feature.notes.presentation.create.NoteCreateViewModel
+import io.diasjakupov.mindtag.feature.backendquiz.data.api.QuizApi as BackendQuizApi
 import io.diasjakupov.mindtag.feature.backendquiz.data.repository.BackendQuizRepositoryImpl
 import io.diasjakupov.mindtag.feature.backendquiz.domain.repository.BackendQuizRepository
 import io.diasjakupov.mindtag.feature.notes.presentation.detail.NoteDetailViewModel
@@ -55,6 +56,7 @@ val networkModule = module {
     single { AuthApi(get(), get()) }
     single { NoteApi(get(), get()) }
     single { SearchApi(get(), get()) }
+    single { BackendQuizApi(get(), get()) }
 }
 
 val authModule = module {
@@ -67,6 +69,7 @@ val repositoryModule = module {
     single<NoteRepository> { NoteRepositoryImpl(get(), get(), get()) }
     single<StudyRepository> { StudyRepositoryImpl(get()) }
     single<QuizRepository> { QuizRepositoryImpl(get()) }
+    single<BackendQuizRepository> { BackendQuizRepositoryImpl(get<BackendQuizApi>()) }
 }
 
 val useCaseModule = module {
@@ -82,7 +85,7 @@ val useCaseModule = module {
 val viewModelModule = module {
     viewModel { LibraryViewModel(get()) }
     viewModel { (noteId: Long?) -> NoteCreateViewModel(get(), get(), get(), noteId) }
-    viewModel { (noteId: Long) -> NoteDetailViewModel(noteId, get(), get(), get(), get()) }
+    viewModel { (noteId: Long) -> NoteDetailViewModel(noteId, get(), get(), get(), get<BackendQuizRepository>()) }
     viewModel { StudyHubViewModel(get(), get()) }
     viewModel { (sessionId: String) -> QuizViewModel(sessionId, get(), get()) }
     viewModel { (sessionId: String) -> ResultsViewModel(sessionId, get()) }
