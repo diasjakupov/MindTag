@@ -42,6 +42,9 @@ import io.diasjakupov.mindtag.feature.notes.presentation.detail.NoteDetailScreen
 import io.diasjakupov.mindtag.feature.study.presentation.hub.StudyHubScreen
 import io.diasjakupov.mindtag.feature.study.presentation.quiz.QuizScreen
 import io.diasjakupov.mindtag.feature.study.presentation.results.ResultsScreen
+import io.diasjakupov.mindtag.feature.backendquiz.presentation.list.BackendQuizListScreen
+import io.diasjakupov.mindtag.feature.backendquiz.presentation.attempt.BackendQuizAttemptScreen
+import io.diasjakupov.mindtag.feature.backendquiz.presentation.results.BackendQuizResultsScreen
 import org.koin.compose.koinInject
 
 private val topLevelRoutes: Set<Route> = setOf(
@@ -181,6 +184,9 @@ private fun MainApp() {
                         onNavigateToNote = { noteId -> nav.push(Route.NoteDetail(noteId)) },
                         onNavigateToEdit = { noteId -> nav.push(Route.NoteCreate(noteId)) },
                         onNavigateToQuiz = { sessionId -> nav.push(Route.Quiz(sessionId)) },
+                        onNavigateToBackendQuiz = { quizId, attemptId ->
+                            nav.push(Route.BackendQuizAttempt(quizId, attemptId))
+                        },
                     )
                 }
                 entry<Route.Quiz>(metadata = pushScreenMetadata) { key ->
@@ -197,6 +203,32 @@ private fun MainApp() {
                         sessionId = key.sessionId,
                         onNavigateBack = { nav.removeLast() },
                         onNavigateToLibrary = { nav.selectTab(Route.Library) },
+                    )
+                }
+                entry<Route.BackendQuizList>(metadata = pushScreenMetadata) { key ->
+                    BackendQuizListScreen(
+                        noteId = key.noteId,
+                        onNavigateBack = { nav.removeLast() },
+                        onNavigateToAttempt = { quizId, attemptId ->
+                            nav.push(Route.BackendQuizAttempt(quizId, attemptId))
+                        },
+                    )
+                }
+                entry<Route.BackendQuizAttempt>(metadata = pushScreenMetadata) { key ->
+                    BackendQuizAttemptScreen(
+                        quizId = key.quizId,
+                        attemptId = key.attemptId,
+                        onNavigateBack = { nav.removeLast() },
+                        onNavigateToResults = { quizId, attemptId ->
+                            nav.push(Route.BackendQuizResults(quizId, attemptId))
+                        },
+                    )
+                }
+                entry<Route.BackendQuizResults>(metadata = pushScreenMetadata) { key ->
+                    BackendQuizResultsScreen(
+                        quizId = key.quizId,
+                        attemptId = key.attemptId,
+                        onNavigateBack = { nav.removeLast() },
                     )
                 }
             },

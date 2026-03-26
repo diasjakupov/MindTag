@@ -25,6 +25,9 @@ import io.diasjakupov.mindtag.feature.notes.presentation.create.NoteCreateViewMo
 import io.diasjakupov.mindtag.feature.backendquiz.data.api.QuizApi as BackendQuizApi
 import io.diasjakupov.mindtag.feature.backendquiz.data.repository.BackendQuizRepositoryImpl
 import io.diasjakupov.mindtag.feature.backendquiz.domain.repository.BackendQuizRepository
+import io.diasjakupov.mindtag.feature.backendquiz.presentation.attempt.BackendQuizAttemptViewModel
+import io.diasjakupov.mindtag.feature.backendquiz.presentation.list.BackendQuizListViewModel
+import io.diasjakupov.mindtag.feature.backendquiz.presentation.results.BackendQuizResultsViewModel
 import io.diasjakupov.mindtag.feature.notes.presentation.detail.NoteDetailViewModel
 import io.diasjakupov.mindtag.feature.study.data.repository.QuizRepositoryImpl
 import io.diasjakupov.mindtag.feature.study.data.repository.StudyRepositoryImpl
@@ -90,6 +93,9 @@ val viewModelModule = module {
     viewModel { (sessionId: String) -> QuizViewModel(sessionId, get(), get()) }
     viewModel { (sessionId: String) -> ResultsViewModel(sessionId, get()) }
     viewModel { AuthViewModel(get(), get()) }
+    viewModel { params -> BackendQuizListViewModel(params.get(), get()) }
+    viewModel { params -> BackendQuizAttemptViewModel(params.get(), params.get(), get()) }
+    viewModel { params -> BackendQuizResultsViewModel(params.get(), params.get(), get()) }
 }
 
 val appModules: List<Module> = listOf(
