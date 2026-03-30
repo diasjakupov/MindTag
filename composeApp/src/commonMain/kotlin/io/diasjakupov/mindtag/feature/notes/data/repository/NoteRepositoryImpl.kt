@@ -63,9 +63,8 @@ class NoteRepositoryImpl(
 
     override suspend fun getRelatedNotes(noteId: Long): List<RelatedNote> {
         return when (val result = noteApi.getRelatedNotes(noteId)) {
-            is ApiResult.Success -> result.data.mapNotNull { dto ->
-                val id = dto.noteId.toLongOrNull() ?: return@mapNotNull null
-                RelatedNote(noteId = id, title = dto.title)
+            is ApiResult.Success -> result.data.map { dto ->
+                RelatedNote(noteId = dto.id, title = dto.title)
             }
             is ApiResult.Error -> {
                 Logger.e(tag, "getRelatedNotes: ${result.message}")

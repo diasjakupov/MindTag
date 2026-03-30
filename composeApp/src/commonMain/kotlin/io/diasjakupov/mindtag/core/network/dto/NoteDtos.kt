@@ -31,6 +31,6 @@ data class NoteResponseDto(
 
 @Serializable
 data class RelatedNoteResponseDto(
-    val noteId: String,
+    val id: Long,
     val title: String,
 )

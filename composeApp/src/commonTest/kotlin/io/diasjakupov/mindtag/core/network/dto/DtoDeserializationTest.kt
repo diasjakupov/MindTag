@@ -46,4 +46,23 @@ class DtoDeserializationTest {
 
         assertEquals(null, dto.updatedAt)
     }
+
+    // ── Task 2: RelatedNoteResponseDto ───────────────────────────────────────
+
+    @Test
+    fun relatedNoteResponseDto_deserializesIdAsLong() {
+        val raw = """
+            [
+              { "id": 42, "title": "Related Note A" },
+              { "id": 99, "title": "Related Note B" }
+            ]
+        """.trimIndent()
+
+        val dtos = json.decodeFromString<List<RelatedNoteResponseDto>>(raw)
+
+        assertEquals(2, dtos.size)
+        assertEquals(42L, dtos[0].id)
+        assertEquals("Related Note A", dtos[0].title)
+        assertEquals(99L, dtos[1].id)
+    }
 }
