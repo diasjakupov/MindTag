@@ -20,15 +20,23 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -64,11 +72,14 @@ fun BackendQuizResultsScreen(
     )
     val state by viewModel.state.collectAsState()
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
                 is BackendQuizResultsEffect.NavigateBack -> onNavigateBack()
                 is BackendQuizResultsEffect.NavigateToQuizList -> onNavigateBack()
+                is BackendQuizResultsEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.message)
             }
         }
     }
@@ -86,13 +97,14 @@ fun BackendQuizResultsScreen(
         return
     }
 
-    BackendQuizResultsContent(state = state, onIntent = viewModel::onIntent)
+    BackendQuizResultsContent(state = state, onIntent = viewModel::onIntent, snackbarHostState = snackbarHostState)
 }
 
 @Composable
 private fun BackendQuizResultsContent(
     state: BackendQuizResultsState,
     onIntent: (BackendQuizResultsIntent) -> Unit,
+    snackbarHostState: SnackbarHostState,
 ) {
     val isCompact = LocalWindowSizeClass.current == WindowSizeClass.Compact
 
@@ -138,7 +150,19 @@ private fun BackendQuizResultsContent(
             }
         }
 
-        // Sticky Done button
+        // Snackbar host
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 80.dp),
+        ) { data ->
+            Snackbar(
+                snackbarData = data,
+                containerColor = MindTagColors.CardDark,
+                contentColor = MindTagColors.Success,
+            )
+        }
+
+        // Sticky bottom buttons
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -159,29 +183,94 @@ private fun BackendQuizResultsContent(
                 .padding(bottom = MindTagSpacing.sm),
         ) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-                    .clip(MindTagShapes.lg)
-                    .background(MindTagColors.Primary)
-                    .clickable { onIntent(BackendQuizResultsIntent.TapClose) },
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.md),
             ) {
-                Icon(
-                    imageVector = MindTagIcons.Check,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(20.dp),
-                )
-                Spacer(modifier = Modifier.width(MindTagSpacing.md))
-                Text(
-                    text = "Done",
-                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                    color = Color.White,
-                )
+                // Save to Study button
+                if (!state.hasSaved) {
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(56.dp)
+                            .clip(MindTagShapes.lg)
+                            .background(MindTagColors.CardDark)
+                            .clickable { onIntent(BackendQuizResultsIntent.TapSaveToStudy) },
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            imageVector = MindTagIcons.School,
+                            contentDescription = null,
+                            tint = MindTagColors.Primary,
+                            modifier = Modifier.size(20.dp),
+                        )
+                        Spacer(modifier = Modifier.width(MindTagSpacing.md))
+                        Text(
+                            text = "Save to Study",
+                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = MindTagColors.Primary,
+                        )
+                    }
+                }
+
+                // Done button
+                Row(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp)
+                        .clip(MindTagShapes.lg)
+                        .background(MindTagColors.Primary)
+                        .clickable { onIntent(BackendQuizResultsIntent.TapClose) },
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        imageVector = MindTagIcons.Check,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp),
+                    )
+                    Spacer(modifier = Modifier.width(MindTagSpacing.md))
+                    Text(
+                        text = "Done",
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                        color = Color.White,
+                    )
+                }
             }
         }
+    }
+
+    if (state.showSaveDialog) {
+        AlertDialog(
+            onDismissRequest = { onIntent(BackendQuizResultsIntent.DismissSaveDialog) },
+            containerColor = MindTagColors.CardDark,
+            title = {
+                Text("Save to Study", color = Color.White, fontWeight = FontWeight.Bold)
+            },
+            text = {
+                Text(
+                    "Which questions do you want to save as flashcards?",
+                    color = MindTagColors.TextSecondary,
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = { onIntent(BackendQuizResultsIntent.ConfirmSave(saveAll = true)) },
+                    colors = ButtonDefaults.buttonColors(containerColor = MindTagColors.Primary),
+                ) {
+                    Text("Save all", color = Color.White)
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { onIntent(BackendQuizResultsIntent.ConfirmSave(saveAll = false)) },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                ) {
+                    Text("Missed only", color = MindTagColors.Primary)
+                }
+            },
+        )
     }
 }
 

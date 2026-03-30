@@ -114,7 +114,7 @@ val viewModelModule = module {
     viewModel { AuthViewModel(get(), get()) }
     viewModel { params -> BackendQuizListViewModel(params.get(), get()) }
     viewModel { params -> BackendQuizAttemptViewModel(params.get(), params.get(), get()) }
-    viewModel { params -> BackendQuizResultsViewModel(params.get(), params.get(), get()) }
+    viewModel { params -> BackendQuizResultsViewModel(params.get(), params.get(), get(), get(), get()) }
 }
 
 val appModules: List<Module> = listOf(

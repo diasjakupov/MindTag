@@ -74,4 +74,8 @@ class FakeStudyRepository : StudyRepository {
     override fun getSubjects(): Flow<List<Subject>> = flowOf(emptyList())
 
     override suspend fun getDueCardCount(): Int = 0
+
+    override suspend fun saveFlashCards(cards: List<FlashCard>) {
+        flashCardsFlow.update { it + cards }
+    }
 }
