@@ -25,7 +25,7 @@ data class NoteResponseDto(
     val body: String,
     val contentHash: String,
     val createdAt: String,
-    @SerialName("updatedA")
+    @SerialName("updatedAt")
     val updatedAt: String? = null,
 )
 
