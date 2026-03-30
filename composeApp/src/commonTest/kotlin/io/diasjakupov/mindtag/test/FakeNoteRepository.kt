@@ -80,7 +80,6 @@ class FakeNoteRepository : NoteRepository {
         val filtered = notesFlow.value.filter { it.title.contains(query, ignoreCase = true) }
         return PaginatedNotes(
             notes = filtered,
-            total = filtered.size.toLong(),
             page = page,
             hasMore = false,
         )
@@ -90,7 +89,6 @@ class FakeNoteRepository : NoteRepository {
         val filtered = notesFlow.value.filter { it.subjectId == subject }
         return PaginatedNotes(
             notes = filtered,
-            total = filtered.size.toLong(),
             page = page,
             hasMore = false,
         )

@@ -20,7 +20,6 @@ class AuthViewModel(
             is AuthIntent.UpdateEmail -> updateState { copy(email = intent.email, error = null) }
             is AuthIntent.UpdatePassword -> updateState { copy(password = intent.password, error = null) }
             is AuthIntent.ToggleMode -> updateState { copy(isLoginMode = !isLoginMode, error = null) }
-            is AuthIntent.DismissError -> updateState { copy(error = null) }
             is AuthIntent.Submit -> submit()
         }
     }

@@ -1,6 +1,5 @@
 package io.diasjakupov.mindtag.feature.study.domain.usecase
 
-import app.cash.turbine.test
 import io.diasjakupov.mindtag.feature.study.domain.model.SessionStatus
 import io.diasjakupov.mindtag.feature.study.domain.model.SessionType
 import io.diasjakupov.mindtag.test.FakeStudyRepository
@@ -70,33 +69,6 @@ class StartQuizUseCaseTest {
         val result = useCase(type = SessionType.QUIZ)
 
         assertNull(result.session.subjectId)
-    }
-
-    @Test
-    fun returnsFlashCardsFlow() = runTest {
-        repository.setFlashCards(TestData.flashCards)
-
-        val result = useCase(type = SessionType.QUIZ, questionCount = 10)
-
-        result.cards.test {
-            val cards = awaitItem()
-            assertEquals(2, cards.size)
-            cancelAndConsumeRemainingEvents()
-        }
-    }
-
-    @Test
-    fun returnsFilteredFlashCardsBySubject() = runTest {
-        repository.setFlashCards(TestData.flashCards)
-
-        val result = useCase(type = SessionType.QUIZ, subjectId = "subj-1", questionCount = 10)
-
-        result.cards.test {
-            val cards = awaitItem()
-            assertEquals(1, cards.size)
-            assertEquals("subj-1", cards.first().subjectId)
-            cancelAndConsumeRemainingEvents()
-        }
     }
 
     @Test

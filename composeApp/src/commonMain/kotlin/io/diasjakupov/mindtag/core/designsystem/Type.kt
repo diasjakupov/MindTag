@@ -114,15 +114,3 @@ fun MindTagTypography(): Typography {
         ),
     )
 }
-
-/** Caption style (10sp medium) used for bottom nav labels and figure captions. */
-@Composable
-fun captionTextStyle(): TextStyle {
-    val lexend = LexendFontFamily()
-    return TextStyle(
-        fontFamily = lexend,
-        fontWeight = FontWeight.Medium,
-        fontSize = 10.sp,
-        lineHeight = 14.sp,
-    )
-}

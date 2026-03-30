@@ -13,14 +13,8 @@ class AuthManager(private val tokenStorage: TokenStorage) {
     private val _state = MutableStateFlow<AuthState>(restoreState())
     val state: StateFlow<AuthState> = _state.asStateFlow()
 
-    val isAuthenticated: Boolean
-        get() = _state.value is AuthState.Authenticated
-
     val token: String?
         get() = (_state.value as? AuthState.Authenticated)?.token
-
-    val userId: Long?
-        get() = (_state.value as? AuthState.Authenticated)?.userId
 
     fun login(token: String, userId: Long) {
         tokenStorage.saveToken(token, userId)

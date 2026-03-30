@@ -4,7 +4,6 @@ import io.diasjakupov.mindtag.core.network.ApiResult
 import io.diasjakupov.mindtag.core.network.AuthManager
 import io.diasjakupov.mindtag.core.network.dto.AttemptResultDto
 import io.diasjakupov.mindtag.core.network.dto.AttemptStartDto
-import io.diasjakupov.mindtag.core.network.dto.AttemptHistoryDto
 import io.diasjakupov.mindtag.core.network.dto.AttemptSubmitRequestDto
 import io.diasjakupov.mindtag.core.network.dto.QuizResponseDto
 import io.diasjakupov.mindtag.core.network.dto.QuizSummaryDto
@@ -60,7 +59,4 @@ class QuizApi(
         safeApiCall(authManager) {
             client.get("/quizzes/$quizId/attempts/$attemptId")
         }
-
-    suspend fun getAttemptHistory(): ApiResult<List<AttemptHistoryDto>> =
-        safeApiCall(authManager) { client.get("/quizzes/attempts") }
 }

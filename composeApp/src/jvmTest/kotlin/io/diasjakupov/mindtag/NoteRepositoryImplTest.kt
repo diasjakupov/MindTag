@@ -27,8 +27,8 @@ class NoteRepositoryImplTest {
         repository = FakeNoteRepository()
         repository.setSubjects(
             listOf(
-                Subject(id = "subj-bio", name = "Biology",        colorHex = "#22C55E", iconName = "leaf"),
-                Subject(id = "subj-cs",  name = "Computer Science", colorHex = "#135BEC", iconName = "code"),
+                Subject(id = "subj-bio", name = "Biology",        colorHex = "#22C55E"),
+                Subject(id = "subj-cs",  name = "Computer Science", colorHex = "#135BEC"),
             )
         )
     }
@@ -139,9 +139,7 @@ class NoteRepositoryImplTest {
                     noteId = 2L,
                     title = "Related Note",
                     subjectName = "Biology",
-                    subjectIconName = "leaf",
                     subjectColorHex = "#22C55E",
-                    similarityScore = 0.9f,
                 )
             )
         )
@@ -149,7 +147,6 @@ class NoteRepositoryImplTest {
         val related = repository.getRelatedNotes(created.id)
         assertEquals(1, related.size)
         assertEquals("Related Note", related[0].title)
-        assertEquals(0.9f, related[0].similarityScore)
     }
 
     @Test

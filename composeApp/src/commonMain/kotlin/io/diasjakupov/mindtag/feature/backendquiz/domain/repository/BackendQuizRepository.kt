@@ -2,7 +2,6 @@ package io.diasjakupov.mindtag.feature.backendquiz.domain.repository
 
 import io.diasjakupov.mindtag.core.network.ApiResult
 import io.diasjakupov.mindtag.core.network.dto.AnswerRequestDto
-import io.diasjakupov.mindtag.feature.backendquiz.domain.model.AttemptHistory
 import io.diasjakupov.mindtag.feature.backendquiz.domain.model.AttemptResult
 import io.diasjakupov.mindtag.feature.backendquiz.domain.model.AttemptStart
 import io.diasjakupov.mindtag.feature.backendquiz.domain.model.QuizDetail
@@ -23,5 +22,4 @@ interface BackendQuizRepository {
     suspend fun startAttempt(quizId: Long): ApiResult<AttemptStart>
     suspend fun submitAttempt(quizId: Long, attemptId: Long, answers: List<AnswerRequestDto>): ApiResult<AttemptResult>
     suspend fun getAttemptResult(quizId: Long, attemptId: Long): ApiResult<AttemptResult>
-    suspend fun getAttemptHistory(): ApiResult<List<AttemptHistory>>
 }

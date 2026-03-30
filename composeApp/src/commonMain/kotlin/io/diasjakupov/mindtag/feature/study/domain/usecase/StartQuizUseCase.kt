@@ -1,14 +1,11 @@
 package io.diasjakupov.mindtag.feature.study.domain.usecase
 
-import io.diasjakupov.mindtag.feature.study.domain.model.FlashCard
 import io.diasjakupov.mindtag.feature.study.domain.model.SessionType
 import io.diasjakupov.mindtag.feature.study.domain.model.StudySession
 import io.diasjakupov.mindtag.feature.study.domain.repository.StudyRepository
-import kotlinx.coroutines.flow.Flow
 
 data class QuizStartData(
     val session: StudySession,
-    val cards: Flow<List<FlashCard>>,
 )
 
 class StartQuizUseCase(private val studyRepository: StudyRepository) {
@@ -19,7 +16,6 @@ class StartQuizUseCase(private val studyRepository: StudyRepository) {
         timeLimitSeconds: Int? = null,
     ): QuizStartData {
         val session = studyRepository.createSession(type, subjectId, questionCount, timeLimitSeconds)
-        val cards = studyRepository.getCardsForSession(subjectId, questionCount)
-        return QuizStartData(session = session, cards = cards)
+        return QuizStartData(session = session)
     }
 }

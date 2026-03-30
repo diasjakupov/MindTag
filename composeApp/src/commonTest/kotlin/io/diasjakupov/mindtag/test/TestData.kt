@@ -23,14 +23,12 @@ object TestData {
         id = "subj-1",
         name = "Mathematics",
         colorHex = "#FF5733",
-        iconName = "calculate",
     )
 
     val physicsSubject = Subject(
         id = "subj-2",
         name = "Physics",
         colorHex = "#33A1FF",
-        iconName = "science",
     )
 
     val subjects = listOf(mathSubject, physicsSubject)
@@ -81,9 +79,7 @@ object TestData {
         noteId = 2L,
         title = "Calculus Fundamentals",
         subjectName = "Mathematics",
-        subjectIconName = "calculate",
         subjectColorHex = "#FF5733",
-        similarityScore = 0.85f,
     )
 
     // --- FlashCards ---

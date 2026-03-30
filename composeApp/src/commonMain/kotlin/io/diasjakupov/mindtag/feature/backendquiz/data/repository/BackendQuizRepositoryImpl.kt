@@ -6,7 +6,6 @@ import io.diasjakupov.mindtag.core.network.dto.AttemptSubmitRequestDto
 import io.diasjakupov.mindtag.core.util.Logger
 import io.diasjakupov.mindtag.feature.backendquiz.data.api.QuizApi
 import io.diasjakupov.mindtag.feature.backendquiz.data.mapper.toDomain
-import io.diasjakupov.mindtag.feature.backendquiz.domain.model.AttemptHistory
 import io.diasjakupov.mindtag.feature.backendquiz.domain.model.AttemptResult
 import io.diasjakupov.mindtag.feature.backendquiz.domain.model.AttemptStart
 import io.diasjakupov.mindtag.feature.backendquiz.domain.model.QuizDetail
@@ -110,13 +109,6 @@ class BackendQuizRepositoryImpl(
     override suspend fun getAttemptResult(quizId: Long, attemptId: Long): ApiResult<AttemptResult> {
         return when (val result = quizApi.getAttemptResult(quizId, attemptId)) {
             is ApiResult.Success -> ApiResult.Success(result.data.toDomain())
-            is ApiResult.Error -> result
-        }
-    }
-
-    override suspend fun getAttemptHistory(): ApiResult<List<AttemptHistory>> {
-        return when (val result = quizApi.getAttemptHistory()) {
-            is ApiResult.Success -> ApiResult.Success(result.data.map { it.toDomain() })
             is ApiResult.Error -> result
         }
     }

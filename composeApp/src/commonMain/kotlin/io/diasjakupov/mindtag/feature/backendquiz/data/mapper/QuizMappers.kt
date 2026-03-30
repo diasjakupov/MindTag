@@ -1,13 +1,11 @@
 package io.diasjakupov.mindtag.feature.backendquiz.data.mapper
 
-import io.diasjakupov.mindtag.core.network.dto.AttemptHistoryDto
 import io.diasjakupov.mindtag.core.network.dto.AttemptResultDto
 import io.diasjakupov.mindtag.core.network.dto.AttemptStartDto
 import io.diasjakupov.mindtag.core.network.dto.QuestionResultDto
 import io.diasjakupov.mindtag.core.network.dto.QuizQuestionDto
 import io.diasjakupov.mindtag.core.network.dto.QuizResponseDto
 import io.diasjakupov.mindtag.core.network.dto.QuizSummaryDto
-import io.diasjakupov.mindtag.feature.backendquiz.domain.model.AttemptHistory
 import io.diasjakupov.mindtag.feature.backendquiz.domain.model.AttemptResult
 import io.diasjakupov.mindtag.feature.backendquiz.domain.model.AttemptStart
 import io.diasjakupov.mindtag.feature.backendquiz.domain.model.QuestionResult
@@ -71,17 +69,6 @@ fun QuestionResultDto.toDomain() = QuestionResult(
     correctAnswer = correctAnswer,
     correct = correct,
     explanation = explanation,
-)
-
-fun AttemptHistoryDto.toDomain() = AttemptHistory(
-    attemptId = attemptId,
-    quizId = quizId,
-    noteTitleSnapshot = noteTitleSnapshot,
-    score = score,
-    totalQuestions = totalQuestions,
-    completed = completed,
-    startedAt = startedAt,
-    completedAt = completedAt,
 )
 
 private fun String.toQuizStatus(): QuizStatus = when (this) {

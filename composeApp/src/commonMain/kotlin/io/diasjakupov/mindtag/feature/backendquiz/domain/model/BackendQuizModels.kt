@@ -58,14 +58,3 @@ data class QuestionResult(
     val correct: Boolean,
     val explanation: String?,
 )
-
-data class AttemptHistory(
-    val attemptId: Long,
-    val quizId: Long,
-    val noteTitleSnapshot: String,
-    val score: Int,
-    val totalQuestions: Int,
-    val completed: Boolean,
-    val startedAt: String,
-    val completedAt: String?,
-)

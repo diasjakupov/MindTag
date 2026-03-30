@@ -66,12 +66,19 @@ class LibraryViewModelWithLinksTest {
     }
 
     @Test
-    fun initialLoad_graphNodeLabelsMatchNoteTitles() = runTest {
+    fun initialLoad_graphNodeLabelsMatchNoteTitlesOrSubjectNames() = runTest {
         viewModel.state.test {
             val state = awaitItem()
-            val nodeTitles = state.graphNodes.map { it.label }.toSet()
-            val noteTitles = TestData.notes.map { it.title.take(20) }.toSet()
-            assertEquals(noteTitles, nodeTitles)
+            // Hub nodes use subject name; satellite nodes use note title (truncated)
+            val nodeLabels = state.graphNodes.map { it.label }.toSet()
+            // Every note should appear either as a hub (subject name) or satellite (title)
+            val subjectNames = TestData.subjects.map { it.name }.toSet()
+            val satelliteTitles = state.graphNodes.filter { !it.isHub }.map { it.label }.toSet()
+            val noteTitles = TestData.notes.map { it.title.take(18) }.toSet()
+            // Hub labels are subject names
+            assertTrue(nodeLabels.containsAll(subjectNames))
+            // Satellite labels are note title prefixes
+            assertTrue(noteTitles.containsAll(satelliteTitles))
             cancelAndIgnoreRemainingEvents()
         }
     }

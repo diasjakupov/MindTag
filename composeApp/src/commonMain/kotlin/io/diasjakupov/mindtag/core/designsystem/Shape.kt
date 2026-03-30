@@ -5,7 +5,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp
 
 object MindTagShapes {
-    val none = RoundedCornerShape(0.dp)
     val default = RoundedCornerShape(4.dp)
     val sm = RoundedCornerShape(6.dp)
     val md = RoundedCornerShape(8.dp)

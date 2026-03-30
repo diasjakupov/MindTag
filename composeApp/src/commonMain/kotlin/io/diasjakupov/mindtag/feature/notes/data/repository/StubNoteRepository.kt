@@ -191,9 +191,7 @@ class StubNoteRepository : NoteRepository {
                     noteId = related.id,
                     title = related.title,
                     subjectName = related.subjectName,
-                    subjectIconName = "book",
                     subjectColorHex = subjectColors[related.subjectId] ?: "#135BEC",
-                    similarityScore = 0.85f,
                 )
             }
     }
@@ -204,7 +202,6 @@ class StubNoteRepository : NoteRepository {
                 id = name,
                 name = name,
                 colorHex = subjectColors[name] ?: "#135BEC",
-                iconName = "book",
             )
         }
 
@@ -215,12 +212,12 @@ class StubNoteRepository : NoteRepository {
             it.title.contains(query, ignoreCase = true) ||
                 it.content.contains(query, ignoreCase = true)
         }
-        return PaginatedNotes(notes = filtered, total = filtered.size.toLong(), page = 0, hasMore = false)
+        return PaginatedNotes(notes = filtered, page = 0, hasMore = false)
     }
 
     override suspend fun listNotesBySubject(subject: String, page: Int, size: Int): PaginatedNotes {
         val filtered = notes.filter { it.subjectId.equals(subject, ignoreCase = true) }
-        return PaginatedNotes(notes = filtered, total = filtered.size.toLong(), page = 0, hasMore = false)
+        return PaginatedNotes(notes = filtered, page = 0, hasMore = false)
     }
 
     override suspend fun semanticSearch(query: String): List<Note> =

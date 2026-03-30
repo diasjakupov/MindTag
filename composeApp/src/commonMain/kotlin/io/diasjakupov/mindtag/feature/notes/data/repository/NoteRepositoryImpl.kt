@@ -85,7 +85,6 @@ class NoteRepositoryImpl(
                             id = name,
                             name = name,
                             colorHex = colorForSubject(name),
-                            iconName = "book",
                         )
                     }
             }
@@ -132,7 +131,7 @@ class NoteRepositoryImpl(
                 val cached = getNotesFromCache(null).filter {
                     it.title.contains(query, ignoreCase = true)
                 }
-                PaginatedNotes(notes = cached, total = cached.size.toLong(), page = 0, hasMore = false)
+                PaginatedNotes(notes = cached, page = 0, hasMore = false)
             }
         }
     }
@@ -143,7 +142,7 @@ class NoteRepositoryImpl(
             is ApiResult.Error -> {
                 Logger.e(tag, "listNotesBySubject: ${result.message}, falling back to cache")
                 val cached = getNotesFromCache(subject)
-                PaginatedNotes(notes = cached, total = cached.size.toLong(), page = 0, hasMore = false)
+                PaginatedNotes(notes = cached, page = 0, hasMore = false)
             }
         }
     }
@@ -183,7 +182,6 @@ class NoteRepositoryImpl(
         val fetched = (page + 1) * size
         return PaginatedNotes(
             notes = notes,
-            total = total,
             page = page,
             hasMore = fetched < total,
         )
@@ -243,7 +241,6 @@ class NoteRepositoryImpl(
                 id = entity.id,
                 name = entity.name,
                 colorHex = entity.color_hex,
-                iconName = entity.icon_name,
             )
         }
 

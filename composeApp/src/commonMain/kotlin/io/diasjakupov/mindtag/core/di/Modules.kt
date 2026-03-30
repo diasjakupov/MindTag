@@ -1,7 +1,6 @@
 package io.diasjakupov.mindtag.core.di
 
 import io.diasjakupov.mindtag.core.config.EnvironmentStore
-import io.diasjakupov.mindtag.core.data.AppPreferences
 import io.diasjakupov.mindtag.core.database.DatabaseDriverFactory
 import io.diasjakupov.mindtag.core.network.AuthManager
 import io.diasjakupov.mindtag.core.network.HttpClientFactory
@@ -55,7 +54,6 @@ val databaseModule = module {
             DatabaseSeeder.seedIfEmpty(db)
         }
     }
-    single { AppPreferences(get()) }
 }
 
 val networkModule = module {

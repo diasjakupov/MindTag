@@ -2,7 +2,6 @@ package io.diasjakupov.mindtag.feature.backendquiz.data.repository
 
 import io.diasjakupov.mindtag.core.network.ApiResult
 import io.diasjakupov.mindtag.core.network.dto.AnswerRequestDto
-import io.diasjakupov.mindtag.feature.backendquiz.domain.model.AttemptHistory
 import io.diasjakupov.mindtag.feature.backendquiz.domain.model.AttemptResult
 import io.diasjakupov.mindtag.feature.backendquiz.domain.model.AttemptStart
 import io.diasjakupov.mindtag.feature.backendquiz.domain.model.QuestionResult
@@ -238,22 +237,6 @@ class StubBackendQuizRepository : BackendQuizRepository {
         val result = attempts.find { it.attemptId == attemptId && it.quizId == quizId }
             ?: return ApiResult.Error("Attempt $attemptId not found", 404)
         return ApiResult.Success(result)
-    }
-
-    override suspend fun getAttemptHistory(): ApiResult<List<AttemptHistory>> {
-        val history = attempts.map { attempt ->
-            AttemptHistory(
-                attemptId = attempt.attemptId,
-                quizId = attempt.quizId,
-                noteTitleSnapshot = attempt.noteTitleSnapshot,
-                score = attempt.score,
-                totalQuestions = attempt.totalQuestions,
-                completed = attempt.completedAt != null,
-                startedAt = attempt.startedAt,
-                completedAt = attempt.completedAt,
-            )
-        }
-        return ApiResult.Success(history)
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────

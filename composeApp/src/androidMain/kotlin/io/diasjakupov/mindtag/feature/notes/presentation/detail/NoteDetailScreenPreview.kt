@@ -25,21 +25,18 @@ private fun NoteDetailScreenPreview() {
                     updatedAt = 0L,
                 ),
                 subjectName = "Biology",
-                subjectColorHex = "#22C55E",
                 relatedNotes = listOf(
                     RelatedNote(
                         noteId = 2L,
                         title = "DNA Replication",
                         subjectName = "Biology",
                         subjectColorHex = "#22C55E",
-                        similarityScore = 0.85f,
                     ),
                     RelatedNote(
                         noteId = 3L,
                         title = "Meiosis and Genetic Variation",
                         subjectName = "Biology",
                         subjectColorHex = "#22C55E",
-                        similarityScore = 0.78f,
                     ),
                 ),
                 isLoading = false,

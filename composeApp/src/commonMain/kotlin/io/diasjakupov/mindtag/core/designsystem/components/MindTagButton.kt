@@ -41,13 +41,6 @@ fun MindTagButton(
             contentColor = Color.White,
             textStyle = MaterialTheme.typography.labelLarge,
         )
-        MindTagButtonVariant.Secondary -> ButtonConfig(
-            height = 36.dp,
-            shape = MindTagShapes.md,
-            containerColor = MindTagColors.SurfaceDark,
-            contentColor = Color.White,
-            textStyle = MaterialTheme.typography.labelLarge,
-        )
         MindTagButtonVariant.Pill -> ButtonConfig(
             height = 40.dp,
             shape = MindTagShapes.full,
@@ -81,7 +74,6 @@ fun MindTagButton(
 enum class MindTagButtonVariant {
     PrimaryLarge,
     PrimaryMedium,
-    Secondary,
     Pill,
 }
 

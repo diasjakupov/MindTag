@@ -114,7 +114,7 @@ class StudyRepositoryImpl(
             .asFlow()
             .mapToList(Dispatchers.IO)
             .map { entities ->
-                entities.map { Subject(id = it.id, name = it.name, colorHex = it.color_hex, iconName = it.icon_name) }
+                entities.map { Subject(id = it.id, name = it.name, colorHex = it.color_hex) }
             }
 
     override suspend fun getDueCardCount(): Int {

@@ -13,4 +13,4 @@ data class StudySession(
 
 enum class SessionType { QUIZ }
 
-enum class SessionStatus { IN_PROGRESS, COMPLETED, ABANDONED }
+enum class SessionStatus { IN_PROGRESS, COMPLETED }

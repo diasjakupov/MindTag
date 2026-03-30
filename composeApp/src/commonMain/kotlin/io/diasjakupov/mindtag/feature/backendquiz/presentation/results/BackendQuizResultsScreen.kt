@@ -78,7 +78,6 @@ fun BackendQuizResultsScreen(
         viewModel.effect.collect { effect ->
             when (effect) {
                 is BackendQuizResultsEffect.NavigateBack -> onNavigateBack()
-                is BackendQuizResultsEffect.NavigateToQuizList -> onNavigateBack()
                 is BackendQuizResultsEffect.ShowSnackbar -> snackbarHostState.showSnackbar(effect.message)
             }
         }

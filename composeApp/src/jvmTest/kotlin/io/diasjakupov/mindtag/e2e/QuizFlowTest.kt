@@ -149,7 +149,7 @@ class QuizFlowTest {
         assertEquals(5, quizData.session.totalQuestions)
         assertEquals(SessionStatus.IN_PROGRESS, quizData.session.status)
 
-        quizData.cards.test {
+        studyRepository.getCardsForSession(subjectId = null, count = 5).test {
             val cards = awaitItem()
             assertEquals(5, cards.size)
             cancelAndIgnoreRemainingEvents()
@@ -163,7 +163,7 @@ class QuizFlowTest {
             questionCount = 3,
         )
         val sessionId = quizData.session.id
-        val cards = quizData.cards.firstOrNull() ?: emptyList()
+        val cards = studyRepository.getCardsForSession(subjectId = null, count = 3).firstOrNull() ?: emptyList()
         assertTrue(cards.isNotEmpty(), "Should have cards loaded")
         assertEquals(3, cards.size)
 
@@ -229,7 +229,7 @@ class QuizFlowTest {
             questionCount = 5,
         )
 
-        quizData.cards.test {
+        studyRepository.getCardsForSession(subjectId = "subj-test", count = 5).test {
             val cards = awaitItem()
             assertEquals(5, cards.size)
             assertTrue(cards.all { it.subjectId == "subj-test" })
@@ -244,7 +244,7 @@ class QuizFlowTest {
             questionCount = 1,
         )
         val sessionId = quizData.session.id
-        val cards = quizData.cards.firstOrNull() ?: emptyList()
+        val cards = studyRepository.getCardsForSession(subjectId = null, count = 1).firstOrNull() ?: emptyList()
         assertTrue(cards.isNotEmpty())
         val card = cards.first()
 
@@ -280,7 +280,7 @@ class QuizFlowTest {
             questionCount = 2,
         )
         val sessionId = quizData.session.id
-        val cards = quizData.cards.firstOrNull() ?: emptyList()
+        val cards = studyRepository.getCardsForSession(subjectId = null, count = 2).firstOrNull() ?: emptyList()
         assertEquals(2, cards.size)
 
         // Submit answers for both questions
@@ -319,7 +319,7 @@ class QuizFlowTest {
             questionCount = 3,
         )
         val sessionId = quizData.session.id
-        val cards = quizData.cards.firstOrNull() ?: emptyList()
+        val cards = studyRepository.getCardsForSession(subjectId = null, count = 3).firstOrNull() ?: emptyList()
         assertEquals(3, cards.size)
 
         cards.forEachIndexed { index, card ->
@@ -350,7 +350,7 @@ class QuizFlowTest {
             type = SessionType.QUIZ,
             questionCount = 1,
         )
-        val cards = quizData.cards.firstOrNull() ?: emptyList()
+        val cards = studyRepository.getCardsForSession(subjectId = null, count = 1).firstOrNull() ?: emptyList()
         assertTrue(cards.isNotEmpty())
 
         val card = cards.first()

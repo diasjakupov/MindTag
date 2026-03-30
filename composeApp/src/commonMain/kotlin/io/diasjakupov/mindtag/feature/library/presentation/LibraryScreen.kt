@@ -1,5 +1,10 @@
 package io.diasjakupov.mindtag.feature.library.presentation
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,10 +36,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.NoteAdd
 import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -49,9 +56,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -68,7 +77,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlin.math.sqrt
 import io.diasjakupov.mindtag.core.designsystem.LocalWindowSizeClass
 import io.diasjakupov.mindtag.core.designsystem.MindTagColors
 import io.diasjakupov.mindtag.core.designsystem.WindowSizeClass
@@ -88,9 +96,17 @@ import org.koin.compose.viewmodel.koinViewModel
 fun LibraryScreen(
     onNavigateToNote: (Long) -> Unit = {},
     onNavigateToCreateNote: () -> Unit = {},
+    refreshTrigger: Int = 0,
 ) {
     val viewModel: LibraryViewModel = koinViewModel()
     val state by viewModel.state.collectAsState()
+
+    // Auto-refresh when returning from NoteCreate/NoteDetail (refreshTrigger increments)
+    LaunchedEffect(refreshTrigger) {
+        if (refreshTrigger > 0) {
+            viewModel.onIntent(LibraryContract.Intent.Refresh)
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
@@ -181,6 +197,8 @@ fun LibraryScreenContent(
                             hasMorePages = state.hasMorePages,
                             onNoteTap = { onIntent(LibraryContract.Intent.TapNote(it)) },
                             onLoadMore = { onIntent(LibraryContract.Intent.LoadMore) },
+                            onRefresh = { onIntent(LibraryContract.Intent.Refresh) },
+                            isRefreshing = state.isLoading,
                             modifier = Modifier.weight(1f),
                         )
                     }
@@ -190,7 +208,6 @@ fun LibraryScreenContent(
                     Box(modifier = Modifier.weight(1f)) {
                         GraphView(
                             nodes = state.graphNodes,
-                            edges = state.graphEdges,
                             selectedNodeId = state.selectedNodeId,
                             onNodeTap = { onIntent(LibraryContract.Intent.TapGraphNode(it)) },
                             modifier = Modifier.fillMaxSize(),
@@ -411,6 +428,7 @@ private fun FilterChip(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NoteListView(
     notes: List<LibraryContract.NoteListItem>,
@@ -418,6 +436,8 @@ private fun NoteListView(
     hasMorePages: Boolean,
     onNoteTap: (Long) -> Unit,
     onLoadMore: () -> Unit,
+    onRefresh: () -> Unit,
+    isRefreshing: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val windowSizeClass = LocalWindowSizeClass.current
@@ -436,9 +456,14 @@ private fun NoteListView(
         LaunchedEffect(shouldLoadMore.value) {
             if (shouldLoadMore.value) onLoadMore()
         }
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = onRefresh,
+            modifier = modifier,
+        ) {
         LazyColumn(
             state = listState,
-            modifier = modifier.padding(horizontal = MindTagSpacing.screenHorizontalPadding),
+            modifier = Modifier.fillMaxSize().padding(horizontal = MindTagSpacing.screenHorizontalPadding),
             verticalArrangement = Arrangement.spacedBy(MindTagSpacing.lg),
         ) {
             items(notes, key = { it.id }) { note ->
@@ -460,6 +485,7 @@ private fun NoteListView(
             }
             item { Spacer(modifier = Modifier.height(MindTagSpacing.bottomContentPadding)) }
         }
+        }
     } else {
         val columns = if (windowSizeClass == WindowSizeClass.Medium) 2 else 3
         val gridState = rememberLazyGridState()
@@ -473,10 +499,15 @@ private fun NoteListView(
         LaunchedEffect(shouldLoadMore.value) {
             if (shouldLoadMore.value) onLoadMore()
         }
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = onRefresh,
+            modifier = modifier,
+        ) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(columns),
             state = gridState,
-            modifier = modifier.padding(horizontal = MindTagSpacing.screenHorizontalPadding),
+            modifier = Modifier.fillMaxSize().padding(horizontal = MindTagSpacing.screenHorizontalPadding),
             verticalArrangement = Arrangement.spacedBy(MindTagSpacing.lg),
             horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.lg),
         ) {
@@ -500,6 +531,7 @@ private fun NoteListView(
             item(span = { GridItemSpan(maxLineSpan) }) {
                 Spacer(modifier = Modifier.height(MindTagSpacing.bottomContentPadding))
             }
+        }
         }
     }
 }
@@ -574,13 +606,24 @@ private fun NoteListCard(
 @Composable
 private fun GraphView(
     nodes: List<LibraryContract.GraphNode>,
-    edges: List<LibraryContract.GraphEdge>,
     selectedNodeId: Long?,
     onNodeTap: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val textMeasurer = rememberTextMeasurer()
     val nodeMap = nodes.associateBy { it.noteId }
+
+    // Breathing glow animation for selected node
+    val infiniteTransition = rememberInfiniteTransition(label = "glow")
+    val glowPulse by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "glowPulse",
+    )
 
     val windowSizeClass = LocalWindowSizeClass.current
     val virtualSize = when (windowSizeClass) {
@@ -595,12 +638,11 @@ private fun GraphView(
     var initialized by remember(virtualSize) { mutableStateOf(false) }
 
     val transformableState = rememberTransformableState { zoomChange, panChange, _ ->
-        scale = (scale * zoomChange).coerceIn(0.5f, 2.5f)
+        scale = (scale * zoomChange).coerceIn(0.4f, 3f)
         offsetX += panChange.x
         offsetY += panChange.y
     }
 
-    // Use rememberUpdatedState so pointerInput reads current values without restarting
     val currentScale by rememberUpdatedState(scale)
     val currentOffsetX by rememberUpdatedState(offsetX)
     val currentOffsetY by rememberUpdatedState(offsetY)
@@ -623,15 +665,13 @@ private fun GraphView(
             .transformable(state = transformableState)
             .pointerInput(nodes, selectedNodeId) {
                 detectTapGestures { tapOffset ->
-                    // Inverse-transform: screen coords -> virtual coords
                     val vx = (tapOffset.x - currentOffsetX) / currentScale
                     val vy = (tapOffset.y - currentOffsetY) / currentScale
-                    // Hit-test in reverse render order (selected node is on top)
                     val (selected, regular) = nodes.partition { it.noteId == selectedNodeId }
                     (regular + selected).reversed().firstOrNull { node ->
                         val dx = vx - node.x
                         val dy = vy - node.y
-                        (dx * dx + dy * dy) <= (node.radius + 12f) * (node.radius + 12f)
+                        (dx * dx + dy * dy) <= (node.radius + 14f) * (node.radius + 14f)
                     }?.let { tappedNode ->
                         onNodeTap(tappedNode.noteId)
                     }
@@ -649,127 +689,170 @@ private fun GraphView(
                     transformOrigin = TransformOrigin(0f, 0f)
                 },
         ) {
-            // Draw dot grid
+            // Subtle dot grid
             drawDotGrid(virtualSize, virtualSize)
 
-            // Draw edges as quadratic bezier curves
-            val reusablePath = Path()
-            edges.forEach { edge ->
-                val source = nodeMap[edge.sourceNoteId] ?: return@forEach
-                val target = nodeMap[edge.targetNoteId] ?: return@forEach
+            // ── Edges: curved connections from hub to satellites ──
+            nodes.filter { it.hubNoteId != null }.forEach { satellite ->
+                val hub = nodeMap[satellite.hubNoteId] ?: return@forEach
+                val edgeColor = parseColor(satellite.subjectColorHex)
+                val isActive = satellite.noteId == selectedNodeId || hub.noteId == selectedNodeId
+                val alpha = if (isActive) 0.5f else 0.12f
 
-                val isActive = edge.sourceNoteId == selectedNodeId || edge.targetNoteId == selectedNodeId
-                val edgeColor = if (isActive) MindTagColors.EdgeActive else MindTagColors.EdgeDefault
-                val strokeWidth = (edge.strength * 3.5f).coerceIn(1.5f, 4f)
+                val from = Offset(hub.x, hub.y)
+                val to = Offset(satellite.x, satellite.y)
+                // Curved edge via quadratic bezier with offset control point
+                val midX = (from.x + to.x) / 2f
+                val midY = (from.y + to.y) / 2f
+                val dx = to.x - from.x
+                val dy = to.y - from.y
+                // Perpendicular offset for curve
+                val curveStrength = 0.15f
+                val ctrlX = midX - dy * curveStrength
+                val ctrlY = midY + dx * curveStrength
 
-                // Calculate control point: perpendicular offset from midpoint
-                val midX = (source.x + target.x) / 2f
-                val midY = (source.y + target.y) / 2f
-                val dx = target.x - source.x
-                val dy = target.y - source.y
-                val dist = sqrt(dx * dx + dy * dy).coerceAtLeast(1f)
-                // Perpendicular direction, scaled by distance
-                val perpScale = (dist * 0.15f).coerceIn(20f, 50f)
-                // Alternate curve direction based on edge pair hash
-                val curveSign = if ((edge.sourceNoteId + edge.targetNoteId) % 2 == 0L) 1f else -1f
-                val ctrlX = midX + (-dy / dist) * perpScale * curveSign
-                val ctrlY = midY + (dx / dist) * perpScale * curveSign
-
-                val pathEffect = if (edge.type == "ANALOGY") {
-                    PathEffect.dashPathEffect(floatArrayOf(8f, 6f), 0f)
-                } else {
-                    null
+                val path = Path().apply {
+                    moveTo(from.x, from.y)
+                    quadraticTo(ctrlX, ctrlY, to.x, to.y)
                 }
+                drawPath(
+                    path = path,
+                    color = edgeColor.copy(alpha = alpha),
+                    style = Stroke(
+                        width = if (isActive) 2.5f else 1.5f,
+                        cap = StrokeCap.Round,
+                        pathEffect = if (!isActive) PathEffect.dashPathEffect(floatArrayOf(8f, 6f)) else null,
+                    ),
+                )
 
-                reusablePath.reset()
-                reusablePath.moveTo(source.x, source.y)
-                reusablePath.quadraticTo(ctrlX, ctrlY, target.x, target.y)
-
-                // Active edge glow (wider, lower opacity)
+                // Small glow dot at the satellite end of active edges
                 if (isActive) {
-                    drawPath(
-                        path = reusablePath,
-                        color = MindTagColors.EdgeActive.copy(alpha = 0.25f),
-                        style = Stroke(width = strokeWidth + 4f, pathEffect = pathEffect),
+                    drawCircle(
+                        color = edgeColor.copy(alpha = 0.3f),
+                        radius = 4f,
+                        center = to,
                     )
                 }
-
-                drawPath(
-                    path = reusablePath,
-                    color = edgeColor,
-                    style = Stroke(width = strokeWidth, pathEffect = pathEffect),
-                )
             }
 
-            // Draw non-selected nodes first, then selected on top
+            // ── Nodes ──
             val (selectedNodes, regularNodes) = nodes.partition { it.noteId == selectedNodeId }
             (regularNodes + selectedNodes).forEach { node ->
                 val isSelected = node.noteId == selectedNodeId
                 val nodeColor = parseColor(node.subjectColorHex)
+                val center = Offset(node.x, node.y)
 
-                // Selected outer glow
                 if (isSelected) {
+                    // Animated outer glow — breathing pulse
+                    val pulseRadius = node.radius + 20f + glowPulse * 8f
+                    val pulseAlpha = 0.12f + glowPulse * 0.08f
                     drawCircle(
-                        color = MindTagColors.Primary.copy(alpha = 0.20f),
-                        radius = node.radius + 18f,
-                        center = Offset(node.x, node.y),
+                        color = nodeColor.copy(alpha = pulseAlpha),
+                        radius = pulseRadius,
+                        center = center,
+                    )
+                    // Inner bright ring
+                    drawCircle(
+                        color = nodeColor.copy(alpha = 0.25f),
+                        radius = node.radius + 10f,
+                        center = center,
                     )
                 }
 
-                // Soft inner glow (subject color halo)
+                // Ambient glow halo (always visible, stronger for hubs)
+                val haloAlpha = if (node.isHub) 0.10f else 0.05f
                 drawCircle(
-                    color = nodeColor.copy(alpha = 0.08f),
-                    radius = node.radius + 6f,
-                    center = Offset(node.x, node.y),
+                    color = nodeColor.copy(alpha = haloAlpha),
+                    radius = node.radius + if (node.isHub) 14f else 8f,
+                    center = center,
                 )
 
-                // Subject color ring
+                // Node fill — radial gradient effect via layered circles
                 drawCircle(
-                    color = if (isSelected) MindTagColors.Primary else nodeColor,
+                    color = nodeColor.copy(alpha = if (isSelected) 0.35f else if (node.isHub) 0.22f else 0.12f),
                     radius = node.radius,
-                    center = Offset(node.x, node.y),
-                    style = Stroke(width = if (isSelected) 3f else 2f),
+                    center = center,
                 )
-
-                // Node fill — subject color tinted
+                // Lighter center for depth
                 drawCircle(
-                    color = nodeColor.copy(alpha = if (isSelected) 0.25f else 0.15f),
-                    radius = node.radius - 1f,
-                    center = Offset(node.x, node.y),
+                    color = nodeColor.copy(alpha = if (node.isHub) 0.08f else 0.04f),
+                    radius = node.radius * 0.6f,
+                    center = center,
                 )
 
-                // Monogram inside node (first 2 chars)
-                val monogram = node.label.take(2).uppercase()
-                val monoStyle = TextStyle(
-                    color = Color.White.copy(alpha = if (isSelected) 1f else 0.85f),
-                    fontSize = if (node.radius > 45f) 20.sp else 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
+                // Border ring
+                val ringColor = if (isSelected) Color.White else nodeColor
+                val ringAlpha = if (isSelected) 0.9f else if (node.isHub) 0.7f else 0.35f
+                drawCircle(
+                    color = ringColor.copy(alpha = ringAlpha),
+                    radius = node.radius,
+                    center = center,
+                    style = Stroke(width = if (isSelected) 2.5f else if (node.isHub) 2f else 1.2f),
                 )
-                val monoResult = textMeasurer.measure(
-                    text = monogram,
-                    style = monoStyle,
-                    maxLines = 1,
-                )
-                drawText(
-                    textLayoutResult = monoResult,
-                    topLeft = Offset(
-                        x = node.x - monoResult.size.width / 2f,
-                        y = node.y - monoResult.size.height / 2f,
-                    ),
-                )
+
+                // Monogram / label inside hub nodes
+                if (node.isHub) {
+                    val monoStyle = TextStyle(
+                        color = Color.White.copy(alpha = if (isSelected) 1f else 0.9f),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                    )
+                    val monoResult = textMeasurer.measure(
+                        text = node.label,
+                        style = monoStyle,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        constraints = androidx.compose.ui.unit.Constraints(maxWidth = (node.radius * 1.6f).toInt()),
+                    )
+                    drawText(
+                        textLayoutResult = monoResult,
+                        topLeft = Offset(
+                            x = node.x - monoResult.size.width / 2f,
+                            y = node.y - monoResult.size.height / 2f,
+                        ),
+                    )
+                } else {
+                    // Satellite monogram (2 chars)
+                    val monogram = node.label.take(2).uppercase()
+                    val monoStyle = TextStyle(
+                        color = Color.White.copy(alpha = if (isSelected) 1f else 0.75f),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center,
+                    )
+                    val monoResult = textMeasurer.measure(text = monogram, style = monoStyle, maxLines = 1)
+                    drawText(
+                        textLayoutResult = monoResult,
+                        topLeft = Offset(
+                            x = node.x - monoResult.size.width / 2f,
+                            y = node.y - monoResult.size.height / 2f,
+                        ),
+                    )
+                }
             }
 
-            // Draw labels in separate pass (on top of all nodes)
-            (regularNodes + selectedNodes).forEach { node ->
-                val isSelected = node.noteId == selectedNodeId
+            // ── Labels below satellite nodes ──
+            regularNodes.filter { !it.isHub }.forEach { node ->
                 drawNodeLabel(
                     textMeasurer = textMeasurer,
                     text = node.label,
                     center = Offset(node.x, node.y),
                     radius = node.radius,
-                    isSelected = isSelected,
+                    isSelected = false,
                 )
+            }
+            // Selected node label (on top)
+            selectedNodes.forEach { node ->
+                if (!node.isHub) {
+                    drawNodeLabel(
+                        textMeasurer = textMeasurer,
+                        text = node.label,
+                        center = Offset(node.x, node.y),
+                        radius = node.radius,
+                        isSelected = true,
+                    )
+                }
             }
         }
 
@@ -783,12 +866,12 @@ private fun GraphView(
             ZoomButton(
                 icon = MindTagIcons.Add,
                 contentDescription = "Zoom in",
-                onClick = { scale = (scale * 1.3f).coerceIn(0.5f, 2.5f) },
+                onClick = { scale = (scale * 1.3f).coerceIn(0.4f, 3f) },
             )
             ZoomButton(
                 icon = MindTagIcons.Remove,
                 contentDescription = "Zoom out",
-                onClick = { scale = (scale / 1.3f).coerceIn(0.5f, 2.5f) },
+                onClick = { scale = (scale / 1.3f).coerceIn(0.4f, 3f) },
             )
         }
     }

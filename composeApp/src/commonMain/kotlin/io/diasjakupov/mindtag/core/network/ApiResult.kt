@@ -14,8 +14,3 @@ inline fun <T> ApiResult<T>.onError(action: (String, Int?) -> Unit): ApiResult<T
     if (this is ApiResult.Error) action(message, code)
     return this
 }
-
-fun <T> ApiResult<T>.getOrThrow(): T = when (this) {
-    is ApiResult.Success -> data
-    is ApiResult.Error -> throw RuntimeException(message)
-}

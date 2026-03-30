@@ -13,7 +13,6 @@ sealed interface AuthIntent {
     data class UpdatePassword(val password: String) : AuthIntent
     data object ToggleMode : AuthIntent
     data object Submit : AuthIntent
-    data object DismissError : AuthIntent
 }
 
 sealed interface AuthEffect {

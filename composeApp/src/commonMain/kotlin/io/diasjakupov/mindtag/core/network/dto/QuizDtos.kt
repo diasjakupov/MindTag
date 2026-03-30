@@ -80,14 +80,3 @@ data class QuestionResultDto(
     val explanation: String? = null,
 )
 
-@Serializable
-data class AttemptHistoryDto(
-    val attemptId: Long,
-    val quizId: Long,
-    val noteTitleSnapshot: String,
-    val score: Int,
-    val totalQuestions: Int,
-    val completed: Boolean,
-    val startedAt: String,
-    val completedAt: String? = null,
-)

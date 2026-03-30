@@ -61,7 +61,6 @@ class LibraryViewModel(
                         notes = listItems,
                         subjects = buildSubjectFilters(subjects, selectedSubjectId),
                         graphNodes = graphNodes,
-                        graphEdges = emptyList(),
                         isLoading = false,
                         hasMorePages = false,
                         currentPage = 0,
@@ -274,7 +273,10 @@ class LibraryViewModel(
 
         val nodes = mutableListOf<LibraryContract.GraphNode>()
         val canvasCenter = 400f
-        val clusterDistance = 240f
+        val clusterDistance = if (subjectGroups.size <= 1) 0f else 240f
+
+        // Golden angle for natural satellite distribution
+        val goldenAngle = (PI * (3.0 - kotlin.math.sqrt(5.0))).toFloat()
 
         subjectGroups.entries.forEachIndexed { groupIndex, (subjectId, groupNotes) ->
             val subject = subjectMap[subjectId]
@@ -284,34 +286,42 @@ class LibraryViewModel(
             val clusterCenterX = canvasCenter + cos(adjustedAngle) * clusterDistance
             val clusterCenterY = canvasCenter + sin(adjustedAngle) * clusterDistance
 
-            groupNotes.forEachIndexed { noteIndex, note ->
-                // Seeded jitter to break mechanical look
-                val jitterSeedX = (note.id * 7 + noteIndex * 13) % 100
-                val jitterSeedY = (note.id * 11 + noteIndex * 17) % 100
-                val jitterX = ((jitterSeedX % 17) - 8).toFloat()
-                val jitterY = ((jitterSeedY % 17) - 8).toFloat()
+            // Hub node
+            val hubNote = groupNotes.first()
+            val hubId = hubNote.id
+            nodes.add(
+                LibraryContract.GraphNode(
+                    noteId = hubId,
+                    label = subject?.name ?: hubNote.title.take(20),
+                    subjectColorHex = subject?.colorHex ?: "#135bec",
+                    x = clusterCenterX,
+                    y = clusterCenterY,
+                    radius = 56f,
+                    isHub = true,
+                    hubNoteId = null,
+                )
+            )
 
-                val (x, y, radius) = if (noteIndex == 0) {
-                    Triple(clusterCenterX, clusterCenterY, 52f)
-                } else {
-                    val orbitCount = (groupNotes.size - 1).coerceAtLeast(1)
-                    val orbitAngle = ((noteIndex - 1).toFloat() / orbitCount) * 2f * PI.toFloat()
-                    val orbitRadius = 90f + (noteIndex / 4) * 45f
-                    Triple(
-                        clusterCenterX + cos(orbitAngle) * orbitRadius + jitterX,
-                        clusterCenterY + sin(orbitAngle) * orbitRadius + jitterY,
-                        40f,
-                    )
-                }
+            // Satellite nodes using golden angle for organic distribution
+            groupNotes.drop(1).forEachIndexed { i, note ->
+                val angle = goldenAngle * (i + 1)
+                val ring = i / 6 // 6 nodes per ring
+                val orbitRadius = 110f + ring * 65f
+
+                // Seeded jitter
+                val jx = ((note.id * 7 + i * 13) % 17 - 8).toFloat()
+                val jy = ((note.id * 11 + i * 17) % 17 - 8).toFloat()
 
                 nodes.add(
                     LibraryContract.GraphNode(
                         noteId = note.id,
-                        label = note.title.take(20),
+                        label = note.title.take(18),
                         subjectColorHex = subject?.colorHex ?: "#135bec",
-                        x = x,
-                        y = y,
-                        radius = radius,
+                        x = clusterCenterX + cos(angle) * orbitRadius + jx,
+                        y = clusterCenterY + sin(angle) * orbitRadius + jy,
+                        radius = 36f,
+                        isHub = false,
+                        hubNoteId = hubId,
                     )
                 )
             }

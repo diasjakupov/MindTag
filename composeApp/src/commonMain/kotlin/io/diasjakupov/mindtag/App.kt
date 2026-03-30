@@ -147,6 +147,7 @@ fun App() {
 @Composable
 private fun MainApp() {
     val nav = remember { TopLevelBackStack(Route.Library) }
+    var libraryRefreshTrigger by remember { mutableStateOf(0) }
     val windowSizeClass = LocalWindowSizeClass.current
 
     val currentEntry = nav.backStack.lastOrNull()
@@ -173,6 +174,7 @@ private fun MainApp() {
                     LibraryScreen(
                         onNavigateToNote = { noteId -> nav.push(Route.NoteDetail(noteId)) },
                         onNavigateToCreateNote = { nav.push(Route.NoteCreate()) },
+                        refreshTrigger = libraryRefreshTrigger,
                     )
                 }
                 entry<Route.Study> {
@@ -183,16 +185,21 @@ private fun MainApp() {
                 entry<Route.NoteCreate>(metadata = pushScreenMetadata) { key ->
                     NoteCreateScreen(
                         noteId = key.noteId,
-                        onNavigateBack = { nav.removeLast() },
+                        onNavigateBack = {
+                            libraryRefreshTrigger++
+                            nav.removeLast()
+                        },
                     )
                 }
                 entry<Route.NoteDetail>(metadata = pushScreenMetadata) { key ->
                     NoteDetailScreen(
                         noteId = key.noteId,
-                        onNavigateBack = { nav.removeLast() },
+                        onNavigateBack = {
+                            libraryRefreshTrigger++
+                            nav.removeLast()
+                        },
                         onNavigateToNote = { noteId -> nav.push(Route.NoteDetail(noteId)) },
                         onNavigateToEdit = { noteId -> nav.push(Route.NoteCreate(noteId)) },
-                        onNavigateToQuiz = { sessionId -> nav.push(Route.Quiz(sessionId)) },
                         onNavigateToBackendQuiz = { quizId, attemptId ->
                             nav.push(Route.BackendQuizAttempt(quizId, attemptId))
                         },

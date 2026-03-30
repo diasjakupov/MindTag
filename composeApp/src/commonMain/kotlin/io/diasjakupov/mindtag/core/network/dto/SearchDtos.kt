@@ -20,9 +20,7 @@ data class SearchResponseDto(
 @Serializable
 data class SemanticSearchResultDto(
     val id: Long,
-    val userId: Long,
     val title: String,
     val body: String,
     val updatedAt: String? = null,
-    val contentHash: String? = null,
 )

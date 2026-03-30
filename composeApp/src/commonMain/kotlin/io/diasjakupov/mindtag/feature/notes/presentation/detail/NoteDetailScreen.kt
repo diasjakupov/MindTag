@@ -60,7 +60,6 @@ fun NoteDetailScreen(
     noteId: Long,
     onNavigateBack: () -> Unit,
     onNavigateToNote: (Long) -> Unit,
-    onNavigateToQuiz: (String) -> Unit,
     onNavigateToBackendQuiz: (quizId: Long, attemptId: Long) -> Unit = { _, _ -> },
     onNavigateToQuizHistory: (noteId: Long) -> Unit = {},
     onNavigateToEdit: (Long) -> Unit = {},
@@ -74,7 +73,6 @@ fun NoteDetailScreen(
             when (effect) {
                 is NoteDetailEffect.NavigateBack -> onNavigateBack()
                 is NoteDetailEffect.NavigateToNote -> onNavigateToNote(effect.noteId)
-                is NoteDetailEffect.NavigateToQuiz -> onNavigateToQuiz(effect.sessionId)
                 is NoteDetailEffect.NavigateToBackendQuiz -> onNavigateToBackendQuiz(effect.quizId, effect.attemptId)
                 is NoteDetailEffect.NavigateToQuizHistory -> onNavigateToQuizHistory(effect.noteId)
                 is NoteDetailEffect.NavigateToEdit -> onNavigateToEdit(effect.noteId)

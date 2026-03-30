@@ -61,7 +61,6 @@ fun QuizScreen(
         viewModel.effect.collect { effect ->
             when (effect) {
                 is QuizEffect.NavigateToResults -> onNavigateToResults(effect.sessionId)
-                is QuizEffect.NavigateBack -> onNavigateBack()
                 is QuizEffect.ShowExitConfirmation -> onNavigateBack()
             }
         }

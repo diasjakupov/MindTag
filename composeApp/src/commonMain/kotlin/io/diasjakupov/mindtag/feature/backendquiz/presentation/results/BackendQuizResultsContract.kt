@@ -39,6 +39,5 @@ sealed interface BackendQuizResultsIntent {
 
 sealed interface BackendQuizResultsEffect {
     data object NavigateBack : BackendQuizResultsEffect
-    data class NavigateToQuizList(val noteId: Long?) : BackendQuizResultsEffect
     data class ShowSnackbar(val message: String) : BackendQuizResultsEffect
 }

@@ -18,5 +18,4 @@ data class RegisterRequest(
 data class AuthResponseDto(
     val userId: Long,
     val accessToken: String,
-    val tokenType: String,
 )

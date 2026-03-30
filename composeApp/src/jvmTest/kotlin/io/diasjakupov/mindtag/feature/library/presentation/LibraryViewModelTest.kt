@@ -87,12 +87,6 @@ class LibraryViewModelTest {
     }
 
     @Test
-    fun initialStateHasEmptyGraphEdgesWithNoLinks() = runTest(testScheduler) {
-        val state = awaitLoadedState()
-        assertTrue(state.graphEdges.isEmpty())
-    }
-
-    @Test
     fun switchViewToGraph() = runTest(testScheduler) {
         awaitLoadedState()
         viewModel.onIntent(LibraryContract.Intent.SwitchView(LibraryContract.ViewMode.GRAPH))

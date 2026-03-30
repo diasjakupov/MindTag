@@ -10,7 +10,6 @@ object LibraryContract {
         val searchQuery: String = "",
         val searchMode: SearchMode = SearchMode.TEXT,
         val graphNodes: List<GraphNode> = emptyList(),
-        val graphEdges: List<GraphEdge> = emptyList(),
         val selectedNodeId: Long? = null,
         val isLoading: Boolean = true,
         val isLoadingMore: Boolean = false,
@@ -45,13 +44,8 @@ object LibraryContract {
         val x: Float,
         val y: Float,
         val radius: Float = 34f,
-    )
-
-    data class GraphEdge(
-        val sourceNoteId: Long,
-        val targetNoteId: Long,
-        val strength: Float,
-        val type: String,
+        val isHub: Boolean = false,
+        val hubNoteId: Long? = null, // links satellite → its hub for edge drawing
     )
 
     sealed interface Intent {

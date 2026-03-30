@@ -37,7 +37,6 @@ class NoteDetailViewModel(
                         copy(
                             note = noteWithConnections.note,
                             subjectName = noteWithConnections.note.subjectName.ifEmpty { subject?.name ?: "" },
-                            subjectColorHex = subject?.colorHex ?: "",
                             relatedNotes = noteWithConnections.relatedNotes,
                             isLoading = false,
                         )

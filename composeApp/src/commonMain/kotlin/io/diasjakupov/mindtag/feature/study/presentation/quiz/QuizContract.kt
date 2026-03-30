@@ -35,6 +35,5 @@ sealed interface QuizIntent {
 
 sealed interface QuizEffect {
     data class NavigateToResults(val sessionId: String) : QuizEffect
-    data object NavigateBack : QuizEffect
     data object ShowExitConfirmation : QuizEffect
 }

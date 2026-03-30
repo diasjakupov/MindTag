@@ -151,9 +151,9 @@ class LibrarySearchFilterFlowTest {
 
         // Subjects ordered alphabetically (Biology, Computer Science, Economics)
         val SUBJECTS = listOf(
-            Subject(id = BIO,  name = "Biology 101",      colorHex = "#22C55E", iconName = "leaf"),
-            Subject(id = CS,   name = "Computer Science", colorHex = "#135BEC", iconName = "code"),
-            Subject(id = ECON, name = "Economics 101",    colorHex = "#F59E0B", iconName = "trending_up"),
+            Subject(id = BIO,  name = "Biology 101",      colorHex = "#22C55E"),
+            Subject(id = CS,   name = "Computer Science", colorHex = "#135BEC"),
+            Subject(id = ECON, name = "Economics 101",    colorHex = "#F59E0B"),
         )
 
         // 15 notes ordered by updatedAt descending (most recent first)

@@ -26,15 +26,6 @@ fun MindTagChip(
     variant: MindTagChipVariant = MindTagChipVariant.Metadata,
 ) {
     val (bgColor, textColor, shape, hPad, vPad, style, uppercase) = when (variant) {
-        MindTagChipVariant.SubjectTag -> ChipConfig(
-            bgColor = MindTagColors.OverlayBgLight,
-            textColor = Color.White,
-            shape = MindTagShapes.default,
-            hPad = MindTagSpacing.md,
-            vPad = MindTagSpacing.xxs,
-            style = MaterialTheme.typography.labelMedium,
-            uppercase = false,
-        )
         MindTagChipVariant.Metadata -> ChipConfig(
             bgColor = MindTagColors.SearchBarBg,
             textColor = Color.White,
@@ -43,15 +34,6 @@ fun MindTagChip(
             vPad = MindTagSpacing.xs,
             style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
             uppercase = true,
-        )
-        MindTagChipVariant.Status -> ChipConfig(
-            bgColor = Color.White.copy(alpha = 0.2f),
-            textColor = Color.White,
-            shape = MindTagShapes.default,
-            hPad = MindTagSpacing.md,
-            vPad = MindTagSpacing.xs,
-            style = MaterialTheme.typography.labelMedium,
-            uppercase = false,
         )
         MindTagChipVariant.WeekLabel -> ChipConfig(
             bgColor = MindTagColors.Primary.copy(alpha = 0.1f),
@@ -81,9 +63,7 @@ fun MindTagChip(
 }
 
 enum class MindTagChipVariant {
-    SubjectTag,
     Metadata,
-    Status,
     WeekLabel,
 }
 
