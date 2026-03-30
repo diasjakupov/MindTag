@@ -38,6 +38,7 @@ import io.diasjakupov.mindtag.feature.study.data.repository.StudyRepositoryImpl
 import io.diasjakupov.mindtag.feature.study.domain.repository.QuizRepository
 import io.diasjakupov.mindtag.feature.study.domain.repository.StudyRepository
 import io.diasjakupov.mindtag.feature.study.domain.usecase.GetResultsUseCase
+import io.diasjakupov.mindtag.feature.study.domain.usecase.SaveToStudyUseCase
 import io.diasjakupov.mindtag.feature.study.domain.usecase.StartQuizUseCase
 import io.diasjakupov.mindtag.feature.study.domain.usecase.SubmitAnswerUseCase
 import io.diasjakupov.mindtag.feature.study.presentation.hub.StudyHubViewModel
@@ -100,6 +101,7 @@ val useCaseModule = module {
     factory { StartQuizUseCase(get()) }
     factory { SubmitAnswerUseCase(get(), get()) }
     factory { GetResultsUseCase(get()) }
+    factory { SaveToStudyUseCase(get()) }
 }
 
 val viewModelModule = module {

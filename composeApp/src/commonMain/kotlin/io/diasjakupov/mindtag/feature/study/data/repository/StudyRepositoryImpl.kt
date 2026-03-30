@@ -21,6 +21,7 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 @OptIn(kotlin.uuid.ExperimentalUuidApi::class)
@@ -121,6 +122,29 @@ class StudyRepositoryImpl(
         return db.flashCardEntityQueries.selectDueCards(now)
             .executeAsList()
             .size
+    }
+
+    override suspend fun saveFlashCards(cards: List<FlashCard>) {
+        val now = Clock.System.now().toEpochMilliseconds()
+        cards.forEach { card ->
+            db.flashCardEntityQueries.insert(
+                id = card.id,
+                question = card.question,
+                type = card.type.name,
+                difficulty = card.difficulty.name,
+                subject_id = card.subjectId,
+                correct_answer = card.correctAnswer,
+                options_json = json.encodeToString(card.options),
+                source_note_ids_json = json.encodeToString(card.sourceNoteIds),
+                ai_explanation = card.aiExplanation,
+                ease_factor = card.easeFactor.toDouble(),
+                interval_days = card.intervalDays.toLong(),
+                repetitions = card.repetitions.toLong(),
+                next_review_at = card.nextReviewAt,
+                created_at = now,
+            )
+        }
+        Logger.d(tag, "saveFlashCards: saved ${cards.size} cards")
     }
 
     private fun FlashCardEntity.toDomain() = FlashCard(

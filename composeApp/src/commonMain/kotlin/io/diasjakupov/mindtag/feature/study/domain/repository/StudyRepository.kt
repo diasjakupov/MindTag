@@ -19,4 +19,5 @@ interface StudyRepository {
     fun getCardsForSession(subjectId: String?, count: Int): Flow<List<FlashCard>>
     fun getSubjects(): Flow<List<Subject>>
     suspend fun getDueCardCount(): Int
+    suspend fun saveFlashCards(cards: List<FlashCard>)
 }
