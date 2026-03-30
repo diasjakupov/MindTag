@@ -1,11 +1,7 @@
 package io.diasjakupov.mindtag.core.config
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,66 +29,46 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.diasjakupov.mindtag.core.di.authModule
+import io.diasjakupov.mindtag.core.di.repositoryModule
+import io.diasjakupov.mindtag.core.network.AuthManager
+import org.koin.compose.koinInject
+import org.koin.mp.KoinPlatform
 
-/**
- * A slim, non-intrusive banner shown at the very bottom of the screen when
- * [AppEnvironment.TEST] mode is active (it is invisible in NETWORK mode).
- *
- * Long-press the banner to open the [EnvironmentSwitcherDialog] which shows the
- * current mode. To change it, update [DevConfig.DEFAULT_ENVIRONMENT] and restart.
- *
- * Place this composable at the root level so it overlays all content:
- *
- * ```kotlin
- * Box(Modifier.fillMaxSize()) {
- *     MainContent()
- *     EnvironmentBanner(Modifier.align(Alignment.BottomCenter))
- * }
- * ```
- */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun EnvironmentBanner(modifier: Modifier = Modifier) {
     val mode by EnvironmentStore.mode.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
 
-    AnimatedVisibility(
-        visible = mode == AppEnvironment.TEST,
-        enter = fadeIn(),
-        exit = fadeOut(),
-        modifier = modifier,
+    val isTestMode = mode == AppEnvironment.TEST
+    val bgColor = if (isTestMode) Color(0xFFEF4444) else Color(0xFF22C55E)
+    val label = if (isTestMode) "TEST MODE" else "NETWORK"
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(bgColor)
+            .clickable { showDialog = true }
+            .padding(vertical = 4.dp, horizontal = 12.dp),
+        contentAlignment = Alignment.Center,
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .combinedClickable(
-                    onClick = { /* single-tap does nothing */ },
-                    onLongClick = { showDialog = true },
-                )
-                .background(Color(0xFFEF4444)) // red-500
-                .padding(vertical = 4.dp, horizontal = 12.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                // Pulsing dot
-                Box(
-                    modifier = Modifier
-                        .size(8.dp)
-                        .clip(CircleShape)
-                        .background(Color.White),
-                )
-                Spacer(Modifier.width(6.dp))
-                Text(
-                    text = "TEST MODE — Long-press for info",
-                    color = Color.White,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Medium,
-                    letterSpacing = 0.5.sp,
-                )
-            }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(8.dp)
+                    .clip(CircleShape)
+                    .background(Color.White),
+            )
+            Spacer(Modifier.width(6.dp))
+            Text(
+                text = "$label — Tap to switch",
+                color = Color.White,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Medium,
+                letterSpacing = 0.5.sp,
+            )
         }
     }
 
@@ -101,18 +77,12 @@ fun EnvironmentBanner(modifier: Modifier = Modifier) {
     }
 }
 
-/**
- * Read-only dialog that shows the current environment mode.
- *
- * The active mode is set at cold start via [DevConfig.DEFAULT_ENVIRONMENT] and cannot
- * be toggled at runtime (Koin `single` bindings are resolved once and cannot be re-wired
- * without a process restart). To change the mode, update [DevConfig.DEFAULT_ENVIRONMENT]
- * and restart the app.
- */
 @Composable
 fun EnvironmentSwitcherDialog(onDismiss: () -> Unit) {
     val mode by EnvironmentStore.mode.collectAsState()
     val isTestMode = mode == AppEnvironment.TEST
+    val targetLabel = if (isTestMode) "NETWORK" else "TEST"
+    val authManager: AuthManager = koinInject()
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -127,7 +97,6 @@ fun EnvironmentSwitcherDialog(onDismiss: () -> Unit) {
         },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                // Status badge
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
@@ -146,36 +115,43 @@ fun EnvironmentSwitcherDialog(onDismiss: () -> Unit) {
                 }
 
                 Text(
-                    text = if (isTestMode)
-                        "Stub data — no HTTP calls are made."
-                    else
-                        "Real backend API is active.",
+                    text = "Switch to $targetLabel mode? All screens will reset.",
                     color = Color(0xFF92A4C9),
                     style = MaterialTheme.typography.bodyMedium,
                 )
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color(0x22FFFFFF))
-                        .padding(10.dp),
-                ) {
-                    Text(
-                        text = "To switch modes, change `DEFAULT_ENVIRONMENT` in `DevConfig.kt` and restart the app.",
-                        color = Color(0xFF92A4C9),
-                        fontSize = 11.sp,
-                        textAlign = TextAlign.Start,
-                    )
-                }
             }
         },
         confirmButton = {
             Button(
-                onClick = onDismiss,
+                onClick = {
+                    EnvironmentStore.switchMode(
+                        reloadModules = {
+                            val koin = KoinPlatform.getKoin()
+                            koin.loadModules(
+                                listOf(authModule, repositoryModule),
+                                allowOverride = true,
+                            )
+                        },
+                        onSwitched = { newMode ->
+                            when (newMode) {
+                                AppEnvironment.TEST -> authManager.login("stub-jwt-token-for-test-mode", 1L)
+                                AppEnvironment.NETWORK -> authManager.logout()
+                            }
+                        },
+                    )
+                    onDismiss()
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF135BEC)),
             ) {
-                Text("Done", color = Color.White)
+                Text("Switch to $targetLabel", color = Color.White)
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = onDismiss,
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+            ) {
+                Text("Cancel", color = Color(0xFF92A4C9))
             }
         },
     )

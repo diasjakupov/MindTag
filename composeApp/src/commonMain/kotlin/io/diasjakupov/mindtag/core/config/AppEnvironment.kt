@@ -52,4 +52,14 @@ object EnvironmentStore {
     }
 
     val isTestMode: Boolean get() = current == AppEnvironment.TEST
+
+    fun switchMode(
+        reloadModules: () -> Unit,
+        onSwitched: (newMode: AppEnvironment) -> Unit,
+    ) {
+        val newMode = if (current == AppEnvironment.TEST) AppEnvironment.NETWORK else AppEnvironment.TEST
+        _mode.value = newMode
+        reloadModules()
+        onSwitched(newMode)
+    }
 }
