@@ -65,4 +65,50 @@ class DtoDeserializationTest {
         assertEquals("Related Note A", dtos[0].title)
         assertEquals(99L, dtos[1].id)
     }
+
+    // ── Task 3: Search DTOs ───────────────────────────────────────────────────
+
+    @Test
+    fun searchResultDto_deserializesIdAsLong() {
+        val raw = """
+            {
+              "total": 2,
+              "page": 0,
+              "size": 20,
+              "results": [
+                { "id": 10, "title": "First Result", "snippet": "Some snippet" },
+                { "id": 20, "title": "Second Result", "snippet": "Another snippet" }
+              ]
+            }
+        """.trimIndent()
+
+        val dto = json.decodeFromString<SearchResponseDto>(raw)
+
+        assertEquals(2L, dto.total)
+        assertEquals(10L, dto.results[0].id)
+        assertEquals("First Result", dto.results[0].title)
+        assertEquals(20L, dto.results[1].id)
+    }
+
+    @Test
+    fun semanticSearchResultDto_deserializesIdAsLong() {
+        val raw = """
+            [
+              {
+                "id": 55,
+                "userId": 1,
+                "title": "Semantic Note",
+                "body": "Semantic body content",
+                "updatedAt": "2024-05-01T09:00:00",
+                "contentHash": "xyz789"
+              }
+            ]
+        """.trimIndent()
+
+        val dtos = json.decodeFromString<List<SemanticSearchResultDto>>(raw)
+
+        assertEquals(1, dtos.size)
+        assertEquals(55L, dtos[0].id)
+        assertEquals("Semantic Note", dtos[0].title)
+    }
 }

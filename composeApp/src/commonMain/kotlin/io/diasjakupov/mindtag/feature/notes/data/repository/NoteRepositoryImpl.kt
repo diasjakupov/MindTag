@@ -161,15 +161,14 @@ class NoteRepositoryImpl(
         }
     }
 
-    // SearchResultDto only provides noteId, title, snippet.
+    // SearchResultDto only provides id, title, snippet.
     // Subject data and other fields are unavailable — search results display with
     // default color and empty subject label. Tapping navigates to the full note detail.
     // TODO: enrich backend /search response to include subject, or cross-reference local cache.
     private fun SearchResponseDto.toPaginatedNotes(page: Int, size: Int): PaginatedNotes {
-        val notes = results.mapNotNull { dto ->
-            val id = dto.noteId.toLongOrNull() ?: return@mapNotNull null
+        val notes = results.map { dto ->
             Note(
-                id = id,
+                id = dto.id,
                 title = dto.title,
                 content = dto.snippet,
                 summary = dto.snippet,
@@ -261,7 +260,7 @@ class NoteRepositoryImpl(
     )
 
     private fun SemanticSearchResultDto.toDomain() = Note(
-        id = noteId,
+        id = id,
         title = title,
         content = body,
         summary = summarize(body),

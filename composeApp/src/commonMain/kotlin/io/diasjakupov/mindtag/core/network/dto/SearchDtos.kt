@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SearchResultDto(
-    val noteId: String,
+    val id: Long,
     val title: String,
     val snippet: String,
 )
@@ -19,7 +19,7 @@ data class SearchResponseDto(
 
 @Serializable
 data class SemanticSearchResultDto(
-    val noteId: Long,
+    val id: Long,
     val userId: Long,
     val title: String,
     val body: String,
