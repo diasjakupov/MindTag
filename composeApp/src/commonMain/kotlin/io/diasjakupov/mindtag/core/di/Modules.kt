@@ -1,5 +1,6 @@
 package io.diasjakupov.mindtag.core.di
 
+import io.diasjakupov.mindtag.core.config.EnvironmentStore
 import io.diasjakupov.mindtag.core.data.AppPreferences
 import io.diasjakupov.mindtag.core.database.DatabaseDriverFactory
 import io.diasjakupov.mindtag.core.network.AuthManager
@@ -8,6 +9,7 @@ import io.diasjakupov.mindtag.data.local.MindTagDatabase
 import io.diasjakupov.mindtag.data.seed.DatabaseSeeder
 import io.diasjakupov.mindtag.feature.auth.data.AuthApi
 import io.diasjakupov.mindtag.feature.auth.data.AuthRepositoryImpl
+import io.diasjakupov.mindtag.feature.auth.data.StubAuthRepository
 import io.diasjakupov.mindtag.feature.auth.domain.AuthRepository
 import io.diasjakupov.mindtag.feature.auth.domain.LoginUseCase
 import io.diasjakupov.mindtag.feature.auth.domain.RegisterUseCase
@@ -15,6 +17,7 @@ import io.diasjakupov.mindtag.feature.auth.presentation.AuthViewModel
 import io.diasjakupov.mindtag.feature.notes.data.api.NoteApi
 import io.diasjakupov.mindtag.feature.notes.data.api.SearchApi
 import io.diasjakupov.mindtag.feature.notes.data.repository.NoteRepositoryImpl
+import io.diasjakupov.mindtag.feature.notes.data.repository.StubNoteRepository
 import io.diasjakupov.mindtag.feature.notes.domain.repository.NoteRepository
 import io.diasjakupov.mindtag.feature.notes.domain.usecase.CreateNoteUseCase
 import io.diasjakupov.mindtag.feature.notes.domain.usecase.GetNoteWithConnectionsUseCase
@@ -24,6 +27,7 @@ import io.diasjakupov.mindtag.feature.library.presentation.LibraryViewModel
 import io.diasjakupov.mindtag.feature.notes.presentation.create.NoteCreateViewModel
 import io.diasjakupov.mindtag.feature.backendquiz.data.api.QuizApi as BackendQuizApi
 import io.diasjakupov.mindtag.feature.backendquiz.data.repository.BackendQuizRepositoryImpl
+import io.diasjakupov.mindtag.feature.backendquiz.data.repository.StubBackendQuizRepository
 import io.diasjakupov.mindtag.feature.backendquiz.domain.repository.BackendQuizRepository
 import io.diasjakupov.mindtag.feature.backendquiz.presentation.attempt.BackendQuizAttemptViewModel
 import io.diasjakupov.mindtag.feature.backendquiz.presentation.list.BackendQuizListViewModel
@@ -63,16 +67,29 @@ val networkModule = module {
 }
 
 val authModule = module {
-    single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
+    // In test mode the stub auth repository authenticates instantly with a fake token.
+    // In network mode the real backend is called.
+    single<AuthRepository> {
+        if (EnvironmentStore.isTestMode) StubAuthRepository(get())
+        else AuthRepositoryImpl(get(), get())
+    }
     factory { LoginUseCase(get()) }
     factory { RegisterUseCase(get()) }
 }
 
 val repositoryModule = module {
-    single<NoteRepository> { NoteRepositoryImpl(get(), get(), get()) }
+    // NoteRepository: stub returns in-memory hardcoded notes; real impl hits the backend.
+    single<NoteRepository> {
+        if (EnvironmentStore.isTestMode) StubNoteRepository()
+        else NoteRepositoryImpl(get(), get(), get())
+    }
     single<StudyRepository> { StudyRepositoryImpl(get()) }
     single<QuizRepository> { QuizRepositoryImpl(get()) }
-    single<BackendQuizRepository> { BackendQuizRepositoryImpl(get<BackendQuizApi>()) }
+    // BackendQuizRepository: stub returns in-memory quizzes; real impl hits the backend.
+    single<BackendQuizRepository> {
+        if (EnvironmentStore.isTestMode) StubBackendQuizRepository()
+        else BackendQuizRepositoryImpl(get<BackendQuizApi>())
+    }
 }
 
 val useCaseModule = module {

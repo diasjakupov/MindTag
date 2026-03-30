@@ -38,7 +38,7 @@ object TestData {
     // --- Notes ---
 
     val algebraNote = Note(
-        id = "note-1",
+        id = 1L,
         title = "Linear Algebra Basics",
         content = "Vectors, matrices, and transformations...",
         summary = "Core linear algebra concepts",
@@ -50,7 +50,7 @@ object TestData {
     )
 
     val calculusNote = Note(
-        id = "note-2",
+        id = 2L,
         title = "Calculus Fundamentals",
         content = "Limits, derivatives, and integrals...",
         summary = "Intro to calculus",
@@ -62,7 +62,7 @@ object TestData {
     )
 
     val mechanicsNote = Note(
-        id = "note-3",
+        id = 3L,
         title = "Newtonian Mechanics",
         content = "Force, motion, energy...",
         summary = "Classical mechanics overview",
@@ -78,7 +78,7 @@ object TestData {
     // --- Related Notes ---
 
     val relatedNote = RelatedNote(
-        noteId = "note-2",
+        noteId = 2L,
         title = "Calculus Fundamentals",
         subjectName = "Mathematics",
         subjectIconName = "calculate",

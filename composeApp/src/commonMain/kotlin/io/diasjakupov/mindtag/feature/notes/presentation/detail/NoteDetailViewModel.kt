@@ -57,6 +57,7 @@ class NoteDetailViewModel(
         Logger.d(tag, "onIntent: $intent")
         when (intent) {
             is NoteDetailIntent.TapQuizMe -> startQuiz()
+            is NoteDetailIntent.TapQuizHistory -> sendEffect(NoteDetailEffect.NavigateToQuizHistory(noteId))
             is NoteDetailIntent.TapRelatedNote -> sendEffect(NoteDetailEffect.NavigateToNote(intent.noteId))
             is NoteDetailIntent.NavigateBack -> sendEffect(NoteDetailEffect.NavigateBack)
             is NoteDetailIntent.TapEdit -> sendEffect(NoteDetailEffect.NavigateToEdit(noteId))

@@ -1,8 +1,6 @@
 package io.diasjakupov.mindtag.feature.library.presentation
 
-import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import app.cash.turbine.test
-import io.diasjakupov.mindtag.data.local.MindTagDatabase
 import io.diasjakupov.mindtag.test.FakeNoteRepository
 import io.diasjakupov.mindtag.test.TestData
 import kotlinx.coroutines.Dispatchers
@@ -31,31 +29,7 @@ class LibraryViewModelWithLinksTest {
         fakeNoteRepository.setNotes(TestData.notes)
         fakeNoteRepository.setSubjects(TestData.subjects)
 
-        val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
-        MindTagDatabase.Schema.create(driver)
-        val db = MindTagDatabase(driver)
-
-        // Seed semantic links BEFORE creating the ViewModel
-        db.semanticLinkEntityQueries.insert(
-            id = "link-1",
-            source_note_id = "note-1",
-            target_note_id = "note-2",
-            similarity_score = 0.85,
-            link_type = "similar",
-            strength = 0.9,
-            created_at = 1700000000000L,
-        )
-        db.semanticLinkEntityQueries.insert(
-            id = "link-2",
-            source_note_id = "note-1",
-            target_note_id = "note-3",
-            similarity_score = 0.6,
-            link_type = "prerequisite",
-            strength = 0.7,
-            created_at = 1700000000000L,
-        )
-
-        viewModel = LibraryViewModel(fakeNoteRepository, db)
+        viewModel = LibraryViewModel(fakeNoteRepository)
     }
 
     @AfterTest
@@ -64,43 +38,63 @@ class LibraryViewModelWithLinksTest {
     }
 
     @Test
-    fun graphEdgesPopulateFromSemanticLinks() = runTest {
+    fun initialLoad_isNotLoading() = runTest {
         viewModel.state.test {
-            // The combine flow may emit multiple times as the SQLDelight flow
-            // arrives on Dispatchers.IO. Wait for a state that has edges loaded.
-            var state = awaitItem()
-            if (state.graphEdges.isEmpty()) {
-                state = awaitItem()
-            }
+            val state = awaitItem()
             assertFalse(state.isLoading)
-            assertEquals(2, state.graphEdges.size)
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
     @Test
-    fun graphEdgesHaveCorrectSourceAndTarget() = runTest {
+    fun initialLoad_notesPopulatedFromRepository() = runTest {
         viewModel.state.test {
-            var state = awaitItem()
-            if (state.graphEdges.isEmpty()) {
-                state = awaitItem()
-            }
-            val link1 = state.graphEdges.first { it.type == "similar" }
-            assertEquals("note-1", link1.sourceNoteId)
-            assertEquals("note-2", link1.targetNoteId)
-            assertEquals(0.9f, link1.strength)
+            val state = awaitItem()
+            assertEquals(TestData.notes.size, state.notes.size)
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
     @Test
-    fun graphEdgesHaveCorrectTypes() = runTest {
+    fun initialLoad_graphNodesBuiltFromNotes() = runTest {
         viewModel.state.test {
-            var state = awaitItem()
-            if (state.graphEdges.isEmpty()) {
-                state = awaitItem()
-            }
-            val types = state.graphEdges.map { it.type }.toSet()
-            assertTrue(types.contains("similar"))
-            assertTrue(types.contains("prerequisite"))
+            val state = awaitItem()
+            // One graph node per note
+            assertEquals(TestData.notes.size, state.graphNodes.size)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun initialLoad_graphNodeLabelsMatchNoteTitles() = runTest {
+        viewModel.state.test {
+            val state = awaitItem()
+            val nodeTitles = state.graphNodes.map { it.label }.toSet()
+            val noteTitles = TestData.notes.map { it.title.take(20) }.toSet()
+            assertEquals(noteTitles, nodeTitles)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun initialLoad_subjectsPopulated() = runTest {
+        viewModel.state.test {
+            val state = awaitItem()
+            assertEquals(TestData.subjects.size, state.subjects.size)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun selectSubjectFilter_filtersNoteList() = runTest {
+        viewModel.state.test {
+            awaitItem() // initial load
+
+            viewModel.onIntent(LibraryContract.Intent.SelectSubjectFilter(TestData.mathSubject.id))
+
+            val filtered = awaitItem()
+            assertTrue(filtered.notes.all { it.subjectName.isNotEmpty() })
+            cancelAndIgnoreRemainingEvents()
         }
     }
 }

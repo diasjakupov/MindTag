@@ -209,14 +209,15 @@ class NoteRepositoryImpl(
                     )
                 }
 
+                val body = dto.body.orEmpty()
                 db.noteEntityQueries.insert(
                     id = dto.id.toString(),
                     title = dto.title,
-                    content = dto.body,
-                    summary = summarize(dto.body),
+                    content = body,
+                    summary = summarize(body),
                     subject_id = dto.subject,
                     week_number = null,
-                    read_time_minutes = estimateReadTimeMinutes(dto.body).toLong(),
+                    read_time_minutes = estimateReadTimeMinutes(body).toLong(),
                     created_at = parseTimestamp(dto.createdAt),
                     updated_at = dto.updatedAt?.let { parseTimestamp(it) } ?: parseTimestamp(dto.createdAt),
                 )
@@ -249,12 +250,12 @@ class NoteRepositoryImpl(
     private fun NoteResponseDto.toDomain() = Note(
         id = id,
         title = title,
-        content = body,
-        summary = summarize(body),
+        content = body.orEmpty(),
+        summary = summarize(body.orEmpty()),
         subjectId = subject,
         subjectName = subject,
         weekNumber = null,
-        readTimeMinutes = estimateReadTimeMinutes(body),
+        readTimeMinutes = estimateReadTimeMinutes(body.orEmpty()),
         createdAt = parseTimestamp(createdAt),
         updatedAt = updatedAt?.let { parseTimestamp(it) } ?: parseTimestamp(createdAt),
     )

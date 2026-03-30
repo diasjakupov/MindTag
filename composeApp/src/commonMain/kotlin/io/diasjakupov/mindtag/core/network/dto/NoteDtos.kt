@@ -22,7 +22,7 @@ data class NoteResponseDto(
     val id: Long,
     val title: String,
     val subject: String,
-    val body: String,
+    val body: String? = null,
     val contentHash: String,
     val createdAt: String,
     @SerialName("updatedAt")

@@ -16,6 +16,7 @@ data class NoteDetailState(
 
 sealed interface NoteDetailIntent {
     data object TapQuizMe : NoteDetailIntent
+    data object TapQuizHistory : NoteDetailIntent
     data class TapRelatedNote(val noteId: Long) : NoteDetailIntent
     data object NavigateBack : NoteDetailIntent
     data object TapEdit : NoteDetailIntent
@@ -27,6 +28,7 @@ sealed interface NoteDetailIntent {
 sealed interface NoteDetailEffect {
     data class NavigateToQuiz(val sessionId: String) : NoteDetailEffect
     data class NavigateToBackendQuiz(val quizId: Long, val attemptId: Long) : NoteDetailEffect
+    data class NavigateToQuizHistory(val noteId: Long) : NoteDetailEffect
     data class NavigateToNote(val noteId: Long) : NoteDetailEffect
     data object NavigateBack : NoteDetailEffect
     data class NavigateToEdit(val noteId: Long) : NoteDetailEffect

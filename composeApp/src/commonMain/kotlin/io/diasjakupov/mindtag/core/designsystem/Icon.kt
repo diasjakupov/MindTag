@@ -25,6 +25,7 @@ import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Headphones
+import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.outlined.Person
@@ -79,4 +80,5 @@ object MindTagIcons {
     val CalendarMonth = Icons.Outlined.CalendarMonth
     val School = Icons.Outlined.School
     val Headphones = Icons.Outlined.Headphones
+    val History = Icons.Outlined.History
 }

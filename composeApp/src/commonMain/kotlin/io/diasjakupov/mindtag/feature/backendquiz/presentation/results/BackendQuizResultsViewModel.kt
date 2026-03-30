@@ -59,7 +59,7 @@ class BackendQuizResultsViewModel(
         when (intent) {
             is BackendQuizResultsIntent.ToggleQuestion -> toggleQuestion(intent.questionId)
             is BackendQuizResultsIntent.TapClose -> sendEffect(BackendQuizResultsEffect.NavigateBack)
-            is BackendQuizResultsIntent.TapRetry -> sendEffect(BackendQuizResultsEffect.NavigateBack)
+            is BackendQuizResultsIntent.TapRetry -> loadResults()
         }
     }
 

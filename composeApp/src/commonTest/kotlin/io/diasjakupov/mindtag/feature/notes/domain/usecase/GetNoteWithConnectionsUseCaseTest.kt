@@ -1,6 +1,5 @@
 package io.diasjakupov.mindtag.feature.notes.domain.usecase
 
-import app.cash.turbine.test
 import io.diasjakupov.mindtag.test.FakeNoteRepository
 import io.diasjakupov.mindtag.test.TestData
 import kotlinx.coroutines.test.runTest
@@ -18,48 +17,36 @@ class GetNoteWithConnectionsUseCaseTest {
     @Test
     fun returnsNoteWithRelatedNotes() = runTest {
         repository.setNotes(TestData.notes)
-        repository.setRelatedNotes("note-1", listOf(TestData.relatedNote))
+        repository.setRelatedNotes(TestData.algebraNote.id, listOf(TestData.relatedNote))
 
-        useCase("note-1").test {
-            val result = awaitItem()
-            assertNotNull(result)
-            assertEquals(TestData.algebraNote, result.note)
-            assertEquals(1, result.relatedNotes.size)
-            assertEquals(TestData.relatedNote, result.relatedNotes.first())
-            cancelAndConsumeRemainingEvents()
-        }
+        val result = useCase(TestData.algebraNote.id)
+        assertNotNull(result)
+        assertEquals(TestData.algebraNote, result.note)
+        assertEquals(1, result.relatedNotes.size)
+        assertEquals(TestData.relatedNote, result.relatedNotes.first())
     }
 
     @Test
     fun returnsNoteWithEmptyRelatedNotesWhenNoneExist() = runTest {
         repository.setNotes(TestData.notes)
 
-        useCase("note-1").test {
-            val result = awaitItem()
-            assertNotNull(result)
-            assertEquals(TestData.algebraNote, result.note)
-            assertTrue(result.relatedNotes.isEmpty())
-            cancelAndConsumeRemainingEvents()
-        }
+        val result = useCase(TestData.algebraNote.id)
+        assertNotNull(result)
+        assertEquals(TestData.algebraNote, result.note)
+        assertTrue(result.relatedNotes.isEmpty())
     }
 
     @Test
     fun returnsNullWhenNoteDoesNotExist() = runTest {
-        useCase("nonexistent").test {
-            val result = awaitItem()
-            assertNull(result)
-            cancelAndConsumeRemainingEvents()
-        }
+        val result = useCase(99999L)
+        assertNull(result)
     }
 
     @Test
     fun returnsNullWhenNoteIdDoesNotMatchEvenWithRelatedNotes() = runTest {
-        repository.setRelatedNotes("nonexistent", listOf(TestData.relatedNote))
+        repository.setRelatedNotes(99999L, listOf(TestData.relatedNote))
 
-        useCase("nonexistent").test {
-            val result = awaitItem()
-            assertNull(result)
-            cancelAndConsumeRemainingEvents()
-        }
+        val result = useCase(99999L)
+        assertNull(result)
     }
 }

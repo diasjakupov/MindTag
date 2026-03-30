@@ -533,7 +533,7 @@ private fun BackendQuizResultsError(
                     .padding(horizontal = MindTagSpacing.xxxxl, vertical = MindTagSpacing.lg),
             ) {
                 Text(
-                    text = "Go Back",
+                    text = "Retry",
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
                     color = Color.White,
                 )

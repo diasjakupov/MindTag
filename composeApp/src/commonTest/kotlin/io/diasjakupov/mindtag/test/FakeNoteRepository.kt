@@ -5,9 +5,7 @@ import io.diasjakupov.mindtag.feature.notes.domain.model.Note
 import io.diasjakupov.mindtag.feature.notes.domain.model.PaginatedNotes
 import io.diasjakupov.mindtag.feature.notes.domain.model.RelatedNote
 import io.diasjakupov.mindtag.feature.notes.domain.repository.NoteRepository
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.datetime.Clock
 
@@ -15,9 +13,9 @@ class FakeNoteRepository : NoteRepository {
 
     private val notesFlow = MutableStateFlow<List<Note>>(emptyList())
     private val subjectsFlow = MutableStateFlow<List<Subject>>(emptyList())
-    private val relatedNotesMap = mutableMapOf<String, List<RelatedNote>>()
+    private val relatedNotesMap = mutableMapOf<Long, List<RelatedNote>>()
 
-    private var nextId = 1
+    private var nextId = 1L
 
     fun setNotes(notes: List<Note>) {
         notesFlow.value = notes
@@ -27,33 +25,35 @@ class FakeNoteRepository : NoteRepository {
         subjectsFlow.value = subjects
     }
 
-    fun setRelatedNotes(noteId: String, related: List<RelatedNote>) {
+    fun setRelatedNotes(noteId: Long, related: List<RelatedNote>) {
         relatedNotesMap[noteId] = related
     }
 
-    override fun getNotes(subjectId: String?): Flow<List<Note>> {
-        return notesFlow.map { notes ->
-            if (subjectId != null) notes.filter { it.subjectId == subjectId } else notes
+    override suspend fun getNotes(subjectFilter: String?): List<Note> {
+        return notesFlow.value.let { notes ->
+            if (subjectFilter != null) notes.filter { it.subjectId == subjectFilter } else notes
         }
     }
 
-    override fun getNoteById(id: String): Flow<Note?> {
-        return notesFlow.map { notes -> notes.find { it.id == id } }
+    override suspend fun getNoteById(id: Long): Note? {
+        return notesFlow.value.find { it.id == id }
     }
 
-    override fun getRelatedNotes(noteId: String, limit: Int): Flow<List<RelatedNote>> {
-        return MutableStateFlow(relatedNotesMap[noteId]?.take(limit) ?: emptyList())
+    override suspend fun getRelatedNotes(noteId: Long): List<RelatedNote> {
+        return relatedNotesMap[noteId] ?: emptyList()
     }
 
-    override fun getSubjects(): Flow<List<Subject>> = subjectsFlow
+    override suspend fun getSubjects(): List<Subject> {
+        return subjectsFlow.value
+    }
 
-    override suspend fun createNote(title: String, content: String, subjectId: String): Note {
+    override suspend fun createNote(title: String, content: String, subjectName: String): Note {
         val note = Note(
-            id = "note-${nextId++}",
+            id = nextId++,
             title = title,
             content = content,
             summary = "",
-            subjectId = subjectId,
+            subjectId = subjectName,
             weekNumber = null,
             readTimeMinutes = 1,
             createdAt = Clock.System.now().toEpochMilliseconds(),
@@ -63,7 +63,7 @@ class FakeNoteRepository : NoteRepository {
         return note
     }
 
-    override suspend fun updateNote(id: String, title: String, content: String) {
+    override suspend fun updateNote(id: Long, title: String, content: String, subjectName: String) {
         notesFlow.update { notes ->
             notes.map { note ->
                 if (note.id == id) note.copy(title = title, content = content, updatedAt = Clock.System.now().toEpochMilliseconds())
@@ -72,9 +72,7 @@ class FakeNoteRepository : NoteRepository {
         }
     }
 
-    override suspend fun getAllNotesSnapshot(): List<Note> = notesFlow.value
-
-    override suspend fun deleteNote(id: String) {
+    override suspend fun deleteNote(id: Long) {
         notesFlow.update { notes -> notes.filter { it.id != id } }
     }
 
@@ -96,5 +94,11 @@ class FakeNoteRepository : NoteRepository {
             page = page,
             hasMore = false,
         )
+    }
+
+    override suspend fun semanticSearch(query: String): List<Note> {
+        return notesFlow.value.filter {
+            it.title.contains(query, ignoreCase = true) || it.content.contains(query, ignoreCase = true)
+        }
     }
 }

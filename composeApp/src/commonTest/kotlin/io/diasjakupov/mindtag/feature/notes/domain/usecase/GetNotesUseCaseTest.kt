@@ -1,6 +1,5 @@
 package io.diasjakupov.mindtag.feature.notes.domain.usecase
 
-import app.cash.turbine.test
 import io.diasjakupov.mindtag.test.FakeNoteRepository
 import io.diasjakupov.mindtag.test.TestData
 import kotlinx.coroutines.test.runTest
@@ -17,58 +16,31 @@ class GetNotesUseCaseTest {
     fun returnsAllNotesWhenNoSubjectFilter() = runTest {
         repository.setNotes(TestData.notes)
 
-        useCase().test {
-            val notes = awaitItem()
-            assertEquals(3, notes.size)
-            assertEquals(TestData.notes, notes)
-            cancelAndConsumeRemainingEvents()
-        }
+        val notes = useCase()
+        assertEquals(3, notes.size)
+        assertEquals(TestData.notes, notes)
     }
 
     @Test
     fun returnsFilteredNotesBySubjectId() = runTest {
         repository.setNotes(TestData.notes)
 
-        useCase(subjectId = "subj-1").test {
-            val notes = awaitItem()
-            assertEquals(2, notes.size)
-            assertTrue(notes.all { it.subjectId == "subj-1" })
-            cancelAndConsumeRemainingEvents()
-        }
+        val notes = useCase(subjectFilter = "subj-1")
+        assertEquals(2, notes.size)
+        assertTrue(notes.all { it.subjectId == "subj-1" })
     }
 
     @Test
     fun returnsEmptyListWhenNoNotesExist() = runTest {
-        useCase().test {
-            val notes = awaitItem()
-            assertTrue(notes.isEmpty())
-            cancelAndConsumeRemainingEvents()
-        }
+        val notes = useCase()
+        assertTrue(notes.isEmpty())
     }
 
     @Test
     fun returnsEmptyListForUnknownSubjectId() = runTest {
         repository.setNotes(TestData.notes)
 
-        useCase(subjectId = "nonexistent").test {
-            val notes = awaitItem()
-            assertTrue(notes.isEmpty())
-            cancelAndConsumeRemainingEvents()
-        }
-    }
-
-    @Test
-    fun emitsUpdatesWhenNotesChange() = runTest {
-        useCase().test {
-            assertEquals(emptyList(), awaitItem())
-
-            repository.setNotes(listOf(TestData.algebraNote))
-            assertEquals(listOf(TestData.algebraNote), awaitItem())
-
-            repository.setNotes(TestData.notes)
-            assertEquals(TestData.notes, awaitItem())
-
-            cancelAndConsumeRemainingEvents()
-        }
+        val notes = useCase(subjectFilter = "nonexistent")
+        assertTrue(notes.isEmpty())
     }
 }

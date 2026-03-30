@@ -6,13 +6,16 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
+import io.diasjakupov.mindtag.core.config.EnvironmentBanner
 import io.diasjakupov.mindtag.core.designsystem.LocalWindowSizeClass
 import io.diasjakupov.mindtag.core.designsystem.WindowSizeClass
 import io.diasjakupov.mindtag.core.navigation.MindTagNavigationRail
@@ -122,13 +125,19 @@ fun App() {
                 val authManager: AuthManager = koinInject()
                 val authState by authManager.state.collectAsState()
 
-                when (authState) {
-                    is AuthState.Unauthenticated -> {
-                        AuthScreen(onNavigateToHome = { /* handled by auth state change */ })
+                Box(Modifier.fillMaxSize()) {
+                    when (authState) {
+                        is AuthState.Unauthenticated -> {
+                            AuthScreen(onNavigateToHome = { /* handled by auth state change */ })
+                        }
+                        is AuthState.Authenticated -> {
+                            MainApp()
+                        }
                     }
-                    is AuthState.Authenticated -> {
-                        MainApp()
-                    }
+
+                    // Environment indicator: visible only in TEST mode.
+                    // Long-press the banner to open the environment switcher dialog.
+                    EnvironmentBanner(Modifier.align(Alignment.BottomCenter))
                 }
             }
         }
@@ -186,6 +195,9 @@ private fun MainApp() {
                         onNavigateToQuiz = { sessionId -> nav.push(Route.Quiz(sessionId)) },
                         onNavigateToBackendQuiz = { quizId, attemptId ->
                             nav.push(Route.BackendQuizAttempt(quizId, attemptId))
+                        },
+                        onNavigateToQuizHistory = { noteId ->
+                            nav.push(Route.BackendQuizList(noteId))
                         },
                     )
                 }

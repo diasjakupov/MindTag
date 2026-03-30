@@ -1,6 +1,5 @@
 package io.diasjakupov.mindtag.feature.notes.domain.usecase
 
-import app.cash.turbine.test
 import io.diasjakupov.mindtag.test.FakeNoteRepository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -33,12 +32,9 @@ class CreateNoteUseCaseTest {
     fun createdNoteAppearsInRepository() = runTest {
         useCase("Test Note", "content", "subj-1")
 
-        repository.getNotes().test {
-            val notes = awaitItem()
-            assertEquals(1, notes.size)
-            assertEquals("Test Note", notes.first().title)
-            cancelAndConsumeRemainingEvents()
-        }
+        val notes = repository.getNotes()
+        assertEquals(1, notes.size)
+        assertEquals("Test Note", notes.first().title)
     }
 
     @Test

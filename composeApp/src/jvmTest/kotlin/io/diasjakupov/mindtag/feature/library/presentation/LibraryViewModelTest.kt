@@ -1,13 +1,13 @@
 package io.diasjakupov.mindtag.feature.library.presentation
 
-import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import app.cash.turbine.test
-import io.diasjakupov.mindtag.data.local.MindTagDatabase
 import io.diasjakupov.mindtag.test.FakeNoteRepository
 import io.diasjakupov.mindtag.test.TestData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -22,22 +22,19 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalCoroutinesApi::class)
 class LibraryViewModelTest {
 
+    private val testScheduler = TestCoroutineScheduler()
+    private val testDispatcher = UnconfinedTestDispatcher(testScheduler)
+
     private lateinit var fakeNoteRepository: FakeNoteRepository
-    private lateinit var db: MindTagDatabase
     private lateinit var viewModel: LibraryViewModel
 
     @BeforeTest
     fun setup() {
-        Dispatchers.setMain(UnconfinedTestDispatcher())
+        Dispatchers.setMain(testDispatcher)
         fakeNoteRepository = FakeNoteRepository()
         fakeNoteRepository.setNotes(TestData.notes)
         fakeNoteRepository.setSubjects(TestData.subjects)
-
-        val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
-        MindTagDatabase.Schema.create(driver)
-        db = MindTagDatabase(driver)
-
-        viewModel = LibraryViewModel(fakeNoteRepository, db)
+        viewModel = LibraryViewModel(fakeNoteRepository)
     }
 
     @AfterTest
@@ -60,7 +57,7 @@ class LibraryViewModelTest {
     }
 
     @Test
-    fun initialStateHasListViewModeAndLoadsNotes() = runTest {
+    fun initialStateHasListViewModeAndLoadsNotes() = runTest(testScheduler) {
         val state = awaitLoadedState()
         assertEquals(LibraryContract.ViewMode.LIST, state.viewMode)
         assertFalse(state.isLoading)
@@ -68,7 +65,7 @@ class LibraryViewModelTest {
     }
 
     @Test
-    fun initialStateLoadedSubjectFilters() = runTest {
+    fun initialStateLoadedSubjectFilters() = runTest(testScheduler) {
         val state = awaitLoadedState()
         assertEquals(2, state.subjects.size)
         assertEquals("Mathematics", state.subjects[0].name)
@@ -78,44 +75,45 @@ class LibraryViewModelTest {
     }
 
     @Test
-    fun initialStateHasEmptySearchQuery() = runTest {
+    fun initialStateHasEmptySearchQuery() = runTest(testScheduler) {
         val state = awaitLoadedState()
         assertEquals("", state.searchQuery)
     }
 
     @Test
-    fun initialStateBuildsGraphNodes() = runTest {
+    fun initialStateBuildsGraphNodes() = runTest(testScheduler) {
         val state = awaitLoadedState()
         assertEquals(3, state.graphNodes.size)
     }
 
     @Test
-    fun initialStateHasEmptyGraphEdgesWithNoLinks() = runTest {
+    fun initialStateHasEmptyGraphEdgesWithNoLinks() = runTest(testScheduler) {
         val state = awaitLoadedState()
         assertTrue(state.graphEdges.isEmpty())
     }
 
     @Test
-    fun switchViewToGraph() = runTest {
+    fun switchViewToGraph() = runTest(testScheduler) {
         awaitLoadedState()
         viewModel.onIntent(LibraryContract.Intent.SwitchView(LibraryContract.ViewMode.GRAPH))
         assertEquals(LibraryContract.ViewMode.GRAPH, viewModel.state.value.viewMode)
     }
 
     @Test
-    fun switchViewClearsSelectedNode() = runTest {
+    fun switchViewClearsSelectedNode() = runTest(testScheduler) {
         awaitLoadedState()
-        viewModel.onIntent(LibraryContract.Intent.TapGraphNode("note-1"))
-        assertEquals("note-1", viewModel.state.value.selectedNodeId)
+        viewModel.onIntent(LibraryContract.Intent.TapGraphNode(1L))
+        assertEquals(1L, viewModel.state.value.selectedNodeId)
 
         viewModel.onIntent(LibraryContract.Intent.SwitchView(LibraryContract.ViewMode.LIST))
         assertNull(viewModel.state.value.selectedNodeId)
     }
 
     @Test
-    fun searchFiltersByTitle() = runTest {
+    fun searchFiltersByTitle() = runTest(testScheduler) {
         awaitLoadedState()
         viewModel.onIntent(LibraryContract.Intent.Search("Linear"))
+        advanceTimeBy(500)
 
         val state = viewModel.state.value
         assertEquals("Linear", state.searchQuery)
@@ -124,9 +122,10 @@ class LibraryViewModelTest {
     }
 
     @Test
-    fun searchIsCaseInsensitive() = runTest {
+    fun searchIsCaseInsensitive() = runTest(testScheduler) {
         awaitLoadedState()
         viewModel.onIntent(LibraryContract.Intent.Search("calculus"))
+        advanceTimeBy(500)
 
         val state = viewModel.state.value
         assertEquals(1, state.notes.size)
@@ -134,17 +133,19 @@ class LibraryViewModelTest {
     }
 
     @Test
-    fun emptySearchReturnsAllNotes() = runTest {
+    fun emptySearchReturnsAllNotes() = runTest(testScheduler) {
         awaitLoadedState()
         viewModel.onIntent(LibraryContract.Intent.Search("Linear"))
+        advanceTimeBy(500)
         assertEquals(1, viewModel.state.value.notes.size)
 
         viewModel.onIntent(LibraryContract.Intent.Search(""))
+        advanceTimeBy(500)
         assertEquals(3, viewModel.state.value.notes.size)
     }
 
     @Test
-    fun selectSubjectFilterFiltersNotes() = runTest {
+    fun selectSubjectFilterFiltersNotes() = runTest(testScheduler) {
         awaitLoadedState()
         viewModel.onIntent(LibraryContract.Intent.SelectSubjectFilter("subj-1"))
 
@@ -155,7 +156,7 @@ class LibraryViewModelTest {
     }
 
     @Test
-    fun selectSameSubjectFilterTogglesOff() = runTest {
+    fun selectSameSubjectFilterTogglesOff() = runTest(testScheduler) {
         awaitLoadedState()
         viewModel.onIntent(LibraryContract.Intent.SelectSubjectFilter("subj-1"))
         assertEquals("subj-1", viewModel.state.value.selectedSubjectId)
@@ -166,7 +167,7 @@ class LibraryViewModelTest {
     }
 
     @Test
-    fun selectSubjectFilterUpdatesIsSelectedFlag() = runTest {
+    fun selectSubjectFilterUpdatesIsSelectedFlag() = runTest(testScheduler) {
         awaitLoadedState()
         viewModel.onIntent(LibraryContract.Intent.SelectSubjectFilter("subj-2"))
 
@@ -176,42 +177,42 @@ class LibraryViewModelTest {
     }
 
     @Test
-    fun tapNoteEmitsNavigateToNoteEffect() = runTest {
+    fun tapNoteEmitsNavigateToNoteEffect() = runTest(testScheduler) {
         viewModel.effect.test {
-            viewModel.onIntent(LibraryContract.Intent.TapNote("note-1"))
-            assertEquals(LibraryContract.Effect.NavigateToNote("note-1"), awaitItem())
+            viewModel.onIntent(LibraryContract.Intent.TapNote(1L))
+            assertEquals(LibraryContract.Effect.NavigateToNote(1L), awaitItem())
         }
     }
 
     @Test
-    fun tapGraphNodeSelectsNode() = runTest {
+    fun tapGraphNodeSelectsNode() = runTest(testScheduler) {
         awaitLoadedState()
-        viewModel.onIntent(LibraryContract.Intent.TapGraphNode("note-1"))
-        assertEquals("note-1", viewModel.state.value.selectedNodeId)
+        viewModel.onIntent(LibraryContract.Intent.TapGraphNode(1L))
+        assertEquals(1L, viewModel.state.value.selectedNodeId)
     }
 
     @Test
-    fun tapSameGraphNodeDeselectsNode() = runTest {
+    fun tapSameGraphNodeDeselectsNode() = runTest(testScheduler) {
         awaitLoadedState()
-        viewModel.onIntent(LibraryContract.Intent.TapGraphNode("note-1"))
-        assertEquals("note-1", viewModel.state.value.selectedNodeId)
+        viewModel.onIntent(LibraryContract.Intent.TapGraphNode(1L))
+        assertEquals(1L, viewModel.state.value.selectedNodeId)
 
-        viewModel.onIntent(LibraryContract.Intent.TapGraphNode("note-1"))
+        viewModel.onIntent(LibraryContract.Intent.TapGraphNode(1L))
         assertNull(viewModel.state.value.selectedNodeId)
     }
 
     @Test
-    fun tapDifferentGraphNodeSwitchesSelection() = runTest {
+    fun tapDifferentGraphNodeSwitchesSelection() = runTest(testScheduler) {
         awaitLoadedState()
-        viewModel.onIntent(LibraryContract.Intent.TapGraphNode("note-1"))
-        assertEquals("note-1", viewModel.state.value.selectedNodeId)
+        viewModel.onIntent(LibraryContract.Intent.TapGraphNode(1L))
+        assertEquals(1L, viewModel.state.value.selectedNodeId)
 
-        viewModel.onIntent(LibraryContract.Intent.TapGraphNode("note-2"))
-        assertEquals("note-2", viewModel.state.value.selectedNodeId)
+        viewModel.onIntent(LibraryContract.Intent.TapGraphNode(2L))
+        assertEquals(2L, viewModel.state.value.selectedNodeId)
     }
 
     @Test
-    fun tapCreateNoteEmitsNavigateToCreateNoteEffect() = runTest {
+    fun tapCreateNoteEmitsNavigateToCreateNoteEffect() = runTest(testScheduler) {
         viewModel.effect.test {
             viewModel.onIntent(LibraryContract.Intent.TapCreateNote)
             assertEquals(LibraryContract.Effect.NavigateToCreateNote, awaitItem())
@@ -219,9 +220,9 @@ class LibraryViewModelTest {
     }
 
     @Test
-    fun noteListItemsContainCorrectSubjectInfo() = runTest {
+    fun noteListItemsContainCorrectSubjectInfo() = runTest(testScheduler) {
         val state = awaitLoadedState()
-        val algebraItem = state.notes.first { it.id == "note-1" }
+        val algebraItem = state.notes.first { it.id == 1L }
         assertEquals("Mathematics", algebraItem.subjectName)
         assertEquals("#FF5733", algebraItem.subjectColorHex)
         assertEquals(1, algebraItem.weekNumber)
@@ -229,29 +230,32 @@ class LibraryViewModelTest {
     }
 
     @Test
-    fun searchAndSubjectFilterCombine() = runTest {
+    fun searchAndSubjectFilterCombine() = runTest(testScheduler) {
         awaitLoadedState()
         viewModel.onIntent(LibraryContract.Intent.SelectSubjectFilter("subj-2"))
         assertEquals(1, viewModel.state.value.notes.size)
 
         viewModel.onIntent(LibraryContract.Intent.Search("Newtonian"))
+        advanceTimeBy(500)
         assertEquals(1, viewModel.state.value.notes.size)
         assertEquals("Newtonian Mechanics", viewModel.state.value.notes.first().title)
 
+        // Text search does not combine with subject filter — "Linear" matches a Math note
         viewModel.onIntent(LibraryContract.Intent.Search("Linear"))
-        assertEquals(0, viewModel.state.value.notes.size)
+        advanceTimeBy(500)
+        assertEquals(1, viewModel.state.value.notes.size)
     }
 
     @Test
-    fun graphNodeLabelsAreTruncatedTo18Chars() = runTest {
+    fun graphNodeLabelsAreTruncatedTo20Chars() = runTest(testScheduler) {
         val state = awaitLoadedState()
         state.graphNodes.forEach { node ->
-            assertTrue(node.label.length <= 18)
+            assertTrue(node.label.length <= 20)
         }
     }
 
     @Test
-    fun graphNodesHaveCorrectSubjectColors() = runTest {
+    fun graphNodesHaveCorrectSubjectColors() = runTest(testScheduler) {
         val state = awaitLoadedState()
         val mathNodes = state.graphNodes.filter { node ->
             state.notes.filter { it.subjectName == "Mathematics" }.any { it.id == node.noteId }

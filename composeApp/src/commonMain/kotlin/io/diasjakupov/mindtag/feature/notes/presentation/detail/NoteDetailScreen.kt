@@ -28,6 +28,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -59,10 +62,12 @@ fun NoteDetailScreen(
     onNavigateToNote: (Long) -> Unit,
     onNavigateToQuiz: (String) -> Unit,
     onNavigateToBackendQuiz: (quizId: Long, attemptId: Long) -> Unit = { _, _ -> },
+    onNavigateToQuizHistory: (noteId: Long) -> Unit = {},
     onNavigateToEdit: (Long) -> Unit = {},
 ) {
     val viewModel: NoteDetailViewModel = koinViewModel(parameters = { parametersOf(noteId) })
     val state by viewModel.state.collectAsState()
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
@@ -71,10 +76,22 @@ fun NoteDetailScreen(
                 is NoteDetailEffect.NavigateToNote -> onNavigateToNote(effect.noteId)
                 is NoteDetailEffect.NavigateToQuiz -> onNavigateToQuiz(effect.sessionId)
                 is NoteDetailEffect.NavigateToBackendQuiz -> onNavigateToBackendQuiz(effect.quizId, effect.attemptId)
+                is NoteDetailEffect.NavigateToQuizHistory -> onNavigateToQuizHistory(effect.noteId)
                 is NoteDetailEffect.NavigateToEdit -> onNavigateToEdit(effect.noteId)
-                is NoteDetailEffect.ShowError -> { /* TODO: snackbar */ }
+                is NoteDetailEffect.ShowError -> errorMessage = effect.message
             }
         }
+    }
+
+    errorMessage?.let { msg ->
+        AlertDialog(
+            onDismissRequest = { errorMessage = null },
+            title = { Text("Error") },
+            text = { Text(msg) },
+            confirmButton = {
+                TextButton(onClick = { errorMessage = null }) { Text("OK") }
+            },
+        )
     }
 
     if (state.isLoading) {
@@ -289,17 +306,36 @@ private fun NoteDetailActionBar(
             )
         }
         if (state.isCreatingQuiz) {
-            CircularProgressIndicator(
-                color = MindTagColors.Primary,
-                modifier = Modifier.size(24.dp),
-                strokeWidth = 2.dp,
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                CircularProgressIndicator(
+                    color = MindTagColors.Primary,
+                    modifier = Modifier.size(24.dp),
+                    strokeWidth = 2.dp,
+                )
+                if (state.quizGenerationStatus.isNotEmpty()) {
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = state.quizGenerationStatus,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MindTagColors.TextSlate300,
+                    )
+                }
+            }
         } else {
-            MindTagButton(
-                text = "Quiz Me",
-                onClick = { onIntent(NoteDetailIntent.TapQuizMe) },
-                variant = MindTagButtonVariant.Pill,
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = { onIntent(NoteDetailIntent.TapQuizHistory) }) {
+                    Icon(
+                        imageVector = MindTagIcons.History,
+                        contentDescription = "Quiz History",
+                        tint = MindTagColors.TextSlate300,
+                    )
+                }
+                MindTagButton(
+                    text = "Quiz Me",
+                    onClick = { onIntent(NoteDetailIntent.TapQuizMe) },
+                    variant = MindTagButtonVariant.Pill,
+                )
+            }
         }
     }
 }
