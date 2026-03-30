@@ -76,14 +76,18 @@ class BackendQuizResultsViewModel(
                 if (note != null) {
                     updateState { copy(subjectId = note.subjectId) }
                 } else {
-                    updateState { copy(subjectId = state.value.noteTitleSnapshot) }
+                    updateState { copy(subjectId = FALLBACK_SUBJECT) }
                 }
             } catch (_: Exception) {
-                updateState { copy(subjectId = state.value.noteTitleSnapshot) }
+                updateState { copy(subjectId = FALLBACK_SUBJECT) }
             }
         } else {
-            updateState { copy(subjectId = state.value.noteTitleSnapshot) }
+            updateState { copy(subjectId = FALLBACK_SUBJECT) }
         }
+    }
+
+    companion object {
+        private const val FALLBACK_SUBJECT = "Quiz Review"
     }
 
     override fun onIntent(intent: BackendQuizResultsIntent) {
