@@ -85,6 +85,9 @@ fun ResultsScreenContent(
     onIntent: (ResultsIntent) -> Unit,
 ) {
     val isCompact = LocalWindowSizeClass.current == WindowSizeClass.Compact
+    val isExpanded = LocalWindowSizeClass.current == WindowSizeClass.Expanded
+    val contentMaxWidth = if (isExpanded) MindTagSpacing.contentMaxWidthExpanded
+                          else MindTagSpacing.contentMaxWidthMedium
 
     Box(
         modifier = Modifier
@@ -100,7 +103,7 @@ fun ResultsScreenContent(
                 modifier = Modifier
                     .then(
                         if (isCompact) Modifier.fillMaxWidth()
-                        else Modifier.widthIn(max = MindTagSpacing.contentMaxWidthMedium)
+                        else Modifier.widthIn(max = contentMaxWidth)
                     )
                     .verticalScroll(rememberScrollState())
                     .padding(bottom = 100.dp),
@@ -113,6 +116,7 @@ fun ResultsScreenContent(
                     scorePercent = state.scorePercent,
                     feedbackMessage = state.feedbackMessage,
                     feedbackSubtext = state.feedbackSubtext,
+                    isExpanded = isExpanded,
                 )
 
                 TimeStatCard(timeSpent = state.timeSpent)
@@ -123,6 +127,7 @@ fun ResultsScreenContent(
                     answers = state.answers,
                     expandedAnswerId = state.expandedAnswerId,
                     onToggle = { onIntent(ResultsIntent.ToggleAnswer(it)) },
+                    isExpanded = isExpanded,
                 )
             }
         }
@@ -133,7 +138,7 @@ fun ResultsScreenContent(
                 .align(Alignment.BottomCenter)
                 .then(
                     if (isCompact) Modifier.fillMaxWidth()
-                    else Modifier.widthIn(max = MindTagSpacing.contentMaxWidthMedium)
+                    else Modifier.widthIn(max = contentMaxWidth)
                 )
                 .background(
                     Brush.verticalGradient(
@@ -207,74 +212,109 @@ private fun ScoreRingSection(
     scorePercent: Int,
     feedbackMessage: String,
     feedbackSubtext: String,
+    isExpanded: Boolean = false,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = MindTagSpacing.md, bottom = MindTagSpacing.xxxxl),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        // Score ring
-        Box(
-            modifier = Modifier.size(160.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            Canvas(modifier = Modifier.size(160.dp)) {
-                val strokeWidth = 6.dp.toPx()
-                val padding = strokeWidth / 2
-                val arcSize = Size(size.width - strokeWidth, size.height - strokeWidth)
-                val topLeft = Offset(padding, padding)
+    val ringSize = if (isExpanded) 220.dp else 160.dp
+    val strokeWidth = if (isExpanded) 8.dp else 6.dp
 
-                // Track arc
-                drawArc(
-                    color = MindTagColors.Primary.copy(alpha = 0.2f),
-                    startAngle = -90f,
-                    sweepAngle = 360f,
-                    useCenter = false,
-                    topLeft = topLeft,
-                    size = arcSize,
-                    style = Stroke(width = strokeWidth, cap = StrokeCap.Round),
-                )
-                // Fill arc
-                drawArc(
-                    color = MindTagColors.Primary,
-                    startAngle = -90f,
-                    sweepAngle = 360f * scorePercent / 100f,
-                    useCenter = false,
-                    topLeft = topLeft,
-                    size = arcSize,
-                    style = Stroke(width = strokeWidth, cap = StrokeCap.Round),
+    if (isExpanded) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = MindTagSpacing.xl)
+                .padding(top = MindTagSpacing.md, bottom = MindTagSpacing.xxxxl),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.xxxl),
+        ) {
+            // Score ring
+            Box(modifier = Modifier.size(ringSize), contentAlignment = Alignment.Center) {
+                Canvas(modifier = Modifier.size(ringSize)) {
+                    val sw = strokeWidth.toPx()
+                    val padding = sw / 2
+                    val arcSize = Size(size.width - sw, size.height - sw)
+                    val topLeft = Offset(padding, padding)
+                    drawArc(color = MindTagColors.Primary.copy(alpha = 0.2f), startAngle = -90f, sweepAngle = 360f, useCenter = false, topLeft = topLeft, size = arcSize, style = Stroke(width = sw, cap = StrokeCap.Round))
+                    drawArc(color = MindTagColors.Primary, startAngle = -90f, sweepAngle = 360f * scorePercent / 100f, useCenter = false, topLeft = topLeft, size = arcSize, style = Stroke(width = sw, cap = StrokeCap.Round))
+                }
+                Text(text = "$scorePercent%", style = MaterialTheme.typography.displayLarge.copy(fontWeight = FontWeight.Bold, fontSize = 48.sp), color = Color.White)
+            }
+
+            // Feedback text beside ring
+            Column {
+                Text(text = feedbackMessage, style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold), color = Color.White)
+                Spacer(modifier = Modifier.height(MindTagSpacing.md))
+                Text(text = feedbackSubtext, style = MaterialTheme.typography.bodyMedium, color = MindTagColors.TextTertiary)
+            }
+        }
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = MindTagSpacing.md, bottom = MindTagSpacing.xxxxl),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            // Score ring
+            Box(
+                modifier = Modifier.size(ringSize),
+                contentAlignment = Alignment.Center,
+            ) {
+                Canvas(modifier = Modifier.size(ringSize)) {
+                    val sw = strokeWidth.toPx()
+                    val padding = sw / 2
+                    val arcSize = Size(size.width - sw, size.height - sw)
+                    val topLeft = Offset(padding, padding)
+
+                    // Track arc
+                    drawArc(
+                        color = MindTagColors.Primary.copy(alpha = 0.2f),
+                        startAngle = -90f,
+                        sweepAngle = 360f,
+                        useCenter = false,
+                        topLeft = topLeft,
+                        size = arcSize,
+                        style = Stroke(width = sw, cap = StrokeCap.Round),
+                    )
+                    // Fill arc
+                    drawArc(
+                        color = MindTagColors.Primary,
+                        startAngle = -90f,
+                        sweepAngle = 360f * scorePercent / 100f,
+                        useCenter = false,
+                        topLeft = topLeft,
+                        size = arcSize,
+                        style = Stroke(width = sw, cap = StrokeCap.Round),
+                    )
+                }
+
+                Text(
+                    text = "$scorePercent%",
+                    style = MaterialTheme.typography.displayLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 48.sp,
+                    ),
+                    color = Color.White,
                 )
             }
 
+            Spacer(modifier = Modifier.height(MindTagSpacing.xxxl))
+
             Text(
-                text = "$scorePercent%",
-                style = MaterialTheme.typography.displayLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 48.sp,
-                ),
+                text = feedbackMessage,
+                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                 color = Color.White,
+                textAlign = TextAlign.Center,
+            )
+
+            Spacer(modifier = Modifier.height(MindTagSpacing.md))
+
+            Text(
+                text = feedbackSubtext,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MindTagColors.TextTertiary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = MindTagSpacing.xxxxl),
             )
         }
-
-        Spacer(modifier = Modifier.height(MindTagSpacing.xxxl))
-
-        Text(
-            text = feedbackMessage,
-            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-            color = Color.White,
-            textAlign = TextAlign.Center,
-        )
-
-        Spacer(modifier = Modifier.height(MindTagSpacing.md))
-
-        Text(
-            text = feedbackSubtext,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MindTagColors.TextTertiary,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = MindTagSpacing.xxxxl),
-        )
     }
 }
 
@@ -334,6 +374,7 @@ private fun DetailedAnalysisSection(
     answers: List<AnswerDetailUi>,
     expandedAnswerId: String?,
     onToggle: (String) -> Unit,
+    isExpanded: Boolean = false,
 ) {
     Column(
         modifier = Modifier
@@ -360,13 +401,38 @@ private fun DetailedAnalysisSection(
         }
 
         // Answer cards
-        Column(verticalArrangement = Arrangement.spacedBy(MindTagSpacing.lg)) {
-            answers.forEach { answer ->
-                AnswerCard(
-                    answer = answer,
-                    isExpanded = answer.cardId == expandedAnswerId,
-                    onClick = { onToggle(answer.cardId) },
-                )
+        if (isExpanded) {
+            val rows = answers.chunked(2)
+            Column(verticalArrangement = Arrangement.spacedBy(MindTagSpacing.lg)) {
+                rows.forEach { rowAnswers ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.lg),
+                    ) {
+                        rowAnswers.forEach { answer ->
+                            Box(modifier = Modifier.weight(1f)) {
+                                AnswerCard(
+                                    answer = answer,
+                                    isExpanded = answer.cardId == expandedAnswerId,
+                                    onClick = { onToggle(answer.cardId) },
+                                )
+                            }
+                        }
+                        if (rowAnswers.size == 1) {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
+                    }
+                }
+            }
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(MindTagSpacing.lg)) {
+                answers.forEach { answer ->
+                    AnswerCard(
+                        answer = answer,
+                        isExpanded = answer.cardId == expandedAnswerId,
+                        onClick = { onToggle(answer.cardId) },
+                    )
+                }
             }
         }
     }
