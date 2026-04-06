@@ -70,6 +70,9 @@ fun NoteCreateScreenContent(
 ) {
     val windowSizeClass = LocalWindowSizeClass.current
     val isCompact = windowSizeClass == WindowSizeClass.Compact
+    val isExpanded = windowSizeClass == WindowSizeClass.Expanded
+    val contentMaxWidth = if (isExpanded) MindTagSpacing.contentMaxWidthExpanded
+                          else MindTagSpacing.contentMaxWidthMedium
 
     Column(
         modifier = Modifier
@@ -118,7 +121,7 @@ fun NoteCreateScreenContent(
         ) {
             Column(
                 modifier = if (isCompact) Modifier.fillMaxWidth()
-                else Modifier.widthIn(max = MindTagSpacing.contentMaxWidthMedium),
+                else Modifier.widthIn(max = contentMaxWidth),
             ) {
                 Column(
                     modifier = Modifier

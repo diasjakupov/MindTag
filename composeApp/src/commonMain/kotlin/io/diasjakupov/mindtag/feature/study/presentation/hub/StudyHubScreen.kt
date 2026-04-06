@@ -37,6 +37,7 @@ import androidx.compose.foundation.layout.widthIn
 import io.diasjakupov.mindtag.core.designsystem.LocalWindowSizeClass
 import io.diasjakupov.mindtag.core.designsystem.MindTagColors
 import io.diasjakupov.mindtag.core.designsystem.WindowSizeClass
+import io.diasjakupov.mindtag.core.designsystem.hoverBorder
 import io.diasjakupov.mindtag.core.designsystem.MindTagIcons
 import io.diasjakupov.mindtag.core.designsystem.MindTagShapes
 import io.diasjakupov.mindtag.core.designsystem.MindTagSpacing
@@ -336,6 +337,7 @@ private fun SelectableChip(
             .clip(MindTagShapes.full)
             .background(bgColor.copy(alpha = if (isSelected) 1f else 0.5f))
             .border(1.dp, borderColor, MindTagShapes.full)
+            .hoverBorder()
             .clickable(onClick = onClick)
             .padding(horizontal = MindTagSpacing.xl, vertical = MindTagSpacing.md),
     ) {

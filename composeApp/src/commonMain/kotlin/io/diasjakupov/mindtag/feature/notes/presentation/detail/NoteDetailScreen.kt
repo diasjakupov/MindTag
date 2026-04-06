@@ -43,6 +43,7 @@ import androidx.compose.foundation.layout.widthIn
 import io.diasjakupov.mindtag.core.designsystem.LocalWindowSizeClass
 import io.diasjakupov.mindtag.core.designsystem.MindTagColors
 import io.diasjakupov.mindtag.core.designsystem.WindowSizeClass
+import io.diasjakupov.mindtag.core.designsystem.hoverBorder
 import io.diasjakupov.mindtag.core.designsystem.MindTagIcons
 import io.diasjakupov.mindtag.core.designsystem.MindTagShapes
 import io.diasjakupov.mindtag.core.designsystem.MindTagSpacing
@@ -547,6 +548,7 @@ private fun RelatedNoteCard(
             .clip(MindTagShapes.lg)
             .background(Color(0xFF151B26))
             .border(1.dp, MindTagColors.NodeBorder, MindTagShapes.lg)
+            .hoverBorder()
             .clickable(onClick = onClick)
             .padding(MindTagSpacing.lg),
         verticalArrangement = Arrangement.SpaceBetween,
