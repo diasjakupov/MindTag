@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,11 +35,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import io.diasjakupov.mindtag.core.designsystem.LocalWindowSizeClass
 import io.diasjakupov.mindtag.core.designsystem.MindTagColors
 import io.diasjakupov.mindtag.core.designsystem.MindTagIcons
 import io.diasjakupov.mindtag.core.designsystem.MindTagShapes
 import io.diasjakupov.mindtag.core.designsystem.MindTagSpacing
+import io.diasjakupov.mindtag.core.designsystem.WindowSizeClass
+import io.diasjakupov.mindtag.core.designsystem.hoverBorder
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -121,46 +126,83 @@ fun BackendQuizAttemptContent(
                 }
             }
             else -> {
+                val isCompact = LocalWindowSizeClass.current == WindowSizeClass.Compact
+                val isExpanded = LocalWindowSizeClass.current == WindowSizeClass.Expanded
+                val contentMaxWidth = when {
+                    isExpanded -> MindTagSpacing.contentMaxWidthExpanded
+                    isCompact -> Dp.Unspecified
+                    else -> MindTagSpacing.contentMaxWidthMedium
+                }
+
                 Column(modifier = Modifier.fillMaxSize()) {
-                    // Top bar
+                    // Top bar — stays full-width
                     AttemptTopBar(
                         currentIndex = state.currentIndex,
                         totalQuestions = state.totalQuestions,
                         onBack = { onIntent(BackendQuizAttemptIntent.TapBack) },
                     )
 
-                    // Progress bar
+                    // Progress bar — stays full-width, but scaled on desktop
                     AttemptProgressBar(
                         currentIndex = state.currentIndex,
                         totalQuestions = state.totalQuestions,
+                        isExpanded = isExpanded,
                     )
 
-                    // Scrollable question + options
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .verticalScroll(rememberScrollState())
-                            .padding(horizontal = MindTagSpacing.quizHorizontalPadding)
-                            .padding(top = MindTagSpacing.md, bottom = 160.dp),
+                    // Question + options — centered on medium/expanded
+                    Box(
+                        modifier = Modifier.weight(1f).fillMaxWidth(),
+                        contentAlignment = if (isCompact) Alignment.TopStart else Alignment.TopCenter,
                     ) {
-                        // Question text
-                        Text(
-                            text = state.questionText,
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = Color.White,
-                            modifier = Modifier.padding(bottom = MindTagSpacing.xxxl),
-                        )
-
-                        // Options
                         Column(
-                            verticalArrangement = Arrangement.spacedBy(MindTagSpacing.lg),
-                        ) {
-                            state.options.forEach { option ->
-                                AttemptOptionCard(
-                                    option = option,
-                                    onClick = { onIntent(BackendQuizAttemptIntent.SelectOption(option.label)) },
+                            modifier = Modifier
+                                .then(
+                                    if (isCompact) Modifier.fillMaxWidth()
+                                    else Modifier.widthIn(max = contentMaxWidth)
                                 )
+                                .verticalScroll(rememberScrollState())
+                                .padding(horizontal = MindTagSpacing.quizHorizontalPadding)
+                                .padding(top = MindTagSpacing.md, bottom = 160.dp),
+                        ) {
+                            // Question text
+                            Text(
+                                text = state.questionText,
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = Color.White,
+                                modifier = Modifier.padding(bottom = MindTagSpacing.xxxl),
+                            )
+
+                            // Options — 2x2 grid on Expanded, vertical on Compact/Medium
+                            if (isExpanded && state.options.size >= 3) {
+                                val rows = state.options.chunked(2)
+                                Column(verticalArrangement = Arrangement.spacedBy(MindTagSpacing.lg)) {
+                                    rows.forEach { rowOptions ->
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.lg),
+                                        ) {
+                                            rowOptions.forEach { option ->
+                                                AttemptOptionCardGrid(
+                                                    option = option,
+                                                    onClick = { onIntent(BackendQuizAttemptIntent.SelectOption(option.label)) },
+                                                    modifier = Modifier.weight(1f),
+                                                )
+                                            }
+                                            if (rowOptions.size == 1) {
+                                                Spacer(modifier = Modifier.weight(1f))
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                Column(verticalArrangement = Arrangement.spacedBy(MindTagSpacing.lg)) {
+                                    state.options.forEach { option ->
+                                        AttemptOptionCard(
+                                            option = option,
+                                            onClick = { onIntent(BackendQuizAttemptIntent.SelectOption(option.label)) },
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -170,7 +212,10 @@ fun BackendQuizAttemptContent(
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .fillMaxWidth(),
+                        .then(
+                            if (isCompact) Modifier.fillMaxWidth()
+                            else Modifier.widthIn(max = contentMaxWidth)
+                        ),
                 ) {
                     Box(
                         modifier = Modifier
@@ -210,7 +255,9 @@ fun BackendQuizAttemptContent(
                         // Previous / Next row
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.md),
+                            horizontalArrangement = Arrangement.spacedBy(
+                                if (isExpanded) MindTagSpacing.xl else MindTagSpacing.md,
+                            ),
                         ) {
                             if (!isFirst) {
                                 NavButton(
@@ -276,12 +323,14 @@ private fun AttemptTopBar(
 private fun AttemptProgressBar(
     currentIndex: Int,
     totalQuestions: Int,
+    isExpanded: Boolean = false,
 ) {
     val progress = if (totalQuestions > 0) (currentIndex + 1).toFloat() / totalQuestions else 0f
     val animatedProgress by animateFloatAsState(
         targetValue = progress,
         animationSpec = tween(500),
     )
+    val barHeight = if (isExpanded) 12.dp else 8.dp
 
     Column(
         modifier = Modifier
@@ -292,14 +341,14 @@ private fun AttemptProgressBar(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(8.dp)
+                .height(barHeight)
                 .clip(MindTagShapes.full)
                 .background(MindTagColors.QuizProgressTrack),
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth(animatedProgress)
-                    .height(8.dp)
+                    .height(barHeight)
                     .clip(MindTagShapes.full)
                     .background(MindTagColors.Primary),
             )
@@ -327,6 +376,11 @@ private fun AttemptOptionCard(
             .clip(MindTagShapes.lg)
             .background(bgColor)
             .border(2.dp, borderColor, MindTagShapes.lg)
+            .hoverBorder(
+                hoverColor = MindTagColors.Primary.copy(alpha = 0.3f),
+                defaultColor = Color.Transparent,
+                borderWidth = 1.dp,
+            )
             .clickable(onClick = onClick)
             .padding(18.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -351,6 +405,59 @@ private fun AttemptOptionCard(
         }
 
         // Option text
+        Text(
+            text = option.text,
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+            color = if (option.isSelected) Color.White else MindTagColors.TextSlate300,
+        )
+    }
+}
+
+@Composable
+private fun AttemptOptionCardGrid(
+    option: QuizOptionUi,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val borderColor by animateColorAsState(
+        targetValue = if (option.isSelected) MindTagColors.Primary else MindTagColors.QuizProgressTrack,
+        animationSpec = tween(200),
+    )
+    val bgColor by animateColorAsState(
+        targetValue = if (option.isSelected) MindTagColors.Primary.copy(alpha = 0.1f) else Color.Transparent,
+        animationSpec = tween(200),
+    )
+
+    Column(
+        modifier = modifier
+            .clip(MindTagShapes.lg)
+            .background(bgColor)
+            .border(2.dp, borderColor, MindTagShapes.lg)
+            .hoverBorder(
+                hoverColor = MindTagColors.Primary.copy(alpha = 0.3f),
+                defaultColor = Color.Transparent,
+                borderWidth = 1.dp,
+            )
+            .clickable(onClick = onClick)
+            .padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(MindTagSpacing.md),
+    ) {
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .clip(MindTagShapes.md)
+                .background(
+                    if (option.isSelected) MindTagColors.Primary
+                    else MindTagColors.CardDark,
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = option.label,
+                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                color = if (option.isSelected) Color.White else MindTagColors.TextTertiary,
+            )
+        }
         Text(
             text = option.text,
             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
