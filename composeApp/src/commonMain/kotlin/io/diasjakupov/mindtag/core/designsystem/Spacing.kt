@@ -22,5 +22,6 @@ object MindTagSpacing {
 
     // Adaptive layout
     val contentMaxWidthMedium = 700.dp
+    val contentMaxWidthExpanded = 900.dp
     val formMaxWidthMedium = 600.dp
 }
