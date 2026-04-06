@@ -14,6 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -37,10 +40,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import io.diasjakupov.mindtag.core.designsystem.LocalWindowSizeClass
 import io.diasjakupov.mindtag.core.designsystem.MindTagColors
 import io.diasjakupov.mindtag.core.designsystem.MindTagIcons
 import io.diasjakupov.mindtag.core.designsystem.MindTagShapes
 import io.diasjakupov.mindtag.core.designsystem.MindTagSpacing
+import io.diasjakupov.mindtag.core.designsystem.WindowSizeClass
+import io.diasjakupov.mindtag.core.designsystem.hoverBorder
 import io.diasjakupov.mindtag.feature.backendquiz.domain.model.QuizStatus
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -78,6 +84,8 @@ private fun BackendQuizListScreenContent(
     onIntent: (BackendQuizListIntent) -> Unit,
     snackbarHostState: SnackbarHostState,
 ) {
+    val windowSizeClass = LocalWindowSizeClass.current
+
     Scaffold(
         containerColor = MindTagColors.BackgroundDark,
         snackbarHost = {
@@ -164,20 +172,47 @@ private fun BackendQuizListScreenContent(
                 }
             }
             else -> {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(MindTagSpacing.md),
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                        horizontal = MindTagSpacing.screenHorizontalPadding,
-                        vertical = MindTagSpacing.md,
-                    ),
-                ) {
-                    items(state.quizzes, key = { it.quizId }) { quiz ->
-                        QuizListItem(
-                            item = quiz,
-                            onTap = { onIntent(BackendQuizListIntent.TapQuiz(quiz.quizId)) },
-                            onDelete = { onIntent(BackendQuizListIntent.DeleteQuiz(quiz.quizId)) },
-                        )
+                val columns = when (windowSizeClass) {
+                    WindowSizeClass.Compact -> 1
+                    WindowSizeClass.Medium -> 2
+                    WindowSizeClass.Expanded -> 3
+                }
+
+                if (columns == 1) {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(MindTagSpacing.md),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                            horizontal = MindTagSpacing.screenHorizontalPadding,
+                            vertical = MindTagSpacing.md,
+                        ),
+                    ) {
+                        items(state.quizzes, key = { it.quizId }) { quiz ->
+                            QuizListItem(
+                                item = quiz,
+                                onTap = { onIntent(BackendQuizListIntent.TapQuiz(quiz.quizId)) },
+                                onDelete = { onIntent(BackendQuizListIntent.DeleteQuiz(quiz.quizId)) },
+                            )
+                        }
+                    }
+                } else {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(columns),
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.md),
+                        verticalArrangement = Arrangement.spacedBy(MindTagSpacing.md),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                            horizontal = MindTagSpacing.screenHorizontalPadding,
+                            vertical = MindTagSpacing.md,
+                        ),
+                    ) {
+                        items(state.quizzes, key = { it.quizId }) { quiz ->
+                            QuizListItem(
+                                item = quiz,
+                                onTap = { onIntent(BackendQuizListIntent.TapQuiz(quiz.quizId)) },
+                                onDelete = { onIntent(BackendQuizListIntent.DeleteQuiz(quiz.quizId)) },
+                            )
+                        }
                     }
                 }
             }
@@ -197,6 +232,7 @@ private fun QuizListItem(
             .fillMaxWidth()
             .clip(MindTagShapes.lg)
             .background(MindTagColors.CardDark)
+            .hoverBorder()
             .clickable(onClick = onTap)
             .padding(horizontal = MindTagSpacing.xl, vertical = MindTagSpacing.lg),
         verticalAlignment = Alignment.CenterVertically,
