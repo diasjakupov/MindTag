@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -44,9 +45,11 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.diasjakupov.mindtag.core.designsystem.LocalWindowSizeClass
 import io.diasjakupov.mindtag.core.designsystem.MindTagColors
 import io.diasjakupov.mindtag.core.designsystem.MindTagShapes
 import io.diasjakupov.mindtag.core.designsystem.MindTagSpacing
+import io.diasjakupov.mindtag.core.designsystem.WindowSizeClass
 import io.diasjakupov.mindtag.core.designsystem.components.MindTagButton
 import io.diasjakupov.mindtag.core.designsystem.components.MindTagButtonVariant
 import org.koin.compose.viewmodel.koinViewModel
@@ -74,32 +77,44 @@ fun AuthScreenContent(
     state: AuthState,
     onIntent: (AuthIntent) -> Unit,
 ) {
-    Column(
+    val isCompact = LocalWindowSizeClass.current == WindowSizeClass.Compact
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MindTagColors.BackgroundDark)
-            .verticalScroll(rememberScrollState()),
+            .background(MindTagColors.BackgroundDark),
+        contentAlignment = if (isCompact) Alignment.TopStart else Alignment.TopCenter,
     ) {
-        AuthGradientBanner()
+        Column(
+            modifier = Modifier
+                .then(
+                    if (isCompact) Modifier.fillMaxWidth()
+                    else Modifier.widthIn(max = MindTagSpacing.formMaxWidthMedium)
+                )
+                .verticalScroll(rememberScrollState()),
+        ) {
+            AuthGradientBanner(isCompact = isCompact)
 
-        Spacer(modifier = Modifier.height(MindTagSpacing.xxxl))
+            Spacer(modifier = Modifier.height(MindTagSpacing.xxxl))
 
-        AuthFormSection(
-            state = state,
-            onEmailChange = { onIntent(AuthIntent.UpdateEmail(it)) },
-            onPasswordChange = { onIntent(AuthIntent.UpdatePassword(it)) },
-            onSubmit = { onIntent(AuthIntent.Submit) },
-            onToggleMode = { onIntent(AuthIntent.ToggleMode) },
-        )
+            AuthFormSection(
+                state = state,
+                onEmailChange = { onIntent(AuthIntent.UpdateEmail(it)) },
+                onPasswordChange = { onIntent(AuthIntent.UpdatePassword(it)) },
+                onSubmit = { onIntent(AuthIntent.Submit) },
+                onToggleMode = { onIntent(AuthIntent.ToggleMode) },
+            )
+        }
     }
 }
 
 @Composable
-private fun AuthGradientBanner() {
+private fun AuthGradientBanner(isCompact: Boolean = true) {
+    val bannerHeight = if (isCompact) 220.dp else 280.dp
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(220.dp)
+            .height(bannerHeight)
             .background(
                 Brush.linearGradient(
                     colors = listOf(
