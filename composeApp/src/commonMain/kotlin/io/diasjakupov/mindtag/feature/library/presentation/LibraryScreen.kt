@@ -82,6 +82,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.diasjakupov.mindtag.core.designsystem.LocalWindowSizeClass
+import io.diasjakupov.mindtag.core.designsystem.hoverBorder
 import io.diasjakupov.mindtag.core.designsystem.MindTagColors
 import io.diasjakupov.mindtag.core.designsystem.WindowSizeClass
 import io.diasjakupov.mindtag.core.designsystem.MindTagIcons
@@ -412,6 +413,7 @@ private fun FilterChip(
             .height(34.dp)
             .clip(MindTagShapes.full)
             .background(bgColor)
+            .hoverBorder(shape = MindTagShapes.full)
             .clickable(onClick = onClick)
             .padding(horizontal = MindTagSpacing.lg),
         verticalAlignment = Alignment.CenterVertically,
@@ -549,7 +551,10 @@ private fun NoteListCard(
 ) {
     val subjectColor = parseColor(note.subjectColorHex)
 
-    MindTagCard(onClick = onClick) {
+    MindTagCard(
+        modifier = Modifier.hoverBorder(),
+        onClick = onClick,
+    ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.md),
