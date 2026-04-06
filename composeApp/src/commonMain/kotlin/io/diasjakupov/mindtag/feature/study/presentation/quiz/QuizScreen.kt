@@ -37,9 +37,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.ui.unit.Dp
 import io.diasjakupov.mindtag.core.designsystem.LocalWindowSizeClass
 import io.diasjakupov.mindtag.core.designsystem.MindTagColors
 import io.diasjakupov.mindtag.core.designsystem.WindowSizeClass
+import io.diasjakupov.mindtag.core.designsystem.hoverBorder
 import io.diasjakupov.mindtag.feature.study.domain.model.CardType
 import io.diasjakupov.mindtag.core.designsystem.MindTagIcons
 import io.diasjakupov.mindtag.core.designsystem.MindTagShapes
@@ -80,6 +82,12 @@ fun QuizScreenContent(
     onIntent: (QuizIntent) -> Unit,
 ) {
     val isCompact = LocalWindowSizeClass.current == WindowSizeClass.Compact
+    val isExpanded = LocalWindowSizeClass.current == WindowSizeClass.Expanded
+    val contentMaxWidth = when {
+        isExpanded -> MindTagSpacing.contentMaxWidthExpanded
+        isCompact -> Dp.Unspecified
+        else -> MindTagSpacing.contentMaxWidthMedium
+    }
 
     Box(
         modifier = Modifier
@@ -110,7 +118,7 @@ fun QuizScreenContent(
                     modifier = Modifier
                         .then(
                             if (isCompact) Modifier.fillMaxWidth()
-                            else Modifier.widthIn(max = MindTagSpacing.contentMaxWidthMedium)
+                            else Modifier.widthIn(max = contentMaxWidth)
                         )
                         .verticalScroll(rememberScrollState())
                         .padding(horizontal = MindTagSpacing.quizHorizontalPadding)
@@ -125,13 +133,37 @@ fun QuizScreenContent(
 
                     when (state.cardType) {
                         CardType.MULTIPLE_CHOICE, CardType.TRUE_FALSE -> {
-                            Column(verticalArrangement = Arrangement.spacedBy(MindTagSpacing.lg)) {
-                                state.currentOptions.forEach { option ->
-                                    QuizOptionCard(
-                                        option = option,
-                                        isSelected = option.id == state.selectedOptionId,
-                                        onClick = { onIntent(QuizIntent.SelectOption(option.id)) },
-                                    )
+                            if (isExpanded && state.currentOptions.size >= 3) {
+                                val rows = state.currentOptions.chunked(2)
+                                Column(verticalArrangement = Arrangement.spacedBy(MindTagSpacing.lg)) {
+                                    rows.forEach { rowOptions ->
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(MindTagSpacing.lg),
+                                        ) {
+                                            rowOptions.forEach { option ->
+                                                QuizOptionCardGrid(
+                                                    option = option,
+                                                    isSelected = option.id == state.selectedOptionId,
+                                                    onClick = { onIntent(QuizIntent.SelectOption(option.id)) },
+                                                    modifier = Modifier.weight(1f),
+                                                )
+                                            }
+                                            if (rowOptions.size == 1) {
+                                                Spacer(modifier = Modifier.weight(1f))
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                Column(verticalArrangement = Arrangement.spacedBy(MindTagSpacing.lg)) {
+                                    state.currentOptions.forEach { option ->
+                                        QuizOptionCard(
+                                            option = option,
+                                            isSelected = option.id == state.selectedOptionId,
+                                            onClick = { onIntent(QuizIntent.SelectOption(option.id)) },
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -155,7 +187,7 @@ fun QuizScreenContent(
                     .align(Alignment.BottomCenter)
                     .then(
                         if (isCompact) Modifier.fillMaxWidth()
-                        else Modifier.widthIn(max = MindTagSpacing.contentMaxWidthMedium)
+                        else Modifier.widthIn(max = contentMaxWidth)
                     ),
             ) {
                 Box(
@@ -256,6 +288,9 @@ private fun QuizProgressSection(
     totalQuestions: Int,
     progressPercent: Float,
 ) {
+    val isExpanded = LocalWindowSizeClass.current == WindowSizeClass.Expanded
+    val barHeight = if (isExpanded) 12.dp else 8.dp
+
     val animatedProgress by animateFloatAsState(
         targetValue = progressPercent / 100f,
         animationSpec = tween(500),
@@ -290,14 +325,14 @@ private fun QuizProgressSection(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(8.dp)
+                .height(barHeight)
                 .clip(MindTagShapes.full)
                 .background(MindTagColors.QuizProgressTrack),
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth(animatedProgress)
-                    .height(8.dp)
+                    .height(barHeight)
                     .clip(MindTagShapes.full)
                     .background(MindTagColors.Primary),
             )
@@ -326,6 +361,11 @@ private fun QuizOptionCard(
             .clip(MindTagShapes.lg)
             .background(bgColor)
             .border(2.dp, borderColor, MindTagShapes.lg)
+            .hoverBorder(
+                hoverColor = MindTagColors.Primary.copy(alpha = 0.3f),
+                defaultColor = Color.Transparent,
+                borderWidth = 1.dp,
+            )
             .clickable(onClick = onClick)
             .padding(18.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -358,6 +398,57 @@ private fun QuizOptionCard(
         }
 
         // Option text
+        Text(
+            text = option.text,
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+            color = if (isSelected) Color.White else MindTagColors.TextSlate300,
+        )
+    }
+}
+
+@Composable
+private fun QuizOptionCardGrid(
+    option: QuizOptionUi,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val borderColor by animateColorAsState(
+        targetValue = if (isSelected) MindTagColors.Primary else MindTagColors.QuizProgressTrack,
+        animationSpec = tween(200),
+    )
+    val bgColor by animateColorAsState(
+        targetValue = if (isSelected) MindTagColors.Primary.copy(alpha = 0.1f) else Color.Transparent,
+        animationSpec = tween(200),
+    )
+
+    Column(
+        modifier = modifier
+            .clip(MindTagShapes.lg)
+            .background(bgColor)
+            .border(2.dp, borderColor, MindTagShapes.lg)
+            .hoverBorder(
+                hoverColor = MindTagColors.Primary.copy(alpha = 0.3f),
+                defaultColor = Color.Transparent,
+                borderWidth = 1.dp,
+            )
+            .clickable(onClick = onClick)
+            .padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(MindTagSpacing.md),
+    ) {
+        Box(
+            modifier = Modifier
+                .size(20.dp)
+                .then(
+                    if (isSelected) Modifier.clip(MindTagShapes.full).background(MindTagColors.Primary)
+                    else Modifier.border(2.dp, MindTagColors.TextSlate500, MindTagShapes.full),
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (isSelected) {
+                Box(modifier = Modifier.size(8.dp).clip(MindTagShapes.full).background(Color.White))
+            }
+        }
         Text(
             text = option.text,
             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
