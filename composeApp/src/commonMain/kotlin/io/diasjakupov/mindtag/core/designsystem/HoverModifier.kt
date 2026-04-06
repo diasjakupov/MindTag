@@ -7,17 +7,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-@OptIn(ExperimentalComposeUiApi::class)
 fun Modifier.hoverBorder(
     hoverColor: Color = MindTagColors.Primary.copy(alpha = 0.4f),
     defaultColor: Color = Color.Transparent,
@@ -31,7 +29,16 @@ fun Modifier.hoverBorder(
     )
 
     this
-        .onPointerEvent(PointerEventType.Enter) { isHovered = true }
-        .onPointerEvent(PointerEventType.Exit) { isHovered = false }
+        .pointerInput(Unit) {
+            awaitPointerEventScope {
+                while (true) {
+                    val event = awaitPointerEvent()
+                    when (event.type) {
+                        PointerEventType.Enter -> isHovered = true
+                        PointerEventType.Exit -> isHovered = false
+                    }
+                }
+            }
+        }
         .border(borderWidth, borderColor, shape)
 }

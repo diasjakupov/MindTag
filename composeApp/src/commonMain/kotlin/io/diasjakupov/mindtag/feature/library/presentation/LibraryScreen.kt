@@ -54,7 +54,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -69,7 +68,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.TextMeasurer
@@ -614,7 +612,6 @@ private fun NoteListCard(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun GraphView(
     nodes: List<LibraryContract.GraphNode>,
@@ -684,10 +681,17 @@ private fun GraphView(
                 }
             }
             .transformable(state = transformableState)
-            .onPointerEvent(PointerEventType.Scroll) { event ->
-                val scrollDelta = event.changes.firstOrNull()?.scrollDelta?.y ?: 0f
-                val zoomFactor = if (scrollDelta > 0) 0.9f else 1.1f
-                scale = (scale * zoomFactor).coerceIn(0.4f, 3f)
+            .pointerInput(Unit) {
+                awaitPointerEventScope {
+                    while (true) {
+                        val event = awaitPointerEvent()
+                        if (event.type == PointerEventType.Scroll) {
+                            val scrollDelta = event.changes.firstOrNull()?.scrollDelta?.y ?: 0f
+                            val zoomFactor = if (scrollDelta > 0) 0.9f else 1.1f
+                            scale = (scale * zoomFactor).coerceIn(0.4f, 3f)
+                        }
+                    }
+                }
             }
             .pointerInput(nodes, selectedNodeId) {
                 detectTapGestures { tapOffset ->

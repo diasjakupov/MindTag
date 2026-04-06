@@ -18,13 +18,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.input.pointer.isSecondaryPressed
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.diasjakupov.mindtag.core.designsystem.MindTagColors
@@ -37,7 +36,6 @@ data class ContextMenuItem(
     val onClick: () -> Unit,
 )
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MindTagContextMenuWrapper(
     items: List<ContextMenuItem>,
@@ -48,9 +46,14 @@ fun MindTagContextMenuWrapper(
 
     Box(
         modifier = modifier
-            .onPointerEvent(PointerEventType.Press) { event ->
-                if (event.button == PointerButton.Secondary) {
-                    showMenu = true
+            .pointerInput(Unit) {
+                awaitPointerEventScope {
+                    while (true) {
+                        val event = awaitPointerEvent()
+                        if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed) {
+                            showMenu = true
+                        }
+                    }
                 }
             },
     ) {
