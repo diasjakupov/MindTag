@@ -7,6 +7,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
@@ -53,6 +54,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -66,6 +68,8 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.TextMeasurer
@@ -217,9 +221,11 @@ fun LibraryScreenContent(
                             state.notes.find { it.id == nodeId }
                         }
                         if (selectedNote != null) {
+                            val previewWindowSizeClass = LocalWindowSizeClass.current
                             NodePreviewCard(
                                 note = selectedNote,
                                 onViewNote = { onIntent(LibraryContract.Intent.TapNote(selectedNote.id)) },
+                                isExpanded = previewWindowSizeClass == WindowSizeClass.Expanded,
                                 modifier = Modifier
                                     .align(Alignment.BottomCenter)
                                     .padding(MindTagSpacing.screenHorizontalPadding)
@@ -603,6 +609,7 @@ private fun NoteListCard(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun GraphView(
     nodes: List<LibraryContract.GraphNode>,
@@ -626,6 +633,7 @@ private fun GraphView(
     )
 
     val windowSizeClass = LocalWindowSizeClass.current
+    val isExpanded = windowSizeClass == WindowSizeClass.Expanded
     val virtualSize = when (windowSizeClass) {
         WindowSizeClass.Compact -> 800f
         WindowSizeClass.Medium -> 1200f
@@ -636,6 +644,11 @@ private fun GraphView(
     var offsetX by remember(virtualSize) { mutableFloatStateOf(0f) }
     var offsetY by remember(virtualSize) { mutableFloatStateOf(0f) }
     var initialized by remember(virtualSize) { mutableStateOf(false) }
+
+    // Store initial fit values for the FIT button
+    var fitScale by remember(virtualSize) { mutableFloatStateOf(1f) }
+    var fitOffsetX by remember(virtualSize) { mutableFloatStateOf(0f) }
+    var fitOffsetY by remember(virtualSize) { mutableFloatStateOf(0f) }
 
     val transformableState = rememberTransformableState { zoomChange, panChange, _ ->
         scale = (scale * zoomChange).coerceIn(0.4f, 3f)
@@ -652,17 +665,25 @@ private fun GraphView(
             .background(MindTagColors.GraphBg)
             .onSizeChanged { size ->
                 if (!initialized) {
-                    val fitScale = minOf(
+                    val computedFitScale = minOf(
                         size.width.toFloat() / virtualSize,
                         size.height.toFloat() / virtualSize,
                     )
-                    scale = fitScale
-                    offsetX = (size.width - virtualSize * fitScale) / 2f
-                    offsetY = (size.height - virtualSize * fitScale) / 2f
+                    scale = computedFitScale
+                    offsetX = (size.width - virtualSize * computedFitScale) / 2f
+                    offsetY = (size.height - virtualSize * computedFitScale) / 2f
+                    fitScale = computedFitScale
+                    fitOffsetX = offsetX
+                    fitOffsetY = offsetY
                     initialized = true
                 }
             }
             .transformable(state = transformableState)
+            .onPointerEvent(PointerEventType.Scroll) { event ->
+                val scrollDelta = event.changes.firstOrNull()?.scrollDelta?.y ?: 0f
+                val zoomFactor = if (scrollDelta > 0) 0.9f else 1.1f
+                scale = (scale * zoomFactor).coerceIn(0.4f, 3f)
+            }
             .pointerInput(nodes, selectedNodeId) {
                 detectTapGestures { tapOffset ->
                     val vx = (tapOffset.x - currentOffsetX) / currentScale
@@ -690,7 +711,7 @@ private fun GraphView(
                 },
         ) {
             // Subtle dot grid
-            drawDotGrid(virtualSize, virtualSize)
+            drawDotGrid(virtualSize, virtualSize, isExpanded)
 
             // ── Edges: curved connections from hub to satellites ──
             nodes.filter { it.hubNoteId != null }.forEach { satellite ->
@@ -840,6 +861,7 @@ private fun GraphView(
                     center = Offset(node.x, node.y),
                     radius = node.radius,
                     isSelected = false,
+                    isExpanded = isExpanded,
                 )
             }
             // Selected node label (on top)
@@ -851,12 +873,15 @@ private fun GraphView(
                         center = Offset(node.x, node.y),
                         radius = node.radius,
                         isSelected = true,
+                        isExpanded = isExpanded,
                     )
                 }
             }
         }
 
         // Zoom controls
+        val zoomButtonSize = if (isExpanded) 44.dp else 36.dp
+        val zoomIconSize = if (isExpanded) 24.dp else 20.dp
         Column(
             modifier = Modifier
                 .align(Alignment.TopEnd)
@@ -867,12 +892,38 @@ private fun GraphView(
                 icon = MindTagIcons.Add,
                 contentDescription = "Zoom in",
                 onClick = { scale = (scale * 1.3f).coerceIn(0.4f, 3f) },
+                size = zoomButtonSize,
+                iconSize = zoomIconSize,
             )
             ZoomButton(
                 icon = MindTagIcons.Remove,
                 contentDescription = "Zoom out",
                 onClick = { scale = (scale / 1.3f).coerceIn(0.4f, 3f) },
+                size = zoomButtonSize,
+                iconSize = zoomIconSize,
             )
+
+            Spacer(modifier = Modifier.height(MindTagSpacing.sm))
+
+            Box(
+                modifier = Modifier
+                    .size(zoomButtonSize)
+                    .clip(MindTagShapes.md)
+                    .background(MindTagColors.CardDark.copy(alpha = 0.9f))
+                    .border(1.dp, Color.White.copy(alpha = 0.1f), MindTagShapes.md)
+                    .clickable {
+                        scale = fitScale
+                        offsetX = fitOffsetX
+                        offsetY = fitOffsetY
+                    },
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "FIT",
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                    color = MindTagColors.TextTertiary,
+                )
+            }
         }
     }
 }
@@ -882,10 +933,12 @@ private fun ZoomButton(
     icon: ImageVector,
     contentDescription: String,
     onClick: () -> Unit,
+    size: androidx.compose.ui.unit.Dp = 36.dp,
+    iconSize: androidx.compose.ui.unit.Dp = 20.dp,
 ) {
     Box(
         modifier = Modifier
-            .size(36.dp)
+            .size(size)
             .clip(MindTagShapes.sm)
             .background(MindTagColors.CardDark.copy(alpha = 0.85f))
             .clickable(onClick = onClick),
@@ -895,21 +948,22 @@ private fun ZoomButton(
             imageVector = icon,
             contentDescription = contentDescription,
             tint = Color.White,
-            modifier = Modifier.size(20.dp),
+            modifier = Modifier.size(iconSize),
         )
     }
 }
 
-private fun DrawScope.drawDotGrid(canvasWidth: Float, canvasHeight: Float) {
+private fun DrawScope.drawDotGrid(canvasWidth: Float, canvasHeight: Float, isExpanded: Boolean = false) {
     val spacing = 40f
-    val dotColor = MindTagColors.GraphGrid
+    val dotColor = MindTagColors.GraphGrid.copy(alpha = if (isExpanded) 0.3f else 0.2f)
+    val dotRadius = if (isExpanded) 1.5f * 1.dp.toPx() else 1f * 1.dp.toPx()
     var x = 0f
     while (x < canvasWidth) {
         var y = 0f
         while (y < canvasHeight) {
             drawCircle(
                 color = dotColor,
-                radius = 1f,
+                radius = dotRadius,
                 center = Offset(x, y),
             )
             y += spacing
@@ -924,14 +978,23 @@ private fun DrawScope.drawNodeLabel(
     center: Offset,
     radius: Float,
     isSelected: Boolean,
+    isExpanded: Boolean = false,
 ) {
+    val baseFontSizeValue = if (radius > 45f) 13f else 12f
+    val fontSize = if (isExpanded) (baseFontSizeValue + 2f).sp else baseFontSizeValue.sp
+    val labelColor = when {
+        isSelected -> Color.White
+        isExpanded -> Color(0xFFE2E8F0) // slate-200 — brighter on desktop
+        else -> MindTagColors.TextSlate300
+    }
     val style = TextStyle(
-        color = if (isSelected) Color.White else MindTagColors.TextSlate300,
-        fontSize = if (radius > 45f) 13.sp else 12.sp,
+        color = labelColor,
+        fontSize = fontSize,
         fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
         textAlign = TextAlign.Center,
     )
-    val maxWidth = (radius * 3f).toInt().coerceAtLeast(60)
+    val widthMultiplier = if (isExpanded) 4f else 3f
+    val maxWidth = (radius * widthMultiplier).toInt().coerceAtLeast(60)
     val layoutResult = textMeasurer.measure(
         text = text,
         style = style,
@@ -953,6 +1016,7 @@ private fun DrawScope.drawNodeLabel(
 private fun NodePreviewCard(
     note: LibraryContract.NoteListItem,
     onViewNote: () -> Unit,
+    isExpanded: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     MindTagCard(modifier = modifier.fillMaxWidth()) {
@@ -979,7 +1043,7 @@ private fun NodePreviewCard(
             text = note.summary,
             style = MaterialTheme.typography.bodySmall,
             color = MindTagColors.TextSlate300,
-            maxLines = 2,
+            maxLines = if (isExpanded) 3 else 2,
             overflow = TextOverflow.Ellipsis,
         )
 
