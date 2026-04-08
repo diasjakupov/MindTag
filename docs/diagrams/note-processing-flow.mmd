@@ -1,0 +1,41 @@
+sequenceDiagram
+    participant User
+    participant Mobile
+    participant Backend
+    participant S3
+    participant RabbitMQ
+    participant EmbedWorker as Embedding Worker
+    participant ES as Elasticsearch
+
+    Note over User,ES: Note Creation & Semantic Search Pipeline
+
+    User->>Mobile: Create note (title, subject, body)
+    Mobile->>Backend: POST /notes {title, subject, body}
+    Backend->>Backend: Save note metadata to PostgreSQL
+    Backend->>S3: Upload note body (key: noteId)
+    Backend->>RabbitMQ: Publish NoteProcessingEvent
+    Backend-->>Mobile: 201 NoteResponseDto
+
+    RabbitMQ->>EmbedWorker: Consume from note.processing.queue
+    EmbedWorker->>S3: Fetch note body
+    S3-->>EmbedWorker: Raw text
+    EmbedWorker->>EmbedWorker: Compute embedding (Qwen3-0.6B, 1024-dim)
+    EmbedWorker->>ES: Upsert document with vector embedding
+    EmbedWorker->>EmbedWorker: Compute semantic links to other notes
+    EmbedWorker->>Backend: Update semantic_links in PostgreSQL
+
+    Note over User,ES: Semantic Search
+
+    User->>Mobile: Search query
+    Mobile->>Backend: GET /search/semantic?query=...
+    Backend->>ES: kNN vector search (topK=5, minScore=0.75)
+    ES-->>Backend: Scored document IDs
+    Backend->>Backend: Join with note metadata from PostgreSQL
+    Backend-->>Mobile: List of scored notes
+
+    Note over User,ES: Related Notes
+
+    User->>Mobile: Open note detail
+    Mobile->>Backend: GET /notes/{id}/related
+    Backend->>Backend: Query semantic_links table
+    Backend-->>Mobile: List of related notes

@@ -1,0 +1,85 @@
+graph TB
+    subgraph Platforms["Platform Entry Points"]
+        Android["Android\nMainActivity"]
+        iOS["iOS\nMainViewController"]
+        Desktop["Desktop JVM\nmain()"]
+    end
+
+    subgraph CommonMain["Shared Code (commonMain)"]
+        subgraph UI["UI Layer (Compose)"]
+            App["App.kt\n(Navigation + Auth Gate)"]
+            LibScreen["LibraryScreen"]
+            NoteDetail["NoteDetailScreen"]
+            NoteCreate["NoteCreateScreen"]
+            StudyHub["StudyHubScreen"]
+            QuizScreen["QuizScreen"]
+            ResultsScreen["ResultsScreen"]
+            BQList["BackendQuizListScreen"]
+            BQAttempt["BackendQuizAttemptScreen"]
+            BQResults["BackendQuizResultsScreen"]
+            AuthScreen["AuthScreen"]
+            EnvBanner["EnvironmentBanner"]
+        end
+
+        subgraph ViewModels["ViewModel Layer (MVI)"]
+            LibVM["LibraryViewModel"]
+            NoteDetailVM["NoteDetailViewModel"]
+            NoteCreateVM["NoteCreateViewModel"]
+            StudyVM["StudyHubViewModel"]
+            QuizVM["QuizViewModel"]
+            ResultsVM["ResultsViewModel"]
+            BQListVM["BackendQuizListViewModel"]
+            BQAttemptVM["BackendQuizAttemptViewModel"]
+            BQResultsVM["BackendQuizResultsViewModel"]
+            AuthVM["AuthViewModel"]
+        end
+
+        subgraph UseCases["Use Case Layer"]
+            GetNotes["GetNotesUseCase"]
+            GetNote["GetNoteWithConnectionsUseCase"]
+            CreateNote["CreateNoteUseCase"]
+            GetSubjects["GetSubjectsUseCase"]
+            StartQuiz["StartQuizUseCase"]
+            SubmitAnswer["SubmitAnswerUseCase"]
+            GetResults["GetResultsUseCase"]
+            SaveToStudy["SaveToStudyUseCase"]
+            Login["LoginUseCase"]
+            Register["RegisterUseCase"]
+        end
+
+        subgraph Repositories["Repository Layer"]
+            NoteRepo["NoteRepository"]
+            StudyRepo["StudyRepository"]
+            QuizRepo["QuizRepository (local)"]
+            BQRepo["BackendQuizRepository"]
+            AuthRepo["AuthRepository"]
+        end
+
+        subgraph DataSources["Data Sources"]
+            SQLite["SQLite\n(7 tables via SQLDelight)"]
+            KtorClient["Ktor HttpClient\n(Bearer JWT)"]
+        end
+
+        subgraph Core["Core Infrastructure"]
+            AuthMgr["AuthManager\n(StateFlow<AuthState>)"]
+            EnvStore["EnvironmentStore\n(TEST / NETWORK toggle)"]
+            Koin["Koin DI\n(6 modules)"]
+            DesignSys["Design System\n(Colors, Icons, Shapes, Spacing)"]
+        end
+    end
+
+    Platforms --> App
+    App --> EnvBanner
+    UI --> ViewModels
+    ViewModels --> UseCases
+    UseCases --> Repositories
+    NoteRepo --> SQLite
+    NoteRepo --> KtorClient
+    StudyRepo --> SQLite
+    QuizRepo --> SQLite
+    BQRepo --> KtorClient
+    AuthRepo --> KtorClient
+    KtorClient --> AuthMgr
+    EnvStore -->|"stub/real toggle"| Repositories
+    Koin -->|"provides"| ViewModels
+    Koin -->|"provides"| Repositories

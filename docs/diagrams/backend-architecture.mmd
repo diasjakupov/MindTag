@@ -1,0 +1,74 @@
+graph TB
+    subgraph Client["Mobile Client"]
+        KTOR["Ktor HTTP + Bearer JWT"]
+    end
+
+    subgraph SpringBoot["Spring Boot Backend"]
+        subgraph Controllers
+            AuthC["AuthController\n/auth/login, /auth/register"]
+            NoteC["NoteController\n/notes CRUD"]
+            SearchC["SearchController\n/search text, semantic, list"]
+            QuizC["QuizController\n/notes/{id}/quizzes, /quizzes"]
+            AttemptC["QuizAttemptController\n/quizzes/{id}/attempts"]
+        end
+
+        subgraph Security
+            JWTFilter["JWT Auth Filter"]
+            JWTUtil["JWT Token Provider\n(HS256, 15min TTL)"]
+        end
+
+        subgraph Services
+            AuthS["AuthService"]
+            NoteS["NoteService"]
+            SearchS["SearchService"]
+            QuizS["QuizService"]
+            AttemptS["QuizAttemptService"]
+        end
+
+        subgraph Async
+            Sender["QuizGenerationSender"]
+            Listener["QuizGenerationResultListener"]
+            NoteSender["NoteProcessingSender"]
+        end
+    end
+
+    subgraph Data["Data Stores"]
+        PG["PostgreSQL\n(Flyway migrations V1-V9)"]
+        S3["S3 / LocalStack\n(note body storage)"]
+        ES["Elasticsearch\n(vector embeddings, kNN)"]
+        RMQ["RabbitMQ"]
+    end
+
+    subgraph PGTables["PostgreSQL Tables"]
+        users["users"]
+        notes["notes"]
+        sem_links["semantic_links"]
+        quizzes["quizzes"]
+        quiz_q["quiz_questions"]
+        quiz_att["quiz_attempts"]
+        quiz_ans["quiz_attempt_answers"]
+    end
+
+    subgraph Workers["Python Workers"]
+        QW["Quiz Worker\n(Claude Haiku)"]
+        EW["Embedding Worker\n(Qwen3-0.6B)"]
+    end
+
+    KTOR -->|HTTPS| JWTFilter
+    JWTFilter --> Controllers
+    Controllers --> Services
+    Services --> PG
+    NoteS --> S3
+    SearchS --> ES
+    QuizS --> Sender
+    Sender -->|quiz.generation.queue| RMQ
+    RMQ -->|quiz.generation.queue| QW
+    QW -->|quiz.generation.result.queue| RMQ
+    RMQ -->|quiz.generation.result.queue| Listener
+    Listener --> QuizS
+    NoteS --> NoteSender
+    NoteSender -->|note.processing.queue| RMQ
+    RMQ -->|note.processing.queue| EW
+    EW --> ES
+    QW --> S3
+    PG --- PGTables

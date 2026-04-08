@@ -1,0 +1,56 @@
+graph TB
+    subgraph Mobile["Mobile App (KMP - Android/iOS/Desktop)"]
+        UI["Compose UI Layer"]
+        VM["ViewModels (MVI)"]
+        UC["Use Cases"]
+        REPO["Repositories"]
+        LOCAL["SQLite (SQLDelight)"]
+        HTTP["Ktor HTTP Client"]
+        AUTH["AuthManager + TokenStorage"]
+
+        UI --> VM
+        VM --> UC
+        UC --> REPO
+        REPO --> LOCAL
+        REPO --> HTTP
+        HTTP --> AUTH
+    end
+
+    subgraph Backend["Spring Boot Backend (Java)"]
+        API["REST Controllers"]
+        SVC["Service Layer"]
+        JPA["JPA Repositories"]
+        PG["PostgreSQL"]
+        S3["S3 / LocalStack"]
+        RABBIT["RabbitMQ"]
+        JWT["JWT Auth Filter"]
+
+        API --> JWT
+        JWT --> SVC
+        SVC --> JPA
+        JPA --> PG
+        SVC --> S3
+        SVC --> RABBIT
+    end
+
+    subgraph Workers["Python Workers"]
+        QUIZ_W["Quiz Generation Worker"]
+        EMBED_W["Embedding Worker"]
+        CLAUDE["Claude Haiku API"]
+        QWEN["Qwen3 Embedding Model"]
+
+        QUIZ_W --> CLAUDE
+        EMBED_W --> QWEN
+    end
+
+    subgraph Search["Search Infrastructure"]
+        ES["Elasticsearch"]
+    end
+
+    HTTP -->|"HTTPS (ngrok)"| API
+    RABBIT -->|"quiz.generation.queue"| QUIZ_W
+    QUIZ_W -->|"quiz.generation.result.queue"| RABBIT
+    RABBIT -->|"note.processing.queue"| EMBED_W
+    EMBED_W -->|"index vectors"| ES
+    SVC -->|"kNN search"| ES
+    QUIZ_W -->|"fetch note body"| S3

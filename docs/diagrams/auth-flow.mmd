@@ -1,0 +1,51 @@
+sequenceDiagram
+    participant User
+    participant AuthScreen
+    participant AuthVM as AuthViewModel
+    participant UseCase as LoginUseCase
+    participant Repo as AuthRepository
+    participant API as AuthApi
+    participant Backend as Spring Boot
+    participant JWT as JWT Provider
+    participant AuthMgr as AuthManager
+    participant Storage as TokenStorage
+
+    Note over User,Storage: Login Flow
+
+    User->>AuthScreen: Enter email + password, tap Login
+    AuthScreen->>AuthVM: onIntent(Submit)
+    AuthVM->>UseCase: login(email, password)
+    UseCase->>UseCase: Validate non-blank
+    UseCase->>Repo: login(email, password)
+    Repo->>API: POST /auth/login {email, password}
+    API->>Backend: HTTP request (no auth header)
+    Backend->>Backend: Verify credentials
+    Backend->>JWT: Generate token (HS256, 15min TTL)
+    JWT-->>Backend: accessToken
+    Backend-->>API: 200 {accessToken, userId}
+    API-->>Repo: AuthResponseDto
+    Repo->>AuthMgr: login(token, userId)
+    AuthMgr->>Storage: saveToken(token, userId)
+    AuthMgr->>AuthMgr: _state = Authenticated(token, userId)
+    Repo-->>UseCase: ApiResult.Success
+    UseCase-->>AuthVM: Success
+    AuthVM-->>AuthScreen: Effect: NavigateToHome
+
+    Note over User,Storage: App recomposes: AuthState.Authenticated -> MainApp()
+
+    Note over User,Storage: Cold Start Restoration
+
+    AuthMgr->>Storage: getToken(), getUserId()
+    Storage-->>AuthMgr: token, userId (or null)
+    AuthMgr->>AuthMgr: _state = Authenticated or Unauthenticated
+
+    Note over User,Storage: Token Expiry (401 on any API call)
+
+    API->>Backend: GET /notes (expired token)
+    Backend-->>API: 401 Unauthorized
+    API-->>Repo: Error
+    Repo->>AuthMgr: logout()
+    AuthMgr->>Storage: clear()
+    AuthMgr->>AuthMgr: _state = Unauthenticated
+
+    Note over User,Storage: App recomposes: AuthState.Unauthenticated -> AuthScreen

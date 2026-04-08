@@ -1,0 +1,60 @@
+sequenceDiagram
+    participant User
+    participant Mobile
+    participant Backend
+    participant RabbitMQ
+    participant Worker as Python Worker
+    participant S3
+    participant Claude as Claude Haiku
+
+    Note over User,Claude: Quiz Generation & Attempt Flow
+
+    User->>Mobile: Tap "Quiz Me" on note
+    Mobile->>Backend: POST /notes/{noteId}/quizzes
+    Backend->>Backend: Create Quiz (PENDING)
+    Backend->>RabbitMQ: Publish QuizGenerationEvent
+    Backend-->>Mobile: 202 QuizSummary (PENDING)
+
+    Mobile->>Mobile: Show "Generating quiz..."
+
+    RabbitMQ->>Worker: Consume from quiz.generation.queue
+    Worker->>S3: Fetch note body by S3 key
+    S3-->>Worker: Raw note text
+    Worker->>Worker: Compute question count (3/5/7/10)
+    Worker->>Claude: Generate MCQ questions (JSON)
+    Claude-->>Worker: Questions array
+    Worker->>RabbitMQ: Publish QuizGenerationResult (READY)
+    RabbitMQ->>Backend: Consume from quiz.generation.result.queue
+    Backend->>Backend: Save QuizQuestions, set status=READY
+
+    loop Poll every 2s (max 30 attempts)
+        Mobile->>Backend: GET /quizzes/{quizId}
+        Backend-->>Mobile: QuizResponse (status)
+    end
+
+    Mobile->>Mobile: Show "Starting quiz..."
+    Mobile->>Backend: POST /quizzes/{quizId}/attempts
+    Backend-->>Mobile: AttemptStartResponse (questions, no answers)
+
+    User->>Mobile: Answer questions, navigate, submit
+    Mobile->>Backend: PUT /quizzes/{quizId}/attempts/{attemptId}
+    Backend->>Backend: Grade answers, compute score
+    Backend-->>Mobile: AttemptResultResponse (score, correct answers, explanations)
+
+    Mobile->>Mobile: Show results screen
+
+    Note over User,Mobile: Save to Study Bridge
+
+    User->>Mobile: Tap "Save to Study"
+    Mobile->>Mobile: Show dialog (All / Missed only)
+    User->>Mobile: Choose option
+    Mobile->>Mobile: SaveToStudyUseCase converts QuestionResults to FlashCards
+    Mobile->>Mobile: Insert into local SQLite (FlashCardEntity)
+    Mobile->>Mobile: Snackbar "X cards saved to Study"
+
+    Note over User,Mobile: Study Tab (Local Only)
+
+    User->>Mobile: Open Study tab
+    Mobile->>Mobile: Load due FlashCards from SQLite
+    User->>Mobile: Review cards (SM-2 spaced repetition)
+    Mobile->>Mobile: Update ease_factor, interval, next_review_at

@@ -636,10 +636,23 @@ private fun GraphView(
 
     val windowSizeClass = LocalWindowSizeClass.current
     val isExpanded = windowSizeClass == WindowSizeClass.Expanded
-    val virtualSize = when (windowSizeClass) {
+    val minVirtualSize = when (windowSizeClass) {
         WindowSizeClass.Compact -> 800f
         WindowSizeClass.Medium -> 1200f
         WindowSizeClass.Expanded -> 1600f
+    }
+    // Derive the virtual canvas from the actual node bounds so dynamically
+    // sized graphs (many subjects → big cluster ring) always fit-to-screen
+    // without overlapping. Falls back to the WindowSizeClass minimum.
+    val virtualSize = remember(nodes, minVirtualSize) {
+        if (nodes.isEmpty()) {
+            minVirtualSize
+        } else {
+            val maxExtent = nodes.maxOf {
+                maxOf(it.x + it.radius + 60f, it.y + it.radius + 60f)
+            }
+            maxExtent.coerceAtLeast(minVirtualSize)
+        }
     }
 
     var scale by remember(virtualSize) { mutableFloatStateOf(1f) }
@@ -652,8 +665,12 @@ private fun GraphView(
     var fitOffsetX by remember(virtualSize) { mutableFloatStateOf(0f) }
     var fitOffsetY by remember(virtualSize) { mutableFloatStateOf(0f) }
 
+    // Allow generous zoom-out so big graphs (many subjects) still fit. The
+    // initial fit-scale is computed in onSizeChanged and may itself be small.
+    val minScale = 0.15f
+    val maxScale = 3f
     val transformableState = rememberTransformableState { zoomChange, panChange, _ ->
-        scale = (scale * zoomChange).coerceIn(0.4f, 3f)
+        scale = (scale * zoomChange).coerceIn(minScale, maxScale)
         offsetX += panChange.x
         offsetY += panChange.y
     }
@@ -688,7 +705,7 @@ private fun GraphView(
                         if (event.type == PointerEventType.Scroll) {
                             val scrollDelta = event.changes.firstOrNull()?.scrollDelta?.y ?: 0f
                             val zoomFactor = if (scrollDelta > 0) 0.9f else 1.1f
-                            scale = (scale * zoomFactor).coerceIn(0.4f, 3f)
+                            scale = (scale * zoomFactor).coerceIn(minScale, maxScale)
                         }
                     }
                 }
@@ -820,7 +837,7 @@ private fun GraphView(
                     style = Stroke(width = if (isSelected) 2.5f else if (node.isHub) 2f else 1.2f),
                 )
 
-                // Monogram / label inside hub nodes
+                // Subject name inside hub nodes only — satellites are pure colored bubbles.
                 if (node.isHub) {
                     val monoStyle = TextStyle(
                         color = Color.White.copy(alpha = if (isSelected) 1f else 0.9f),
@@ -842,48 +859,6 @@ private fun GraphView(
                             y = node.y - monoResult.size.height / 2f,
                         ),
                     )
-                } else {
-                    // Satellite monogram (2 chars)
-                    val monogram = node.label.take(2).uppercase()
-                    val monoStyle = TextStyle(
-                        color = Color.White.copy(alpha = if (isSelected) 1f else 0.75f),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        textAlign = TextAlign.Center,
-                    )
-                    val monoResult = textMeasurer.measure(text = monogram, style = monoStyle, maxLines = 1)
-                    drawText(
-                        textLayoutResult = monoResult,
-                        topLeft = Offset(
-                            x = node.x - monoResult.size.width / 2f,
-                            y = node.y - monoResult.size.height / 2f,
-                        ),
-                    )
-                }
-            }
-
-            // ── Labels below satellite nodes ──
-            regularNodes.filter { !it.isHub }.forEach { node ->
-                drawNodeLabel(
-                    textMeasurer = textMeasurer,
-                    text = node.label,
-                    center = Offset(node.x, node.y),
-                    radius = node.radius,
-                    isSelected = false,
-                    isExpanded = isExpanded,
-                )
-            }
-            // Selected node label (on top)
-            selectedNodes.forEach { node ->
-                if (!node.isHub) {
-                    drawNodeLabel(
-                        textMeasurer = textMeasurer,
-                        text = node.label,
-                        center = Offset(node.x, node.y),
-                        radius = node.radius,
-                        isSelected = true,
-                        isExpanded = isExpanded,
-                    )
                 }
             }
         }
@@ -900,14 +875,14 @@ private fun GraphView(
             ZoomButton(
                 icon = MindTagIcons.Add,
                 contentDescription = "Zoom in",
-                onClick = { scale = (scale * 1.3f).coerceIn(0.4f, 3f) },
+                onClick = { scale = (scale * 1.3f).coerceIn(minScale, maxScale) },
                 size = zoomButtonSize,
                 iconSize = zoomIconSize,
             )
             ZoomButton(
                 icon = MindTagIcons.Remove,
                 contentDescription = "Zoom out",
-                onClick = { scale = (scale / 1.3f).coerceIn(0.4f, 3f) },
+                onClick = { scale = (scale / 1.3f).coerceIn(minScale, maxScale) },
                 size = zoomButtonSize,
                 iconSize = zoomIconSize,
             )
@@ -979,46 +954,6 @@ private fun DrawScope.drawDotGrid(canvasWidth: Float, canvasHeight: Float, isExp
         }
         x += spacing
     }
-}
-
-private fun DrawScope.drawNodeLabel(
-    textMeasurer: TextMeasurer,
-    text: String,
-    center: Offset,
-    radius: Float,
-    isSelected: Boolean,
-    isExpanded: Boolean = false,
-) {
-    val baseFontSizeValue = if (radius > 45f) 13f else 12f
-    val fontSize = if (isExpanded) (baseFontSizeValue + 2f).sp else baseFontSizeValue.sp
-    val labelColor = when {
-        isSelected -> Color.White
-        isExpanded -> Color(0xFFE2E8F0) // slate-200 — brighter on desktop
-        else -> MindTagColors.TextSlate300
-    }
-    val style = TextStyle(
-        color = labelColor,
-        fontSize = fontSize,
-        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
-        textAlign = TextAlign.Center,
-    )
-    val widthMultiplier = if (isExpanded) 4f else 3f
-    val maxWidth = (radius * widthMultiplier).toInt().coerceAtLeast(60)
-    val layoutResult = textMeasurer.measure(
-        text = text,
-        style = style,
-        maxLines = 2,
-        overflow = TextOverflow.Ellipsis,
-        constraints = androidx.compose.ui.unit.Constraints(maxWidth = maxWidth),
-    )
-    // Position below the node with a small gap
-    drawText(
-        textLayoutResult = layoutResult,
-        topLeft = Offset(
-            x = center.x - layoutResult.size.width / 2f,
-            y = center.y + radius + 6f,
-        ),
-    )
 }
 
 @Composable

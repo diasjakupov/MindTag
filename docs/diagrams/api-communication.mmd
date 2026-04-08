@@ -1,0 +1,21 @@
+graph LR
+    subgraph Mobile["Mobile App"]
+        AuthApi["AuthApi"]
+        NoteApi["NoteApi"]
+        SearchApi["SearchApi"]
+        QuizApi["QuizApi"]
+    end
+
+    subgraph Backend["Spring Boot API"]
+        AuthCtrl["AuthController"]
+        NoteCtrl["NoteController"]
+        SearchCtrl["SearchController"]
+        QuizCtrl["QuizController"]
+        AttemptCtrl["QuizAttemptController"]
+    end
+
+    AuthApi -->|"POST /auth/login\nPOST /auth/register"| AuthCtrl
+    NoteApi -->|"GET /notes\nGET /notes/{id}\nPOST /notes\nPUT /notes/{id}\nDELETE /notes/{id}\nGET /notes/{id}/related"| NoteCtrl
+    SearchApi -->|"GET /search?query\nGET /search/list?subject\nGET /search/semantic?query"| SearchCtrl
+    QuizApi -->|"POST /notes/{id}/quizzes\nGET /quizzes\nGET /quizzes/{id}\nGET /notes/{id}/quizzes\nDELETE /quizzes/{id}"| QuizCtrl
+    QuizApi -->|"POST /quizzes/{id}/attempts\nPUT /quizzes/{id}/attempts/{aid}\nGET /quizzes/{id}/attempts/{aid}\nGET /quizzes/attempts"| AttemptCtrl

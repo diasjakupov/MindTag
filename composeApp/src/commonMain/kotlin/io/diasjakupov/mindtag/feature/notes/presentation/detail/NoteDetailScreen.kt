@@ -379,8 +379,6 @@ private fun RelatedNotesSection(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(MindTagShapes.xl)
-            .background(MindTagColors.SurfaceDarkAlt2)
             .padding(top = MindTagSpacing.lg, bottom = MindTagSpacing.xxl),
     ) {
         Row(
@@ -536,7 +534,9 @@ private fun RelatedNoteCard(
     modifier: Modifier = Modifier,
 ) {
     val subjectColor = try {
-        Color(("FF" + relatedNote.subjectColorHex.removePrefix("#")).toLong(16))
+        val hex = relatedNote.subjectColorHex.removePrefix("#")
+        require(hex.length == 6)
+        Color(("FF$hex").toLong(16))
     } catch (_: Exception) {
         MindTagColors.AccentPurple
     }
@@ -546,7 +546,7 @@ private fun RelatedNoteCard(
             .widthIn(min = 160.dp)
             .height(128.dp)
             .clip(MindTagShapes.lg)
-            .background(Color(0xFF151B26))
+            .background(MindTagColors.SurfaceDarkAlt2)
             .border(1.dp, MindTagColors.NodeBorder, MindTagShapes.lg)
             .hoverBorder()
             .clickable(onClick = onClick)
@@ -569,18 +569,20 @@ private fun RelatedNoteCard(
         }
 
         Column {
-            Text(
-                text = relatedNote.subjectName,
-                style = MaterialTheme.typography.labelMedium,
-                color = MindTagColors.TextSlate500,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Spacer(modifier = Modifier.height(MindTagSpacing.xxs))
+            if (relatedNote.subjectName.isNotEmpty()) {
+                Text(
+                    text = relatedNote.subjectName,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MindTagColors.TextSecondary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(modifier = Modifier.height(MindTagSpacing.xxs))
+            }
             Text(
                 text = relatedNote.title,
                 style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                color = MindTagColors.TextSlate300,
+                color = MindTagColors.TextPrimary,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )

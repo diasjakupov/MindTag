@@ -270,10 +270,36 @@ class LibraryViewModel(
     ): List<LibraryContract.GraphNode> {
         val subjectMap = subjects.associateBy { it.id }
         val subjectGroups = notes.groupBy { it.subjectId }
+        if (subjectGroups.isEmpty()) return emptyList()
 
+        val groupCount = subjectGroups.size
         val nodes = mutableListOf<LibraryContract.GraphNode>()
-        val canvasCenter = 400f
-        val clusterDistance = if (subjectGroups.size <= 1) 0f else 240f
+
+        // Spatial footprint of a cluster: hub-only clusters need only the hub
+        // halo, multi-note clusters extend out to their largest orbit ring plus
+        // the satellite radius and jitter. No label space — satellites are now
+        // pure colored bubbles.
+        fun clusterFootprint(groupSize: Int): Float {
+            val satellites = (groupSize - 1).coerceAtLeast(0)
+            if (satellites == 0) return 56f + 18f // hub radius + halo
+            val maxRing = (satellites - 1) / 6
+            val maxOrbit = 105f + maxRing * 55f
+            return maxOrbit + 36f /* satellite radius */ + 8f /* jitter */
+        }
+
+        val maxClusterRadius = subjectGroups.values.maxOf { clusterFootprint(it.size) }
+
+        // Required chord between adjacent cluster centers so footprints never
+        // collide, with a small gutter. chord = 2 * R * sin(π / N).
+        val gutter = 40f
+        val requiredChord = 2f * maxClusterRadius + gutter
+        val clusterDistance = if (groupCount <= 1) 0f
+        else requiredChord / (2f * sin(PI.toFloat() / groupCount))
+
+        // Canvas spans 0..(2 * outerExtent) on each axis with the cluster ring
+        // centred at (canvasCenter, canvasCenter).
+        val outerExtent = (clusterDistance + maxClusterRadius + 60f).coerceAtLeast(400f)
+        val canvasCenter = outerExtent
 
         // Golden angle for natural satellite distribution
         val goldenAngle = (PI * (3.0 - kotlin.math.sqrt(5.0))).toFloat()
@@ -281,7 +307,7 @@ class LibraryViewModel(
         subjectGroups.entries.forEachIndexed { groupIndex, (subjectId, groupNotes) ->
             val subject = subjectMap[subjectId]
 
-            val sectorAngle = (groupIndex.toFloat() / subjectGroups.size) * 2f * PI.toFloat()
+            val sectorAngle = (groupIndex.toFloat() / groupCount) * 2f * PI.toFloat()
             val adjustedAngle = sectorAngle - PI.toFloat() / 2f
             val clusterCenterX = canvasCenter + cos(adjustedAngle) * clusterDistance
             val clusterCenterY = canvasCenter + sin(adjustedAngle) * clusterDistance
@@ -306,7 +332,7 @@ class LibraryViewModel(
             groupNotes.drop(1).forEachIndexed { i, note ->
                 val angle = goldenAngle * (i + 1)
                 val ring = i / 6 // 6 nodes per ring
-                val orbitRadius = 110f + ring * 65f
+                val orbitRadius = 105f + ring * 55f
 
                 // Seeded jitter
                 val jx = ((note.id * 7 + i * 13) % 17 - 8).toFloat()

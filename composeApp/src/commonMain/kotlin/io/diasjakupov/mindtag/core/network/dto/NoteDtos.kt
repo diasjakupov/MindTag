@@ -32,4 +32,5 @@ data class NoteResponseDto(
 data class RelatedNoteResponseDto(
     val id: Long,
     val title: String,
+    val subject: String? = null,
 )
