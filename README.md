@@ -6,7 +6,7 @@
 
 ### Problem
 
-Students accumulate notes across multiple courses but lack tools that surface meaningful connections between topics. Traditional note-taking applications treat each note as an isolated document, leading to fragmented knowledge and inefficient review cycles. Existing solutions that attempt to address this rely on cloud-based AI services, creating dependency on network availability and raising data privacy concerns.
+Students accumulate notes across multiple courses but lack tools that surface meaningful connections between topics. Traditional note-taking applications treat each note as an isolated document, leading to fragmented knowledge and inefficient review cycles.
 
 ### Proposed Solution
 
@@ -22,14 +22,15 @@ The app follows a **server-first architecture** with JWT-based authentication. N
 |---------|-------------|
 | **Authentication** | JWT-based login/register with auth gate — unauthenticated users see the auth screen, authenticated users enter the main app |
 | **Server-Synced Notes** | CRUD operations via REST API with Ktor HTTP client; notes are fetched, created, updated, and deleted through the backend |
-| **Semantic Linking** | Server-side relationship discovery between notes; related notes fetched via API |
-| **Auto Flashcards** | Multiple-choice flashcard generation tied to source notes |
+| **Text & Semantic Search** | Dual search modes — keyword text search with pagination and semantic vector search for meaning-based discovery |
+| **Semantic Linking** | Server-side relationship discovery between notes; related notes displayed on detail screen with subject color coding |
+| **Backend Quiz Generation** | Server-generated multiple-choice quizzes per note with attempt tracking, scoring, and detailed question-level results |
+| **Save to Study** | Bridge between backend quizzes and local spaced repetition — save quiz flashcards to the local SM-2 study system |
 | **Spaced Repetition (SM-2)** | Adaptive review scheduling using the SuperMemo SM-2 algorithm with confidence-weighted quality mapping |
 | **Note Editing** | Full edit support — navigate from note detail to edit screen with pre-populated fields |
-| **Knowledge Graph Visualization** | Interactive Canvas-based graph rendering with subject-clustered layout, edge typing, and node selection |
-| **Weekly Planner** | Curriculum-aligned weekly task tracking with expandable week cards, type badges, and progress calculation |
-| **Live Profile Stats** | Reactive statistics dashboard aggregating mastery, streaks, XP, and session counts from SQLDelight flows |
-| **Onboarding** | 4-page HorizontalPager introduction with bidirectional state synchronization between pager and ViewModel |
+| **Knowledge Graph Visualization** | Interactive Canvas-based graph rendering with subject-clustered layout, dynamic sizing, edge typing, zoom (0.15x–3x), and node selection |
+| **Adaptive Layout** | Responsive UI with bottom navigation (compact), navigation rail (expanded), max-width constraints, hover states, and right-click context menus for desktop |
+| **Environment Switching** | Runtime toggle between production and test backend environments via long-press banner |
 
 ## Technology Stack
 
@@ -64,6 +65,8 @@ The base `MviViewModel<S, I, E>` provides:
 - `SharedFlow<E>` for one-time side effects
 - `updateState(reducer: S.() -> S)` for functional state transitions
 
+Each feature defines a **Contract** file declaring the `State`, `Intent`, and `Effect` sealed classes.
+
 ### Clean Architecture Layers
 
 ```
@@ -90,63 +93,109 @@ The base `MviViewModel<S, I, E>` provides:
 composeApp/src/
 ├── commonMain/kotlin/io/diasjakupov/mindtag/
 │   ├── core/
-│   │   ├── config/          # Dev configuration flags
+│   │   ├── config/          # Environment switching, dev flags
 │   │   ├── data/            # AppPreferences
 │   │   ├── database/        # DatabaseDriverFactory (expect/actual)
-│   │   ├── designsystem/    # Theme, colors, typography, reusable components
+│   │   ├── designsystem/
+│   │   │   └── components/  # Reusable UI components, context menus
 │   │   ├── di/              # Koin module definitions
-│   │   ├── domain/          # Shared models
+│   │   ├── domain/model/    # Shared domain models (Subject)
 │   │   ├── mvi/             # Base MviViewModel
-│   │   ├── navigation/      # Routes, bottom bar, NavConfig
+│   │   ├── navigation/      # Routes, BottomBar, NavigationRail
 │   │   ├── network/         # HttpClientFactory, AuthManager, ApiResult, ServerConfig
-│   │   │   └── dto/         # AuthDtos, NoteDtos (serializable request/response models)
-│   │   └── util/            # Shared utilities
-│   ├── data/seed/           # Database seeder and sample data
+│   │   │   └── dto/         # Auth, Note, Quiz, Search DTOs
+│   │   └── util/            # Logger, shared utilities
 │   └── feature/
 │       ├── auth/            # Login/register (data/domain/presentation)
-│       ├── home/            # Dashboard (data/domain/presentation)
+│       ├── backendquiz/     # Server-generated quizzes (data/domain/presentation)
 │       ├── library/         # Note list + knowledge graph (presentation)
-│       ├── notes/           # CRUD + detail + API client (data/domain/presentation)
-│       ├── onboarding/      # Intro flow (presentation)
-│       ├── planner/         # Weekly curriculum (presentation)
-│       ├── profile/         # User stats (presentation)
-│       └── study/           # Quiz + results (data/domain/presentation)
+│       ├── notes/           # CRUD + detail + search API (data/domain/presentation)
+│       └── study/           # Quiz hub + SM-2 quiz + results (data/domain/presentation)
 ├── androidMain/             # Android entry point, SQLite driver
 ├── iosMain/                 # iOS entry point, native SQLite driver
 └── jvmMain/                 # Desktop entry point, JDBC SQLite driver
 ```
 
+## Navigation
+
+Two top-level tabs (Library, Study) with push navigation for detail screens:
+
+| Route | Type | Description |
+|-------|------|-------------|
+| `Library` | Top-level tab | Note list with search/filter + knowledge graph toggle |
+| `Study` | Top-level tab | Study hub — subject selection, quiz config, SM-2 scheduling |
+| `NoteCreate(noteId?)` | Push | Create new note or edit existing (when `noteId` provided) |
+| `NoteDetail(noteId)` | Push | Note detail with related notes, quiz generation, quiz history |
+| `Quiz(sessionId)` | Push | Local SM-2 quiz session |
+| `QuizResults(sessionId)` | Push | Local quiz results with score ring and answer breakdown |
+| `BackendQuizList(noteId?)` | Push | List of server-generated quizzes for a note |
+| `BackendQuizAttempt(quizId, attemptId)` | Push | Take a backend quiz attempt |
+| `BackendQuizResults(quizId, attemptId)` | Push | Backend quiz results with save-to-study option |
+| `Auth` | Auth gate | Login/register screen (shown when unauthenticated) |
+
+## API Endpoints
+
+### Authentication
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/auth/login` | Login with email/password, returns JWT |
+| POST | `/auth/register` | Register new account, returns JWT |
+
+### Notes
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/notes` | List all user notes |
+| GET | `/notes/{id}` | Get note by ID |
+| POST | `/notes` | Create note (title, subject, body) |
+| PUT | `/notes/{id}` | Update note |
+| DELETE | `/notes/{id}` | Delete note |
+| GET | `/notes/{id}/related` | Get semantically related notes |
+
+### Search
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/search?query=&page=&size=` | Text search with pagination |
+| GET | `/search/list?subject=&page=&size=` | List notes by subject |
+| GET | `/search/semantic?query=` | Semantic vector search |
+
+### Quizzes
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/notes/{noteId}/quizzes` | Generate quiz for a note |
+| GET | `/quizzes` | List all user quizzes |
+| GET | `/quizzes/{quizId}` | Get quiz detail with questions |
+| GET | `/notes/{noteId}/quizzes` | List quizzes for a specific note |
+| DELETE | `/quizzes/{quizId}` | Delete a quiz |
+| POST | `/quizzes/{quizId}/attempts` | Start a quiz attempt |
+| PUT | `/quizzes/{quizId}/attempts/{attemptId}` | Submit attempt answers |
+| GET | `/quizzes/{quizId}/attempts/{attemptId}` | Get attempt results |
+
 ## Database Schema
 
-SQLDelight schema with 8 tables and 8 indexes, located in `composeApp/src/commonMain/sqldelight/`.
+SQLDelight schema with 7 tables, located in `composeApp/src/commonMain/sqldelight/`.
 
 | Table | Primary Key | Purpose |
 |-------|------------|---------|
-| `SubjectEntity` | `id TEXT` | Academic subjects with color and progress metadata |
+| `SubjectEntity` | `id TEXT` | Academic subjects with color, icon, and progress metadata |
 | `NoteEntity` | `id TEXT` | Notes with content, summary, subject FK, and week number |
 | `SemanticLinkEntity` | `id TEXT` | Directed edges in the knowledge graph (source → target) with similarity score and link type |
 | `FlashCardEntity` | `id TEXT` | Quiz cards with SM-2 scheduling fields (ease_factor, interval_days, next_review_at) |
 | `StudySessionEntity` | `id TEXT` | Quiz/exam sessions with type, timer, and status tracking |
 | `QuizAnswerEntity` | `id TEXT` | Per-question answers with correctness and confidence rating |
-| `UserProgressEntity` | `subject_id TEXT` | Aggregate mastery, streak, XP, and accuracy per subject |
-| `AppSettingsEntity` | `key TEXT` | Key-value store for app preferences (e.g., onboarding completion) |
+| `AppSettingsEntity` | `key TEXT` | Key-value store for app preferences |
 
 ### Entity Relationships
 
 ```
 SubjectEntity 1──* NoteEntity
 SubjectEntity 1──* FlashCardEntity
-SubjectEntity 1──1 UserProgressEntity
+SubjectEntity 1──* StudySessionEntity
 NoteEntity    *──* NoteEntity          (via SemanticLinkEntity)
 StudySessionEntity 1──* QuizAnswerEntity
 FlashCardEntity    1──* QuizAnswerEntity
 ```
 
 ## Core Algorithms
-
-### Semantic Linking (Server-Side)
-
-Semantic analysis (TF-IDF similarity, link classification) and flashcard generation are handled by the backend. The client fetches related notes and flashcards via REST API endpoints (`/notes/{id}/related`).
 
 ### SM-2 Spaced Repetition
 
@@ -183,21 +232,32 @@ App launch → AuthManager checks state → Unauthenticated?
     → AuthScreen (login/register toggle)
     → Submit → AuthApi.login/register → JWT token received
     → AuthManager.login(token, userId) → State flips to Authenticated
-    → MainApp composable renders (dashboard, bottom nav, etc.)
+    → MainApp renders (Library tab, bottom nav / navigation rail)
 ```
 
 ### Note Creation with Auto-Linking
 
 ```
-NoteCreateScreen → Save → NoteApi.createNote (POST /notes)
+Library → Tap create → NoteCreateScreen → Save → NoteApi.createNote (POST /notes)
     → Backend persists note + runs semantic analysis
     → Related notes discoverable via GET /notes/{id}/related
+    → NoteDetailScreen shows related notes with subject colors
 ```
 
-### Study Session (Quiz → Results)
+### Backend Quiz Flow
 
 ```
-StudyHub → Select mode (Quick Quiz: 10 questions / Exam: 50 questions, 45 min)
+NoteDetail → Generate Quiz → POST /notes/{noteId}/quizzes
+    → Poll until status = READY → Start attempt (POST /quizzes/{id}/attempts)
+    → BackendQuizAttemptScreen → Answer questions → Submit
+    → BackendQuizResultsScreen → Score, per-question breakdown
+    → Optional: Save to Study → Imports flashcards into local SM-2 system
+```
+
+### Local Study Session (SM-2)
+
+```
+StudyHub → Select subject, question count, optional timer
     → StartQuizUseCase → Create session + load cards (due-first selection)
     → QuizScreen → Answer questions → SubmitAnswerUseCase (persist + SM-2 update)
     → ResultsScreen → Score ring, XP earned, streak, answer breakdown
@@ -209,15 +269,8 @@ StudyHub → Select mode (Quick Quiz: 10 questions / Exam: 50 questions, 45 min)
 Library → Toggle to GRAPH view
     → Subject-clustered circular layout computed from notes + semantic links
     → Canvas rendering: nodes (subject-colored), edges (solid/dashed by type)
+    → Dynamic sizing based on node density, zoom range 0.15x–3x
     → Tap node → Preview card → Navigate to NoteDetail → Traverse related notes
-```
-
-### Weekly Planning
-
-```
-Planner → Expandable week cards with task list
-    → Toggle task completion → Recalculate week + overall progress
-    → Task types: LECTURE, READING, QUIZ, ASSIGNMENT (color-coded badges)
 ```
 
 ## Platform Support
@@ -229,6 +282,8 @@ MindTag targets three platforms from a single Kotlin codebase:
 | Android | `MainActivity` | `AndroidSqliteDriver` | `./gradlew :composeApp:assembleDebug` |
 | iOS | `MainViewController` (Xcode) | `NativeSqliteDriver` | Open `iosApp/` in Xcode |
 | Desktop (JVM) | `main.kt` | `JdbcSqliteDriver` | `./gradlew :composeApp:run` |
+
+**Adaptive UI:** Compact screens use bottom navigation; expanded screens (>840dp) use a navigation rail with max-width content constraints, hover states, and right-click context menus.
 
 **Additional commands:**
 
@@ -247,13 +302,14 @@ MindTag targets three platforms from a single Kotlin codebase:
 
 ## Testing
 
-The project includes unit, integration, and end-to-end tests:
+| Layer | Tests | Examples |
+|-------|-------|---------|
+| **Unit** | Use cases, DTO serialization | `GetNotesUseCaseTest`, `StartQuizUseCaseTest`, `DtoDeserializationTest` |
+| **Integration** | Repositories, ViewModel state transitions | `NoteRepositoryImplTest`, `QuizRepositoryImplTest`, `LibraryViewModelTest` |
+| **Entity** | SQLDelight entity round-trips | `NoteEntityTest`, `FlashCardEntityTest`, `SubjectEntityTest` |
+| **E2E** | Full user flows via ViewModel sequences | `QuizFlowTest`, `LibrarySearchFilterFlowTest`, `SeedDataVerificationTest` |
 
-- **Unit tests** — Domain models, use cases, repository logic, SM-2 algorithm correctness
-- **Integration tests** — ViewModel state transitions under MVI contract, reactive data flow through repository → use case → ViewModel chains
-- **E2E tests** — Full user flows (quiz session → results) via ViewModel interaction sequences
-
-Test infrastructure: `kotlinx-coroutines-test`, `Turbine` (Flow testing), `Koin-test`
+Test infrastructure: `kotlinx-coroutines-test`, `Turbine` (Flow testing), `Koin-test`, JUnit 4
 
 ```shell
 ./gradlew :composeApp:jvmTest    # Common tests via JVM runner
@@ -267,13 +323,11 @@ Detailed feature documentation is available in the [`/docs`](./docs/) directory:
 | Document | Contents |
 |----------|----------|
 | [Core Infrastructure](docs/core-infrastructure.md) | Design system, navigation, MVI framework, DI modules, database schema |
-| [Home Dashboard](docs/feature-home.md) | Reactive dashboard with review carousel and up-next tasks |
+| [Authentication](docs/feature-auth.md) | JWT auth flow, auth gate, token management |
 | [Notes (Create + Detail)](docs/feature-notes.md) | Note CRUD, related note discovery, knowledge graph traversal |
 | [Study (Hub + Quiz + Results)](docs/feature-study.md) | Quiz modes, SM-2 spaced repetition, score ring, XP system |
 | [Library (List + Graph)](docs/feature-library.md) | Filterable note list, Canvas-based knowledge graph visualization |
-| [Planner](docs/feature-planner.md) | Weekly curriculum view with task tracking and progress bars |
-| [Profile](docs/feature-profile.md) | User statistics and settings shell |
-| [Onboarding](docs/feature-onboarding.md) | 4-page intro flow with bidirectional pager sync |
 | [Build & Platform](docs/build-and-platform.md) | Gradle config, version catalog, platform entry points |
-| [Backend Integration Plan](docs/plans/2026-02-11-backend-integration-plan.md) | Full backend integration design — auth, notes API, sync strategy |
-| [UX Gaps Audit](docs/plans/2026-02-08-ux-gaps-audit.md) | UX improvement roadmap — note editing, preferences, study hub enhancements |
+
+Architecture diagrams (Mermaid) are in [`/docs/diagrams`](./docs/diagrams/):
+`system-architecture`, `mobile-architecture`, `backend-architecture`, `auth-flow`, `api-communication`, `note-processing-flow`, `quiz-flow`
