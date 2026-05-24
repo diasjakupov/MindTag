@@ -10,6 +10,9 @@ object LibraryContract {
         val searchQuery: String = "",
         val searchMode: SearchMode = SearchMode.TEXT,
         val graphNodes: List<GraphNode> = emptyList(),
+        // Cross-subject links (note-id pairs) drawn as edges between clusters in the knowledge
+        // graph, so F4's "find a cross-subject connection" criterion is visible in the graph itself.
+        val crossSubjectEdges: List<Pair<Long, Long>> = emptyList(),
         val selectedNodeId: Long? = null,
         val isLoading: Boolean = true,
         val isLoadingMore: Boolean = false,

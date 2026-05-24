@@ -3,6 +3,8 @@ package io.diasjakupov.mindtag.feature.auth.data
 import io.diasjakupov.mindtag.core.network.ApiResult
 import io.diasjakupov.mindtag.core.network.AuthManager
 import io.diasjakupov.mindtag.feature.auth.domain.AuthRepository
+import kotlinx.coroutines.delay
+import kotlin.random.Random
 
 /**
  * Stub [AuthRepository] used in [io.diasjakupov.mindtag.core.config.AppEnvironment.TEST] mode.
@@ -16,11 +18,15 @@ class StubAuthRepository(
     private val authManager: AuthManager,
 ) : AuthRepository {
 
-    override suspend fun login(email: String, password: String): ApiResult<Unit> =
-        authenticate()
+    override suspend fun login(email: String, password: String): ApiResult<Unit> {
+        delay(Random.nextLong(800, 1000)) // ~900ms simulated auth round-trip
+        return authenticate()
+    }
 
-    override suspend fun register(email: String, password: String): ApiResult<Unit> =
-        authenticate()
+    override suspend fun register(email: String, password: String): ApiResult<Unit> {
+        delay(Random.nextLong(800, 1000))
+        return authenticate()
+    }
 
     private fun authenticate(): ApiResult<Unit> {
         authManager.login(

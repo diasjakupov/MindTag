@@ -29,6 +29,20 @@ class LibraryViewModel(
 
     private companion object {
         const val PAGE_SIZE = 20
+
+        // Hardcoded cross-subject links (Option B) drawn as edges between graph clusters so F4 can
+        // demonstrate a cross-subject connection. These mirror the related-notes link map and pair
+        // notes across different subjects (OOP ↔ Design Patterns, Algorithms ↔ Data Structures).
+        val CROSS_SUBJECT_EDGES: List<Pair<Long, Long>> = listOf(
+            3L to 12L,
+            3L to 13L,
+            4L to 12L,
+            2L to 13L,
+            5L to 10L,
+            6L to 11L,
+            7L to 9L,
+            1L to 10L,
+        )
     }
 
     private var allNotes: List<Note> = emptyList()
@@ -55,12 +69,17 @@ class LibraryViewModel(
 
                 val listItems = notes.map { it.toListItem(allSubjects) }
                 val graphNodes = buildGraphNodes(notes, subjects)
+                val nodeIds = graphNodes.map { it.noteId }.toSet()
+                val crossEdges = CROSS_SUBJECT_EDGES.filter { (a, b) ->
+                    a in nodeIds && b in nodeIds
+                }
 
                 updateState {
                     copy(
                         notes = listItems,
                         subjects = buildSubjectFilters(subjects, selectedSubjectId),
                         graphNodes = graphNodes,
+                        crossSubjectEdges = crossEdges,
                         isLoading = false,
                         hasMorePages = false,
                         currentPage = 0,

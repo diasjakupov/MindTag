@@ -211,6 +211,7 @@ fun LibraryScreenContent(
                     Box(modifier = Modifier.weight(1f)) {
                         GraphView(
                             nodes = state.graphNodes,
+                            crossSubjectEdges = state.crossSubjectEdges,
                             selectedNodeId = state.selectedNodeId,
                             onNodeTap = { onIntent(LibraryContract.Intent.TapGraphNode(it)) },
                             modifier = Modifier.fillMaxSize(),
@@ -615,6 +616,7 @@ private fun NoteListCard(
 @Composable
 private fun GraphView(
     nodes: List<LibraryContract.GraphNode>,
+    crossSubjectEdges: List<Pair<Long, Long>>,
     selectedNodeId: Long?,
     onNodeTap: (Long) -> Unit,
     modifier: Modifier = Modifier,
@@ -738,6 +740,40 @@ private fun GraphView(
         ) {
             // Subtle dot grid
             drawDotGrid(virtualSize, virtualSize, isExpanded)
+
+            // ── Cross-subject edges (Option B): dashed links between clusters ──
+            // Drawn underneath the intra-cluster edges/nodes and styled distinctly (lighter,
+            // dashed, neutral colour) so they read as cross-subject connections.
+            crossSubjectEdges.forEach { (aId, bId) ->
+                val a = nodeMap[aId] ?: return@forEach
+                val b = nodeMap[bId] ?: return@forEach
+                val isActive = aId == selectedNodeId || bId == selectedNodeId
+                val crossColor = parseColor("#94A3B8") // slate — neutral so it isn't read as a subject colour
+                val alpha = if (isActive) 0.7f else 0.3f
+
+                val from = Offset(a.x, a.y)
+                val to = Offset(b.x, b.y)
+                val midX = (from.x + to.x) / 2f
+                val midY = (from.y + to.y) / 2f
+                val dx = to.x - from.x
+                val dy = to.y - from.y
+                val curveStrength = 0.12f
+                val ctrlX = midX - dy * curveStrength
+                val ctrlY = midY + dx * curveStrength
+                val path = Path().apply {
+                    moveTo(from.x, from.y)
+                    quadraticTo(ctrlX, ctrlY, to.x, to.y)
+                }
+                drawPath(
+                    path = path,
+                    color = crossColor.copy(alpha = alpha),
+                    style = Stroke(
+                        width = if (isActive) 3f else 2f,
+                        cap = StrokeCap.Round,
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(14f, 10f)),
+                    ),
+                )
+            }
 
             // ── Edges: curved connections from hub to satellites ──
             nodes.filter { it.hubNoteId != null }.forEach { satellite ->

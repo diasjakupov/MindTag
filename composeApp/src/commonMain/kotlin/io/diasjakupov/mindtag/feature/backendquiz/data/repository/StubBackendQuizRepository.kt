@@ -10,79 +10,157 @@ import io.diasjakupov.mindtag.feature.backendquiz.domain.model.QuizQuestion
 import io.diasjakupov.mindtag.feature.backendquiz.domain.model.QuizStatus
 import io.diasjakupov.mindtag.feature.backendquiz.domain.model.QuizSummary
 import io.diasjakupov.mindtag.feature.backendquiz.domain.repository.BackendQuizRepository
+import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
+import kotlin.random.Random
 
 /**
  * Stub [BackendQuizRepository] used in [io.diasjakupov.mindtag.core.config.AppEnvironment.TEST] mode.
  *
- * Pre-seeded with two realistic READY quizzes (one per stub note subject). All mutations
- * (generate, delete, start attempt, submit answers) operate on in-memory state only.
+ * Pre-seeded with three realistic READY quizzes (Quiz A note 3 Polymorphism, Quiz B note 5 Big-O,
+ * Quiz C note 10 Hash tables). The note ids match those in StubNoteRepository so "Quiz Me" works on
+ * the hero notes. All mutations (generate, delete, start attempt, submit answers) operate on
+ * in-memory state only, with artificial network-style delays so loading states render on camera.
  *
- * No network calls are made.
+ * The attempt result deliberately returns a MIX of correct and wrong answers (~75-80%) so the
+ * results screen shows both green and red detailed-analysis cards plus the AI-insight block.
+ *
+ * No real network calls are made.
  */
 class StubBackendQuizRepository : BackendQuizRepository {
 
     private val now: String
         get() = Clock.System.now().toString()
 
-    // ─── Hardcoded stub questions ─────────────────────────────────────────────
+    // ─── Quiz A — note 3, Polymorphism (5 questions) ──────────────────────────
 
-    private val mlQuestions = listOf(
+    private val polymorphismQuestions = listOf(
         QuizQuestion(
-            id = 101L,
-            questionText = "Which machine learning paradigm trains on labelled input-output pairs?",
-            options = listOf("Unsupervised Learning", "Supervised Learning", "Reinforcement Learning", "Self-Supervised Learning"),
+            id = 301L,
+            questionText = "What does dynamic dispatch decide at run time?",
+            options = listOf(
+                "The method to call based on the object's actual type",
+                "The amount of memory to allocate",
+                "The order of class loading",
+                "The compiler optimisation level",
+            ),
             orderIndex = 0,
         ),
         QuizQuestion(
-            id = 102L,
-            questionText = "What does the learning rate η control in gradient descent?",
-            options = listOf("The number of hidden layers", "The size of each parameter update step", "The batch size used in training", "The depth of the decision tree"),
+            id = 302L,
+            questionText = "Polymorphism most directly lets you replace what?",
+            options = listOf(
+                "Long if/switch chains on a type tag",
+                "Recursion with iteration",
+                "Arrays with linked lists",
+                "Private fields with public ones",
+            ),
             orderIndex = 1,
         ),
         QuizQuestion(
-            id = 103L,
-            questionText = "Which of the following is an adaptive optimisation algorithm?",
-            options = listOf("Batch GD", "Stochastic GD", "Adam", "Mini-batch GD"),
+            id = 303L,
+            questionText = "Which is required for runtime polymorphism in most OO languages?",
+            options = listOf(
+                "A shared interface or base type",
+                "A static method",
+                "A final class",
+                "A global variable",
+            ),
             orderIndex = 2,
         ),
         QuizQuestion(
-            id = 104L,
-            questionText = "The Transformer architecture was introduced in which paper?",
-            options = listOf("ImageNet Classification with Deep CNNs", "Attention Is All You Need", "Playing Atari with Deep RL", "BERT: Pre-training of Deep Bidirectional Transformers"),
+            id = 304L,
+            questionText = "A List<Shape> calling area() on each element demonstrates —",
+            options = listOf("Polymorphism", "Encapsulation", "Memoisation", "Hashing"),
             orderIndex = 3,
         ),
         QuizQuestion(
-            id = 105L,
-            questionText = "In the self-attention formula Attention(Q,K,V) = softmax(QKᵀ/√dₖ)V, what is dₖ?",
-            options = listOf("The vocabulary size", "The number of attention heads", "The dimensionality of key vectors", "The feed-forward hidden size"),
+            id = 305L,
+            questionText = "Which design pattern leans most directly on polymorphism?",
+            options = listOf("Strategy", "Singleton", "Flyweight", "Memento"),
             orderIndex = 4,
         ),
     )
 
-    private val memoryQuestions = listOf(
+    // ─── Quiz B — note 5, Big-O (4 questions) ─────────────────────────────────
+
+    private val bigOQuestions = listOf(
         QuizQuestion(
-            id = 201L,
-            questionText = "According to the Atkinson-Shiffrin model, how many primary memory stores are there?",
-            options = listOf("Two", "Three", "Four", "Five"),
+            id = 501L,
+            questionText = "O(n log n) is the typical complexity of —",
+            options = listOf(
+                "Efficient comparison sorts",
+                "Hash lookups",
+                "Array indexing",
+                "Constant work",
+            ),
             orderIndex = 0,
         ),
         QuizQuestion(
-            id = 202L,
-            questionText = "Which brain structure is critical for forming new declarative memories?",
-            options = listOf("Amygdala", "Cerebellum", "Hippocampus", "Prefrontal Cortex"),
+            id = 502L,
+            questionText = "Big-O ignores —",
+            options = listOf(
+                "Constants and lower-order terms",
+                "The worst case",
+                "The input size",
+                "The algorithm entirely",
+            ),
             orderIndex = 1,
         ),
         QuizQuestion(
-            id = 203L,
-            questionText = "In the SM-2 algorithm, what is the minimum allowed value for the easiness factor (EF)?",
-            options = listOf("1.0", "1.3", "2.0", "2.5"),
+            id = 503L,
+            questionText = "Average-case lookup in a well-sized hash table is —",
+            options = listOf("O(1)", "O(log n)", "O(n)", "O(n^2)"),
             orderIndex = 2,
         ),
         QuizQuestion(
-            id = 204L,
-            questionText = "What term describes the inability to form NEW memories after a brain injury?",
-            options = listOf("Retrograde amnesia", "Anterograde amnesia", "Korsakoff syndrome", "Semantic dementia"),
+            id = 504L,
+            questionText = "Quadratic time is written as —",
+            options = listOf("O(n^2)", "O(n)", "O(log n)", "O(1)"),
+            orderIndex = 3,
+        ),
+    )
+
+    // ─── Quiz C — note 10, Hash tables (4 questions) ──────────────────────────
+
+    private val hashQuestions = listOf(
+        QuizQuestion(
+            id = 1001L,
+            questionText = "Two keys hashing to the same bucket is called a —",
+            options = listOf("Collision", "Rotation", "Rehash", "Probe"),
+            orderIndex = 0,
+        ),
+        QuizQuestion(
+            id = 1002L,
+            questionText = "Chaining resolves collisions by —",
+            options = listOf(
+                "Storing a list per bucket",
+                "Resizing immediately",
+                "Rejecting the key",
+                "Sorting the bucket",
+            ),
+            orderIndex = 1,
+        ),
+        QuizQuestion(
+            id = 1003L,
+            questionText = "Hash-table performance degrades to O(n) when —",
+            options = listOf(
+                "Most keys collide",
+                "The table is empty",
+                "Keys are integers",
+                "The load factor is low",
+            ),
+            orderIndex = 2,
+        ),
+        QuizQuestion(
+            id = 1004L,
+            questionText = "The load factor measures —",
+            options = listOf(
+                "How full the table is",
+                "The hash length",
+                "The key size",
+                "The probe count",
+            ),
             orderIndex = 3,
         ),
     )
@@ -92,31 +170,43 @@ class StubBackendQuizRepository : BackendQuizRepository {
     private val quizzes = mutableListOf(
         QuizSummary(
             id = 1L,
-            noteId = 1L,
-            noteTitleSnapshot = "Introduction to Machine Learning",
+            noteId = 3L,
+            noteTitleSnapshot = "Polymorphism and dynamic dispatch",
             status = QuizStatus.READY,
-            questionCount = mlQuestions.size,
-            createdAt = "2026-03-25T10:00:00Z",
-            generatedAt = "2026-03-25T10:00:30Z",
+            questionCount = polymorphismQuestions.size,
+            createdAt = "2026-04-20T10:00:00Z",
+            generatedAt = "2026-04-20T10:00:30Z",
         ),
         QuizSummary(
             id = 2L,
-            noteId = 4L,
-            noteTitleSnapshot = "Human Memory Systems",
+            noteId = 5L,
+            noteTitleSnapshot = "Big-O notation and asymptotic analysis",
             status = QuizStatus.READY,
-            questionCount = memoryQuestions.size,
-            createdAt = "2026-03-26T14:00:00Z",
-            generatedAt = "2026-03-26T14:00:45Z",
+            questionCount = bigOQuestions.size,
+            createdAt = "2026-04-21T14:00:00Z",
+            generatedAt = "2026-04-21T14:00:45Z",
+        ),
+        QuizSummary(
+            id = 3L,
+            noteId = 10L,
+            noteTitleSnapshot = "Hash tables and collision resolution",
+            status = QuizStatus.READY,
+            questionCount = hashQuestions.size,
+            createdAt = "2026-04-22T09:00:00Z",
+            generatedAt = "2026-04-22T09:00:40Z",
         ),
     )
 
     private val attempts = mutableListOf<AttemptResult>()
     private var nextAttemptId = 100L
-    private var nextQuizId = 3L
+    private var nextQuizId = 4L
+
+    private val letters = listOf("A", "B", "C", "D")
 
     // ─── Quiz CRUD ────────────────────────────────────────────────────────────
 
     override suspend fun generateQuiz(noteId: Long): ApiResult<QuizSummary> {
+        delay(Random.nextLong(1400, 1600)) // ~1500ms — kicks off "Generating quiz..." status
         // Check for duplicate
         val existing = quizzes.find { it.noteId == noteId && it.status != QuizStatus.ERROR }
         if (existing != null) {
@@ -127,7 +217,7 @@ class StubBackendQuizRepository : BackendQuizRepository {
             noteId = noteId,
             noteTitleSnapshot = "Stub Note $noteId",
             status = QuizStatus.READY,
-            questionCount = mlQuestions.size,
+            questionCount = polymorphismQuestions.size,
             createdAt = now,
             generatedAt = now,
         )
@@ -140,6 +230,7 @@ class StubBackendQuizRepository : BackendQuizRepository {
         maxAttempts: Int,
         intervalMs: Long,
     ): ApiResult<QuizSummary> {
+        delay(Random.nextLong(2000, 2400)) // ~2200ms — "Waiting for AI..." marquee F5 loading moment
         val quiz = quizzes.find { it.id == quizId }
             ?: return ApiResult.Error("Quiz $quizId not found", 404)
         return ApiResult.Success(quiz)
@@ -177,6 +268,7 @@ class StubBackendQuizRepository : BackendQuizRepository {
     // ─── Attempts ─────────────────────────────────────────────────────────────
 
     override suspend fun startAttempt(quizId: Long): ApiResult<AttemptStart> {
+        delay(Random.nextLong(450, 650)) // ~500ms — "Starting quiz..."
         val summary = quizzes.find { it.id == quizId }
             ?: return ApiResult.Error("Quiz $quizId not found", 404)
         if (summary.status != QuizStatus.READY) {
@@ -198,12 +290,23 @@ class StubBackendQuizRepository : BackendQuizRepository {
         attemptId: Long,
         answers: List<AnswerRequestDto>,
     ): ApiResult<AttemptResult> {
+        delay(Random.nextLong(1000, 1200)) // ~1100ms — server scoring
         val questions = questionsForQuiz(quizId)
         val correctAnswers = correctAnswersForQuiz(quizId)
+        // Question ids that are forced to read as WRONG so the result is a believable mix
+        // (~75-80%). These also feed the F6 spaced-repetition "wrong material resurfaces" story.
+        val forcedWrong = forcedWrongForQuiz(quizId)
 
         val questionResults = questions.map { q ->
-            val userAnswer = answers.find { it.questionId == q.id }?.answer ?: "A"
             val correct = correctAnswers[q.id] ?: "A"
+            // Hardcode the demo answers: every question reads as correct except the forced-wrong
+            // ones, which take a deterministic incorrect option. This guarantees the green/red mix
+            // on camera regardless of what the user tapped.
+            val userAnswer = if (q.id in forcedWrong) {
+                letters.firstOrNull { it != correct } ?: correct
+            } else {
+                correct
+            }
             QuestionResult(
                 questionId = q.id,
                 questionText = q.questionText,
@@ -234,6 +337,7 @@ class StubBackendQuizRepository : BackendQuizRepository {
     }
 
     override suspend fun getAttemptResult(quizId: Long, attemptId: Long): ApiResult<AttemptResult> {
+        delay(Random.nextLong(700, 900)) // ~800ms — result fetch
         val result = attempts.find { it.attemptId == attemptId && it.quizId == quizId }
             ?: return ApiResult.Error("Attempt $attemptId not found", 404)
         return ApiResult.Success(result)
@@ -242,33 +346,50 @@ class StubBackendQuizRepository : BackendQuizRepository {
     // ─── Helpers ──────────────────────────────────────────────────────────────
 
     private fun questionsForQuiz(quizId: Long): List<QuizQuestion> = when (quizId) {
-        1L -> mlQuestions
-        2L -> memoryQuestions
-        else -> mlQuestions // default for dynamically-generated stub quizzes
+        1L -> polymorphismQuestions
+        2L -> bigOQuestions
+        3L -> hashQuestions
+        else -> polymorphismQuestions // default for dynamically-generated stub quizzes
     }
 
     /** Maps questionId -> correct answer letter (A/B/C/D based on correct option index). */
     private fun correctAnswersForQuiz(quizId: Long): Map<Long, String> {
         val correctIndices: Map<Long, Int> = when (quizId) {
-            1L -> mapOf(101L to 1, 102L to 1, 103L to 2, 104L to 1, 105L to 2)
-            2L -> mapOf(201L to 1, 202L to 2, 203L to 1, 204L to 1)
-            else -> mapOf(101L to 1, 102L to 1, 103L to 2, 104L to 1, 105L to 2)
+            1L -> mapOf(301L to 0, 302L to 0, 303L to 0, 304L to 0, 305L to 0)
+            2L -> mapOf(501L to 0, 502L to 0, 503L to 0, 504L to 0)
+            3L -> mapOf(1001L to 0, 1002L to 0, 1003L to 0, 1004L to 0)
+            else -> mapOf(301L to 0, 302L to 0, 303L to 0, 304L to 0, 305L to 0)
         }
         return correctIndices.mapValues { (_, idx) ->
-            listOf("A", "B", "C", "D").getOrElse(idx) { "A" }
+            letters.getOrElse(idx) { "A" }
         }
     }
 
+    /**
+     * Question ids forced to read as wrong on the result screen, to produce a ~75-80% mixed score.
+     * Quiz A (5 q): 1 wrong → 80%. Quiz B (4 q): 1 wrong → 75%. Quiz C (4 q): 1 wrong → 75%.
+     */
+    private fun forcedWrongForQuiz(quizId: Long): Set<Long> = when (quizId) {
+        1L -> setOf(303L) // missed "shared interface/base type"
+        2L -> setOf(504L) // missed "O(n^2)"
+        3L -> setOf(1003L) // missed "most keys collide"
+        else -> setOf(303L)
+    }
+
     private fun explanationForQuestion(questionId: Long): String = when (questionId) {
-        101L -> "Supervised learning uses labelled training pairs to learn a mapping from inputs to outputs."
-        102L -> "The learning rate η scales the gradient, determining how large each parameter update step is."
-        103L -> "Adam (Adaptive Moment Estimation) adjusts the learning rate per-parameter using first and second moment estimates."
-        104L -> "The Transformer was introduced in 'Attention Is All You Need' by Vaswani et al. (2017)."
-        105L -> "dₖ is the dimensionality of the key (and query) vectors. Dividing by √dₖ prevents dot products from growing large."
-        201L -> "Atkinson-Shiffrin identifies three stores: sensory memory, short-term memory (STM), and long-term memory (LTM)."
-        202L -> "The hippocampus is essential for encoding new declarative memories. Damage causes anterograde amnesia."
-        203L -> "The SM-2 algorithm clamps the easiness factor to a minimum of 1.3 to prevent intervals from collapsing."
-        204L -> "Anterograde amnesia is the inability to form new memories after the injury, as classically shown in patient H.M."
+        301L -> "The runtime resolves the call from the object's real type, not its declared type."
+        302L -> "Polymorphism removes long if/switch chains on a type tag by dispatching on type."
+        303L -> "Runtime polymorphism needs a shared interface or base type the caller programs against."
+        304L -> "Calling area() on each Shape runs that shape's own implementation — polymorphism."
+        305L -> "Strategy swaps interchangeable algorithms behind one interface, leaning entirely on polymorphism."
+        501L -> "Efficient comparison sorts like merge sort and heapsort run in O(n log n)."
+        502L -> "Big-O drops constants and lower-order terms, keeping only the dominant growth rate."
+        503L -> "A well-sized hash table gives average O(1) lookup thanks to direct bucket addressing."
+        504L -> "Quadratic time is O(n^2) — runtime grows with the square of the input size."
+        1001L -> "Two keys landing in the same bucket is a collision, resolved by chaining or probing."
+        1002L -> "Chaining stores a list (or chain) of entries per bucket so colliding keys coexist."
+        1003L -> "When most keys collide, lookups walk long chains and degrade from O(1) to O(n)."
+        1004L -> "The load factor is the ratio of stored entries to buckets — how full the table is."
         else -> "See your notes for a detailed explanation."
     }
 }

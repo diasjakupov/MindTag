@@ -16,5 +16,5 @@ object DevConfig {
      *
      * See [EnvironmentStore] and [AppEnvironment] for details.
      */
-    val DEFAULT_ENVIRONMENT: AppEnvironment = AppEnvironment.NETWORK
+    val DEFAULT_ENVIRONMENT: AppEnvironment = AppEnvironment.TEST
 }
