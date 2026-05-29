@@ -74,69 +74,81 @@ object SeedData {
             val nextReviewAt: Long,
         )
 
+        // Each card mirrors a specific Quiz Me question (question text, correct answer, and
+        // explanation are identical) so a learner sees the same wording across F5 and F6.
+        // The three "forced wrong" quiz questions (Q303, Q504, Q1003) are seeded as due cards so
+        // the F5 → F6 narrative reads as "the questions you got wrong are now in your review queue".
         val cards = listOf(
+            // card-1 ↔ Quiz 1 / Q301 (Polymorphism quiz) — the F6 script's wrong-answer card
             Card(
                 "card-1", "Object-Oriented Programming",
                 "What is dynamic dispatch?",
                 "Resolving the method to call from the object's actual type at run time",
                 "Choosing the method at compile time from the declared type",
-                "Dynamic dispatch picks the implementation from the runtime type, not the declared type.",
+                "Dynamic dispatch resolves the method to call from the object's actual runtime type, not its declared type.",
                 2.50, 1, 1, now - 1 * hour, // due (recently failed, resurfaces first)
             ),
+            // card-2 ↔ Quiz 1 / Q303 (Polymorphism — FORCED WRONG in quiz)
             Card(
                 "card-2", "Object-Oriented Programming",
-                "Define encapsulation",
-                "Bundling state with its methods and restricting direct outside access",
-                "Letting a subclass reuse a base class's fields",
-                "Encapsulation hides internal state behind a public method surface that enforces invariants.",
+                "Which is required for runtime polymorphism in most OO languages?",
+                "A shared interface or base type",
+                "A static method",
+                "Runtime polymorphism needs a shared interface or base type the caller programs against.",
                 2.36, 1, 1, now - 30 * minute, // due
             ),
+            // card-3 ↔ Quiz 2 / Q504 (Big-O — FORCED WRONG in quiz)
             Card(
                 "card-3", "Algorithms",
-                "What does Big-O ignore?",
-                "Constants and lower-order terms",
-                "The dominant growth term",
-                "Big-O keeps only the dominant growth rate, dropping constants and lower-order terms.",
+                "Quadratic time is written as —",
+                "O(n^2)",
+                "O(n)",
+                "Quadratic time is O(n^2) — runtime grows with the square of the input size.",
                 2.60, 6, 2, now - 2 * hour, // due
             ),
+            // card-4 ↔ Quiz 3 / Q1003 (Hash tables — FORCED WRONG in quiz)
             Card(
                 "card-4", "Data Structures",
-                "What is a collision?",
-                "Two keys hashing to the same bucket",
-                "A key with no matching bucket",
-                "A collision is when two distinct keys map to the same bucket; resolved by chaining or probing.",
+                "Hash-table performance degrades to O(n) when —",
+                "Most keys collide",
+                "The table is empty",
+                "When most keys collide, lookups walk long chains and degrade from O(1) to O(n).",
                 2.50, 1, 1, now - 10 * minute, // due
             ),
+            // card-5 ↔ Quiz 2 / Q501 (Big-O)
             Card(
                 "card-5", "Algorithms",
-                "BFS uses which structure?",
-                "A queue",
-                "A stack",
-                "Breadth-first search uses a queue to explore the graph level by level.",
+                "O(n log n) is the typical complexity of —",
+                "Efficient comparison sorts",
+                "Hash lookups",
+                "Efficient comparison sorts like merge sort and heapsort run in O(n log n).",
                 2.70, 15, 3, now + 3 * dayMs, // not due (future)
             ),
+            // card-6 ↔ Quiz 3 / Q1001 (Hash tables)
             Card(
                 "card-6", "Data Structures",
-                "BST search complexity?",
-                "O(log n) when balanced",
-                "O(1) always",
-                "A balanced binary search tree gives O(log n) search; it degrades to O(n) when unbalanced.",
+                "Two keys hashing to the same bucket is called a —",
+                "Collision",
+                "Rehash",
+                "Two keys landing in the same bucket is a collision, resolved by chaining or probing.",
                 2.66, 6, 2, now + 1 * dayMs, // not due
             ),
+            // card-7 ↔ Quiz 1 / Q305 (Polymorphism quiz — pattern question)
             Card(
                 "card-7", "Design Patterns",
-                "Strategy relies on?",
-                "Polymorphism",
-                "Global state",
-                "The Strategy pattern swaps interchangeable algorithms behind one interface via polymorphism.",
+                "Which design pattern leans most directly on polymorphism?",
+                "Strategy",
+                "Singleton",
+                "Strategy swaps interchangeable algorithms behind one interface, leaning entirely on polymorphism.",
                 2.50, 1, 1, now + 6 * dayMs, // not due
             ),
+            // card-8 ↔ Quiz 1 / Q304 (Polymorphism)
             Card(
                 "card-8", "Object-Oriented Programming",
-                "LSP stands for?",
-                "Liskov Substitution Principle",
-                "Least Significant Pattern",
-                "LSP: a subtype must be usable anywhere its base type is expected without surprising callers.",
+                "A List<Shape> calling area() on each element demonstrates —",
+                "Polymorphism",
+                "Encapsulation",
+                "Calling area() on each Shape runs that shape's own implementation — polymorphism.",
                 1.90, 1, 0, now - 5 * minute, // due (low ease — repeatedly hard)
             ),
         )

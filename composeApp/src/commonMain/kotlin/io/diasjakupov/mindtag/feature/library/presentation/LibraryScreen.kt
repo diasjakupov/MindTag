@@ -121,7 +121,7 @@ fun LibraryScreen(
         }
     }
 
-    if (state.isLoading) {
+    if (state.isInitialLoad) {
         LibraryShimmerSkeleton()
         return
     }

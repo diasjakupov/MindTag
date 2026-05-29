@@ -80,6 +80,7 @@ class LibraryViewModel(
                         subjects = buildSubjectFilters(subjects, selectedSubjectId),
                         graphNodes = graphNodes,
                         crossSubjectEdges = crossEdges,
+                        isInitialLoad = false,
                         isLoading = false,
                         hasMorePages = false,
                         currentPage = 0,
@@ -87,7 +88,7 @@ class LibraryViewModel(
                 }
             } catch (e: Exception) {
                 Logger.e(tag, "loadInitialData: error", e)
-                updateState { copy(isLoading = false) }
+                updateState { copy(isInitialLoad = false, isLoading = false) }
             }
         }
     }

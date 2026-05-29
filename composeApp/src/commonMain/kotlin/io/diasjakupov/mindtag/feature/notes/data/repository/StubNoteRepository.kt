@@ -249,10 +249,12 @@ class StubNoteRepository : NoteRepository {
 
     override suspend fun searchNotes(query: String, page: Int, size: Int): PaginatedNotes {
         delay(Random.nextLong(350, 550)) // ~450ms — fast literal search
-        val filtered = notes.filter {
-            it.title.contains(query, ignoreCase = true) ||
-                it.content.contains(query, ignoreCase = true)
-        }
+        // Match title first; only fall back to body text when no title hits. Keeps single-word
+        // keyword queries focused — e.g. "sort" returns just the Sorting note, not every other
+        // note that mentions sorting in passing.
+        val titleMatches = notes.filter { it.title.contains(query, ignoreCase = true) }
+        val filtered = if (titleMatches.isNotEmpty()) titleMatches
+        else notes.filter { it.content.contains(query, ignoreCase = true) }
         return PaginatedNotes(notes = filtered, page = 0, hasMore = false)
     }
 
@@ -273,11 +275,11 @@ class StubNoteRepository : NoteRepository {
             return curated.resultIds.mapNotNull { id -> notes.find { it.id == id } }
         }
 
-        // Fallback: existing substring filter.
-        return notes.filter {
-            it.title.contains(query, ignoreCase = true) ||
-                it.content.contains(query, ignoreCase = true)
-        }
+        // Fallback: title-first substring filter (same precedence as keyword search) so an
+        // uncurated AI query stays focused instead of dragging in every body-mention.
+        val titleMatches = notes.filter { it.title.contains(query, ignoreCase = true) }
+        return if (titleMatches.isNotEmpty()) titleMatches
+        else notes.filter { it.content.contains(query, ignoreCase = true) }
     }
 
     // ─── Write ───────────────────────────────────────────────────────────────

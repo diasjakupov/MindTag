@@ -14,6 +14,7 @@ object LibraryContract {
         // graph, so F4's "find a cross-subject connection" criterion is visible in the graph itself.
         val crossSubjectEdges: List<Pair<Long, Long>> = emptyList(),
         val selectedNodeId: Long? = null,
+        val isInitialLoad: Boolean = true,
         val isLoading: Boolean = true,
         val isLoadingMore: Boolean = false,
         val hasMorePages: Boolean = false,
