@@ -1,9 +1,11 @@
 package io.diasjakupov.mindtag.core.navigation
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.material.icons.outlined.LocalLibrary
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -32,6 +34,7 @@ private val tabs = listOf(
 fun MindTagBottomBar(
     currentRoute: Route?,
     onTabSelected: (Route) -> Unit,
+    onLogout: () -> Unit,
 ) {
     NavigationBar(
         containerColor = BarBackground,
@@ -60,6 +63,13 @@ fun MindTagBottomBar(
                     unselectedTextColor = InactiveColor,
                     indicatorColor = ActiveColor.copy(alpha = 0.12f),
                 ),
+            )
+        }
+        IconButton(onClick = onLogout) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Outlined.Logout,
+                contentDescription = "Logout",
+                tint = InactiveColor,
             )
         }
     }

@@ -100,7 +100,7 @@ fun BackendQuizResultsScreen(
 }
 
 @Composable
-private fun BackendQuizResultsContent(
+internal fun BackendQuizResultsContent(
     state: BackendQuizResultsState,
     onIntent: (BackendQuizResultsIntent) -> Unit,
     snackbarHostState: SnackbarHostState,

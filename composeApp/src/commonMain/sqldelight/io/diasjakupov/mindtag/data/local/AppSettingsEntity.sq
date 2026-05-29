@@ -8,3 +8,6 @@ SELECT value FROM AppSettingsEntity WHERE key = ?;
 
 upsert:
 INSERT OR REPLACE INTO AppSettingsEntity (key, value) VALUES (?, ?);
+
+deleteAll:
+DELETE FROM AppSettingsEntity;

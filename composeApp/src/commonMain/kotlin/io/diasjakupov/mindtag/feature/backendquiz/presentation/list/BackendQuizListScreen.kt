@@ -79,7 +79,7 @@ fun BackendQuizListScreen(
 }
 
 @Composable
-private fun BackendQuizListScreenContent(
+internal fun BackendQuizListScreenContent(
     state: BackendQuizListState,
     onIntent: (BackendQuizListIntent) -> Unit,
     snackbarHostState: SnackbarHostState,

@@ -174,6 +174,7 @@ fun NoteDetailScreenContent(
                 ) {
                     NoteDetailActionBar(state = state, onIntent = onIntent)
                     NoteDetailMetadata(state = state, note = note)
+                    NoteDetailSummary(summary = note.summary)
                     Text(
                         text = note.content,
                         style = MaterialTheme.typography.bodyLarge,
@@ -238,6 +239,7 @@ fun NoteDetailScreenContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Column(modifier = contentModifier.fillMaxWidth()) {
+                    NoteDetailSummary(summary = note.summary)
                     Text(
                         text = note.content,
                         style = MaterialTheme.typography.bodyLarge,
@@ -335,6 +337,39 @@ private fun NoteDetailActionBar(
                     variant = MindTagButtonVariant.Pill,
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun NoteDetailSummary(summary: String) {
+    if (summary.isBlank()) return
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MindTagSpacing.screenHorizontalPadding)
+            .padding(top = MindTagSpacing.lg),
+    ) {
+        Text(
+            text = "SUMMARY",
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+            color = MindTagColors.TextTertiary,
+        )
+        Spacer(modifier = Modifier.height(MindTagSpacing.sm))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(MindTagShapes.lg)
+                .background(MindTagColors.SurfaceDarkAlt2)
+                .border(1.dp, MindTagColors.NodeBorder, MindTagShapes.lg)
+                .padding(MindTagSpacing.lg),
+        ) {
+            Text(
+                text = summary,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MindTagColors.TextSlate300,
+                lineHeight = MaterialTheme.typography.bodyMedium.lineHeight,
+            )
         }
     }
 }

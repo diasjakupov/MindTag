@@ -1,14 +1,18 @@
 package io.diasjakupov.mindtag.core.navigation
 
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.material.icons.outlined.LocalLibrary
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.sp
 import io.diasjakupov.mindtag.core.designsystem.MindTagColors
@@ -28,6 +32,7 @@ private val tabs = listOf(
 fun MindTagNavigationRail(
     currentRoute: Route?,
     onTabSelected: (Route) -> Unit,
+    onLogout: () -> Unit,
 ) {
     NavigationRail(
         containerColor = MindTagColors.BottomNavBg,
@@ -56,6 +61,14 @@ fun MindTagNavigationRail(
                     unselectedTextColor = MindTagColors.TextSecondary,
                     indicatorColor = MindTagColors.Primary.copy(alpha = 0.12f),
                 ),
+            )
+        }
+        Spacer(Modifier.weight(1f))
+        IconButton(onClick = onLogout) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Outlined.Logout,
+                contentDescription = "Logout",
+                tint = MindTagColors.TextSecondary,
             )
         }
     }

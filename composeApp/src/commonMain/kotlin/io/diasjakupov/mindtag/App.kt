@@ -48,6 +48,7 @@ import io.diasjakupov.mindtag.feature.study.presentation.results.ResultsScreen
 import io.diasjakupov.mindtag.feature.backendquiz.presentation.list.BackendQuizListScreen
 import io.diasjakupov.mindtag.feature.backendquiz.presentation.attempt.BackendQuizAttemptScreen
 import io.diasjakupov.mindtag.feature.backendquiz.presentation.results.BackendQuizResultsScreen
+import io.diasjakupov.mindtag.data.local.MindTagDatabase
 import org.koin.compose.koinInject
 
 private val topLevelRoutes: Set<Route> = setOf(
@@ -149,6 +150,19 @@ private fun MainApp() {
     val nav = remember { TopLevelBackStack(Route.Library) }
     var libraryRefreshTrigger by remember { mutableStateOf(0) }
     val windowSizeClass = LocalWindowSizeClass.current
+    val authManager: AuthManager = koinInject()
+    val database: MindTagDatabase = koinInject()
+
+    val onLogout: () -> Unit = {
+        database.subjectEntityQueries.deleteAll()
+        database.noteEntityQueries.deleteAll()
+        database.semanticLinkEntityQueries.deleteAll()
+        database.flashCardEntityQueries.deleteAll()
+        database.studySessionEntityQueries.deleteAll()
+        database.quizAnswerEntityQueries.deleteAll()
+        database.appSettingsEntityQueries.deleteAll()
+        authManager.logout()
+    }
 
     val currentEntry = nav.backStack.lastOrNull()
     val showNav = currentEntry is Route && currentEntry in topLevelRoutes
@@ -261,6 +275,7 @@ private fun MainApp() {
                     MindTagBottomBar(
                         currentRoute = nav.topLevelKey,
                         onTabSelected = { nav.selectTab(it) },
+                        onLogout = onLogout,
                     )
                 }
             },
@@ -273,6 +288,7 @@ private fun MainApp() {
                 MindTagNavigationRail(
                     currentRoute = nav.topLevelKey,
                     onTabSelected = { nav.selectTab(it) },
+                    onLogout = onLogout,
                 )
             }
             Scaffold(modifier = Modifier.weight(1f)) { innerPadding ->

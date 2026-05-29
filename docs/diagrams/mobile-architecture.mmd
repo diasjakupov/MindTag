@@ -1,85 +1,53 @@
+%%{init: {
+  'theme':'base',
+  'themeVariables': {
+    'fontSize':'14px',
+    'fontFamily':'Helvetica, Arial, sans-serif',
+    'primaryColor':'#eef2ff',
+    'primaryBorderColor':'#475569',
+    'primaryTextColor':'#0f172a',
+    'lineColor':'#475569',
+    'clusterBkg':'#ffffff',
+    'clusterBorder':'#cbd5e1'
+  },
+  'flowchart': {
+    'htmlLabels': true,
+    'useMaxWidth': false,
+    'nodeSpacing': 35,
+    'rankSpacing': 45,
+    'padding': 20,
+    'curve':'basis'
+  }
+}}%%
 graph TB
-    subgraph Platforms["Platform Entry Points"]
-        Android["Android\nMainActivity"]
-        iOS["iOS\nMainViewController"]
-        Desktop["Desktop JVM\nmain()"]
-    end
+    classDef plat fill:#fde68a,stroke:#92400e,color:#1f2937;
+    classDef ui   fill:#dbeafe,stroke:#1e3a8a,color:#0f172a;
+    classDef vm   fill:#dcfce7,stroke:#166534,color:#0f172a;
+    classDef uc   fill:#fef3c7,stroke:#854d0e,color:#0f172a;
+    classDef repo fill:#fce7f3,stroke:#9d174d,color:#0f172a;
+    classDef data fill:#cffafe,stroke:#155e75,color:#0f172a;
+    classDef core fill:#ede9fe,stroke:#5b21b6,color:#0f172a;
 
-    subgraph CommonMain["Shared Code (commonMain)"]
-        subgraph UI["UI Layer (Compose)"]
-            App["App.kt\n(Navigation + Auth Gate)"]
-            LibScreen["LibraryScreen"]
-            NoteDetail["NoteDetailScreen"]
-            NoteCreate["NoteCreateScreen"]
-            StudyHub["StudyHubScreen"]
-            QuizScreen["QuizScreen"]
-            ResultsScreen["ResultsScreen"]
-            BQList["BackendQuizListScreen"]
-            BQAttempt["BackendQuizAttemptScreen"]
-            BQResults["BackendQuizResultsScreen"]
-            AuthScreen["AuthScreen"]
-            EnvBanner["EnvironmentBanner"]
-        end
+    PLAT["Platforms<br/>Android, iOS, Desktop JVM"]:::plat
+    UI["UI Layer — Compose Multiplatform<br/>10 screens, Navigation, Auth gate"]:::ui
+    VM["ViewModel Layer — MVI<br/>10 ViewModels, StateFlow + Intent"]:::vm
+    UC["Use Case Layer — Domain<br/>10 use cases (notes, quiz, auth, study)"]:::uc
+    REPO["Repository Layer<br/>Note, Study, Quiz, BackendQuiz, Auth"]:::repo
 
-        subgraph ViewModels["ViewModel Layer (MVI)"]
-            LibVM["LibraryViewModel"]
-            NoteDetailVM["NoteDetailViewModel"]
-            NoteCreateVM["NoteCreateViewModel"]
-            StudyVM["StudyHubViewModel"]
-            QuizVM["QuizViewModel"]
-            ResultsVM["ResultsViewModel"]
-            BQListVM["BackendQuizListViewModel"]
-            BQAttemptVM["BackendQuizAttemptViewModel"]
-            BQResultsVM["BackendQuizResultsViewModel"]
-            AuthVM["AuthViewModel"]
-        end
+    SQL["SQLite — SQLDelight<br/>7 tables"]:::data
+    KTOR["Ktor HttpClient<br/>Bearer JWT"]:::data
 
-        subgraph UseCases["Use Case Layer"]
-            GetNotes["GetNotesUseCase"]
-            GetNote["GetNoteWithConnectionsUseCase"]
-            CreateNote["CreateNoteUseCase"]
-            GetSubjects["GetSubjectsUseCase"]
-            StartQuiz["StartQuizUseCase"]
-            SubmitAnswer["SubmitAnswerUseCase"]
-            GetResults["GetResultsUseCase"]
-            SaveToStudy["SaveToStudyUseCase"]
-            Login["LoginUseCase"]
-            Register["RegisterUseCase"]
-        end
+    KOIN["Koin DI<br/>6 modules"]:::core
+    AUTH["AuthManager<br/>StateFlow&lt;AuthState&gt;"]:::core
+    ENV["EnvironmentStore<br/>TEST / NETWORK toggle"]:::core
+    DSY["Design System<br/>Colors, Icons, Shapes, Spacing"]:::core
 
-        subgraph Repositories["Repository Layer"]
-            NoteRepo["NoteRepository"]
-            StudyRepo["StudyRepository"]
-            QuizRepo["QuizRepository (local)"]
-            BQRepo["BackendQuizRepository"]
-            AuthRepo["AuthRepository"]
-        end
+    PLAT --> UI --> VM --> UC --> REPO
+    REPO --> SQL
+    REPO --> KTOR
+    KTOR --> AUTH
 
-        subgraph DataSources["Data Sources"]
-            SQLite["SQLite\n(7 tables via SQLDelight)"]
-            KtorClient["Ktor HttpClient\n(Bearer JWT)"]
-        end
+    KOIN -. provides .-> VM
+    ENV  -. stub/real .-> REPO
 
-        subgraph Core["Core Infrastructure"]
-            AuthMgr["AuthManager\n(StateFlow<AuthState>)"]
-            EnvStore["EnvironmentStore\n(TEST / NETWORK toggle)"]
-            Koin["Koin DI\n(6 modules)"]
-            DesignSys["Design System\n(Colors, Icons, Shapes, Spacing)"]
-        end
-    end
-
-    Platforms --> App
-    App --> EnvBanner
-    UI --> ViewModels
-    ViewModels --> UseCases
-    UseCases --> Repositories
-    NoteRepo --> SQLite
-    NoteRepo --> KtorClient
-    StudyRepo --> SQLite
-    QuizRepo --> SQLite
-    BQRepo --> KtorClient
-    AuthRepo --> KtorClient
-    KtorClient --> AuthMgr
-    EnvStore -->|"stub/real toggle"| Repositories
-    Koin -->|"provides"| ViewModels
-    Koin -->|"provides"| Repositories
+    linkStyle default stroke:#475569,stroke-width:1.4px;

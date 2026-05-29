@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>MindTag — Mobile Architecture</title>
+<style>
+  @page { size: A4 portrait; margin: 10mm; }
+  html, body { margin: 0; padding: 0; background: #fff; color: #0f172a;
+               font-family: Helvetica, Arial, sans-serif; }
+  .page { width: 190mm; margin: 0 auto; padding: 6mm 0; }
+  h1 { font-size: 14pt; margin: 0 0 2mm 0; letter-spacing: .02em; }
+  .sub { font-size: 9pt; color: #475569; margin-bottom: 4mm; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 8.5pt;
+            margin-bottom: 4mm; }
+  .legend span { display: inline-flex; align-items: center; gap: 4px; }
+  .swatch { display:inline-block; width: 10px; height: 10px; border-radius: 2px;
+            border: 1px solid #94a3b8; }
+
+  /* Mermaid container — use div (not pre) so we don't inherit monospace. */
+  .mermaid { width: 100%; font-family: Helvetica, Arial, sans-serif; }
+  .mermaid svg { width: 100% !important; height: auto !important; }
+  .mermaid, .mermaid * {
+    font-family: Helvetica, Arial, sans-serif !important;
+  }
+  .mermaid .nodeLabel,
+  .mermaid .label foreignObject div {
+    line-height: 1.35 !important;
+    white-space: nowrap !important;
+  }
+  .mermaid .label foreignObject { overflow: visible !important; }
+
+  @media print { .nav { display: none; } }
+  .nav { position: fixed; right: 8px; top: 8px; font-size: 9pt; color:#475569; }
+  .nav button { padding: 4px 8px; }
+</style>
+</head>
+<body>
+  <div class="nav">
+    <button onclick="window.print()">Print / Save PDF</button>
+  </div>
+  <div class="page">
+    <h1>MindTag — Mobile Architecture (KMP + Compose Multiplatform)</h1>
+    <div class="sub">High-level view. Each layer is a single block; flow runs top-to-bottom; cross-cuts are dotted.</div>
+    <div class="legend">
+      <span><i class="swatch" style="background:#fde68a"></i>Platform</span>
+      <span><i class="swatch" style="background:#dbeafe"></i>UI (Compose)</span>
+      <span><i class="swatch" style="background:#dcfce7"></i>ViewModel (MVI)</span>
+      <span><i class="swatch" style="background:#fef3c7"></i>Use Case</span>
+      <span><i class="swatch" style="background:#fce7f3"></i>Repository</span>
+      <span><i class="swatch" style="background:#cffafe"></i>Data Source</span>
+      <span><i class="swatch" style="background:#ede9fe"></i>Core Infra</span>
+    </div>
+    <div class="mermaid" id="diagram"></div>
+  </div>
+
+<script type="text/plain" id="mermaid-src">
+%%{init: {
+  'theme':'base',
+  'themeVariables': {
+    'fontSize':'14px',
+    'fontFamily':'Helvetica, Arial, sans-serif',
+    'primaryColor':'#eef2ff',
+    'primaryBorderColor':'#475569',
+    'primaryTextColor':'#0f172a',
+    'lineColor':'#475569',
+    'clusterBkg':'#ffffff',
+    'clusterBorder':'#cbd5e1'
+  },
+  'flowchart': {
+    'htmlLabels': true,
+    'useMaxWidth': false,
+    'nodeSpacing': 35,
+    'rankSpacing': 45,
+    'padding': 20,
+    'curve':'basis'
+  }
+}}%%
+graph TB
+    classDef plat fill:#fde68a,stroke:#92400e,color:#1f2937;
+    classDef ui   fill:#dbeafe,stroke:#1e3a8a,color:#0f172a;
+    classDef vm   fill:#dcfce7,stroke:#166534,color:#0f172a;
+    classDef uc   fill:#fef3c7,stroke:#854d0e,color:#0f172a;
+    classDef repo fill:#fce7f3,stroke:#9d174d,color:#0f172a;
+    classDef data fill:#cffafe,stroke:#155e75,color:#0f172a;
+    classDef core fill:#ede9fe,stroke:#5b21b6,color:#0f172a;
+
+    PLAT["Platforms<br/>Android, iOS, Desktop JVM"]:::plat
+    UI["UI Layer — Compose Multiplatform<br/>10 screens, Navigation, Auth gate"]:::ui
+    VM["ViewModel Layer — MVI<br/>10 ViewModels, StateFlow + Intent"]:::vm
+    UC["Use Case Layer — Domain<br/>10 use cases (notes, quiz, auth, study)"]:::uc
+    REPO["Repository Layer<br/>Note, Study, Quiz, BackendQuiz, Auth"]:::repo
+
+    SQL["SQLite — SQLDelight<br/>7 tables"]:::data
+    KTOR["Ktor HttpClient<br/>Bearer JWT"]:::data
+
+    KOIN["Koin DI<br/>6 modules"]:::core
+    AUTH["AuthManager<br/>StateFlow&lt;AuthState&gt;"]:::core
+    ENV["EnvironmentStore<br/>TEST / NETWORK toggle"]:::core
+    DSY["Design System<br/>Colors, Icons, Shapes, Spacing"]:::core
+
+    PLAT --> UI --> VM --> UC --> REPO
+    REPO --> SQL
+    REPO --> KTOR
+    KTOR --> AUTH
+
+    KOIN -. provides .-> VM
+    ENV  -. stub/real .-> REPO
+
+    linkStyle default stroke:#475569,stroke-width:1.4px;
+</script>
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+  const src = document.getElementById("mermaid-src").textContent;
+  const target = document.getElementById("diagram");
+  target.textContent = src;
+  mermaid.initialize({ startOnLoad: false, securityLevel: "loose" });
+  await mermaid.run({ nodes: [target] });
+</script>
+</body>
+</html>
